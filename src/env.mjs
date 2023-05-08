@@ -44,12 +44,14 @@ const _env = createEnv({
     },
 });
 
-_env.isDevelopment = function() {
-    return this.APP_ENV === 'dev';
-};
-
-_env.isProduction = function() {
-    return this.APP_ENV === 'prod';
+const env = {
+    ..._env,
+    isDevelopment: function() {
+        return this.APP_ENV === 'dev';
+    },
+    isProduction: function() {
+        return this.APP_ENV === 'prod';
+    },
 }
 
-export default _env;
+export default env;
