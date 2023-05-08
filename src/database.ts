@@ -1,7 +1,7 @@
 import { type ColumnDefinitionBuilderCallback, type Generated, Kysely, MysqlDialect } from 'kysely';
 import type { DataTypeExpression } from 'kysely/dist/esm/parser/data-type-parser';
 import { createPool } from 'mysql2';
-import env from '@/env.mjs';
+import env from './env.mjs';
 
 interface InstrumentGroup {
     id: Generated<number>;
