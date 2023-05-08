@@ -1,25 +1,36 @@
 {
-  "name": "band-manager",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@types/node": "20.1.0",
-    "@types/react": "18.2.6",
-    "@types/react-dom": "18.2.4",
-    "autoprefixer": "10.4.14",
-    "eslint": "8.40.0",
-    "eslint-config-next": "13.4.1",
-    "next": "13.4.1",
-    "postcss": "8.4.23",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "tailwindcss": "3.3.2",
-    "typescript": "5.0.4"
-  }
+    "name": "band-manager",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint && prettier --write ./src",
+        "migrate": "node --no-warnings --loader ts-node/esm src/script/migrate.ts"
+    },
+    "dependencies": {
+        "@t3-oss/env-nextjs": "^0.3.1",
+        "@types/node": "20.1.0",
+        "@types/react": "18.2.6",
+        "@types/react-dom": "18.2.4",
+        "autoprefixer": "10.4.14",
+        "dotenv": "^16.0.3",
+        "eslint": "8.40.0",
+        "eslint-config-next": "13.4.1",
+        "kysely": "^0.24.2",
+        "mysql2": "^3.3.0",
+        "next": "13.4.1",
+        "postcss": "8.4.23",
+        "prettier": "^2.8.8",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "tailwindcss": "3.3.2",
+        "typescript": "5.0.4",
+        "zod": "^3.21.4"
+    },
+    "devDependencies": {
+        "ts-node": "^10.9.1"
+    }
 }
