@@ -23,6 +23,7 @@ export const pool = createPool({
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWD,
     user: process.env.DB_USER,
+    ssl: { rejectUnauthorized: true, },
 });
 export const dialect = new MysqlDialect({ pool });
 
