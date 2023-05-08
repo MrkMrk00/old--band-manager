@@ -5,10 +5,11 @@
     "type": "module",
     "scripts": {
         "dev": "next dev",
+        "debug": "NODE_OPTIONS='--inspect-brk' next dev",
         "build": "next build",
         "start": "next start",
         "lint": "next lint && prettier --write ./src",
-        "migrate": "node --no-warnings --loader ts-node/esm src/script/migrate.ts"
+        "migrate": "node --no-warnings --loader ts-node/esm script/migrate.ts"
     },
     "dependencies": {
         "@t3-oss/env-nextjs": "^0.3.1",

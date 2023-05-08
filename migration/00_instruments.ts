@@ -1,5 +1,3 @@
-// @ts-ignore
-import { PrimaryKeyDef } from '../database.ts';
 import { Kysely } from 'kysely';
 
 /*
@@ -17,15 +15,15 @@ interface Instrument {
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable('instrument_group')
-        .addColumn(PrimaryKeyDef.name, PrimaryKeyDef.type, PrimaryKeyDef.col)
+        .addColumn('id', 'integer', col => col.unsigned().autoIncrement().primaryKey())
         .addColumn('name', 'varchar(255)', col => col.notNull())
         .execute();
 
     await db.schema.createTable('instrument')
-        .addColumn(PrimaryKeyDef.name, PrimaryKeyDef.type, PrimaryKeyDef.col)
+        .addColumn('id', 'integer', col => col.unsigned().autoIncrement().primaryKey())
         .addColumn('name', 'varchar(255)', col => col.notNull())
-        .addColumn('id_instrument_group', PrimaryKeyDef.type, col =>
-            col.references('instrument_group.id').onDelete('no action').onUpdate('cascade'))
+        .addColumn('id_instrument_group', 'integer', col =>
+            col.notNull().references('instrument_group.id').onDelete('no action').onUpdate('cascade'))
         .execute();
 }
 

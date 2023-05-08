@@ -1,23 +1,34 @@
-import '../env.mjs';
+// @ts-ignore
+import loadEnv from './loadEnv.ts';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { FileMigrationProvider, type Kysely, type MigrationResultSet, Migrator } from 'kysely';
+import {
+    FileMigrationProvider,
+    type Kysely,
+    type MigrationResultSet,
+    Migrator,
+    NO_MIGRATIONS,
+    NoMigrations,
+} from 'kysely';
 
 function printHelp(): void {
     console.log('=============================================');
     console.log('Migrations usage:');
-    console.log('    (p)npm migrate {latest|down}');
-    console.log('OR: (p)npm migrate to *MIGRATION NAME*');
+    console.log('    (p)npm migrate {latest}    Migrates to current version.');
+    console.log('    (p)npm migrate down        Goes back one migration.');
+    console.log('    (p)npm migrate to_none     Calls down on all migrations - deletes everything.');
+    console.log('    (p)npm migrate force       Deletes everything and migrates to latest.');
+    console.log('    (p)npm migrate to *MIGRATION NAME*');
     console.log('=============================================');
 }
 
 async function getDb() {
     // @ts-ignore
-    return (await import('../database.ts')).default;
+    return (await import('../src/database.ts')).default;
 }
 
 async function getMigrator(db: Kysely<any>): Promise<Migrator> {
-    const migrationFolder = path.resolve(process.cwd(), 'src/migration');
+    const migrationFolder = path.resolve(process.cwd(), 'migration');
 
     return new Migrator({
         db,
@@ -48,7 +59,6 @@ async function migrateToLatest(db: Kysely<any>): Promise<void> {
 
     const migrator = await getMigrator(db);
     printResults(await migrator.migrateToLatest());
-    await db.destroy();
 }
 
 async function migrateDown(db: Kysely<any>): Promise<void> {
@@ -56,37 +66,52 @@ async function migrateDown(db: Kysely<any>): Promise<void> {
 
     const migrator = await getMigrator(db);
     printResults(await migrator.migrateDown());
-    await db.destroy();
 }
 
-async function migrateTo(db: Kysely<any>, migrationName: string): Promise<void> {
+async function migrateTo(db: Kysely<any>, migrationName: string | NoMigrations): Promise<void> {
     console.log(`Migrating down to ${migrationName}.`);
 
     const migrator = await getMigrator(db);
     printResults(await migrator.migrateTo(migrationName));
-    await db.destroy();
 }
 
 void (async function () {
+    await loadEnv();
+    const db = await getDb();
+
     switch (process.argv[2] ?? 'latest') {
         case 'latest':
-            await migrateToLatest(await getDb());
+            await migrateToLatest(db);
             break;
 
         case 'down':
-            await migrateDown(await getDb());
+            await migrateDown(db);
             break;
 
         case 'to':
             if (typeof process.argv[3] === 'undefined') {
                 console.error('You have to supply the name of the migration to migrate to!');
+                await db.destroy();
                 process.exit(1);
             }
-            await migrateTo(await getDb(), process.argv[3]);
+            await migrateTo(db, process.argv[3]);
             break;
+
+        case 'to_none':
+            await migrateTo(db, NO_MIGRATIONS);
+            break;
+
+        case 'force':
+            await migrateTo(db, NO_MIGRATIONS);
+            await migrateToLatest(db);
+            break;
+
         default:
             console.error('Unknown option!');
             printHelp();
+            await db.destroy();
             process.exit(1);
     }
+
+    await db.destroy();
 })();
