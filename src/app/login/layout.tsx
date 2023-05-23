@@ -1,5 +1,3 @@
-import './login.css';
-
 export const metadata = {
     title: 'Login',
     description: 'Login page',

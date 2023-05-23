@@ -20,11 +20,11 @@ function openFacebookDialog(onClose: (ev: Event) => void) {
     }
 }
 
-type _Props = {
+type Props = {
     children?: ReactNode;
 };
 
-export default function FacebookLoginButton(props: _Props) {
+export default function FacebookLoginButton(props: Props) {
     const router = useRouter();
 
     function handleRedirect() {
@@ -34,12 +34,15 @@ export default function FacebookLoginButton(props: _Props) {
     }
 
     return (
-        <button className="external-login-btn" onClick={() => openFacebookDialog(handleRedirect)}>
+        <button
+            className="rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:shadow-[#1774f2] transition-all ease-in-out duration-300 px-5 py-3"
+            onClick={() => openFacebookDialog(handleRedirect)}
+        >
             <div className="flex gap-2">
                 <Image src={fbLogo} alt="Facebook logo" height={36} />
                 <span className="inline-flex items-center">Přihlásit se přes Facebook</span>
             </div>
-            { props.children }
+            {props.children}
         </button>
     );
 }

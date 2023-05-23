@@ -1,4 +1,5 @@
 import env from './env.mjs';
+import { ConnectionString } from 'connection-string';
 import { type Generated, Kysely, MysqlDialect } from 'kysely';
 import { createPool } from 'mysql2';
 
@@ -18,11 +19,17 @@ export interface Database {
     instrument_group: InstrumentGroup;
 }
 
+const connection = new ConnectionString(env.DB_CONN);
+if (!connection.path || connection.path.length !== 1) {
+    throw Error(`${__filename}: No database name supplied!`);
+}
+
 const pool = createPool({
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWD,
-    user: process.env.DB_USER,
+    host: connection.hostname,
+    port: connection.port ?? 3306,
+    user: connection.user,
+    password: connection.password,
+    database: connection.path[0],
     ssl: { rejectUnauthorized: env.NODE_ENV === 'production', },
 });
 
