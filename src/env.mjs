@@ -1,4 +1,4 @@
-import { createEnv } from "@t3-oss/env-nextjs";
+import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
 
 const _env = createEnv({
@@ -8,6 +8,7 @@ const _env = createEnv({
         DOMAIN: z.string().url().endsWith('/'),
         FB_APP_ID: z.string().regex(/\d+/),
         FB_APP_SECRET: z.string(),
+        APP_SECRET: z.string(),
     },
     client: {
         NEXT_PUBLIC_FB_APP_ID: z.string().regex(/\d+/),
@@ -19,6 +20,7 @@ const _env = createEnv({
         DOMAIN: process.env.NEXT_PUBLIC_DOMAIN,
         FB_APP_ID: process.env.NEXT_PUBLIC_FB_APP_ID,
         FB_APP_SECRET: process.env.FB_APP_SECRET,
+        APP_SECRET: process.env.APP_SECRET,
 
         NEXT_PUBLIC_FB_APP_ID: process.env.NEXT_PUBLIC_FB_APP_ID,
         NEXT_PUBLIC_DOMAIN: process.env.NEXT_PUBLIC_DOMAIN,

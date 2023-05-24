@@ -1,6 +1,21 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes } from 'react';
 
-type _TailwindPermittedColor = 'rose' | 'pink' | 'fuchsia' | 'purple' | 'blue' | 'sky' | 'cyan' | 'teal' | 'green' | 'lime' | 'yellow' | 'orange' | 'red' | 'gray' | 'slate';
+type _TailwindPermittedColor =
+    | 'rose'
+    | 'pink'
+    | 'fuchsia'
+    | 'purple'
+    | 'blue'
+    | 'sky'
+    | 'cyan'
+    | 'teal'
+    | 'green'
+    | 'lime'
+    | 'yellow'
+    | 'orange'
+    | 'red'
+    | 'gray'
+    | 'slate';
 type _TailwindPermittedShade = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 
 type ColorSchemeTuple = [_TailwindPermittedColor, _TailwindPermittedShade];
@@ -21,7 +36,7 @@ class ColorStyle {
         this.#colorStyle = colorStyle;
         this.defaultScheme = defaultScheme;
     }
-    
+
     getSchemeTuple(): ColorSchemeTuple {
         if (typeof this.#colorStyle === 'undefined') {
             return this.defaultScheme;
@@ -53,13 +68,14 @@ class ColorStyle {
     }
 }
 
-type ColorStylePropType = `${_TailwindPermittedColor}-${_TailwindPermittedShade}`
+type ColorStylePropType =
+    | `${_TailwindPermittedColor}-${_TailwindPermittedShade}`
     | keyof typeof specialColors
     | 'none'
     | undefined;
 
 type WithColorStyle<T> = T & {
-    colorStyle?: ColorStylePropType,
+    colorStyle?: ColorStylePropType;
 };
 
 function parseBackgroundClasses(colorStyle: ColorStylePropType) {
@@ -73,12 +89,12 @@ function parseBackgroundClasses(colorStyle: ColorStylePropType) {
 type ButtonProps = WithColorStyle<ButtonHTMLAttributes<HTMLButtonElement>>;
 
 export function Button(props: ButtonProps) {
-    const { children, className, colorStyle, ...other} = props;
+    const { children, className, colorStyle, ...other } = props;
     const bgClasses = parseBackgroundClasses(colorStyle);
 
     return (
-        <button className={`${bgClasses} rounded-lg p-2 transition-all ${className}`} {...other}>
-            { children }
+        <button className={`${bgClasses} rounded-lg p-2 transition-all ${className}${colorStyle === 'success' ? ' text-white' : ''}`} {...other}>
+            {children}
         </button>
     );
 }
@@ -86,12 +102,17 @@ export function Button(props: ButtonProps) {
 type InputProps = WithColorStyle<InputHTMLAttributes<HTMLInputElement>>;
 
 export function Input(props: InputProps) {
-    const { children, className, colorStyle, ...other} = props;
+    const { children, className, colorStyle, ...other } = props;
     let classes = '';
     if (colorStyle !== 'none') {
         const colors = new ColorStyle(colorStyle).getSchemeTuple();
         classes += `focus:border-${colors[0]}-${colors[1]}`;
     }
 
-    return <input className={`${classes} bg-white border rounded-lg p-2 focus:outline-none transition-colors ${className}`} {...other} />;
+    return (
+        <input
+            className={`${classes} bg-white border rounded-lg p-2 focus:outline-none transition-colors ${className}`}
+            {...other}
+        />
+    );
 }

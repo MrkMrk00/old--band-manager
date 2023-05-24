@@ -14,7 +14,11 @@ function openFacebookDialog(onClose: (ev: Event) => void) {
     const redirectUrl = `${location.protocol}//${location.host}/login/fb-success`;
     const url = authDialogUrl(appKey, redirectUrl);
 
-    const newWindow = window.open(url, '_blank', 'fullscreen=no,menubar=no,status=no,width=600,height=800')
+    const newWindow = window.open(
+        url,
+        '_blank',
+        'fullscreen=no,menubar=no,status=no,width=600,height=800',
+    );
     if (newWindow) {
         newWindow.addEventListener('beforeunload', onClose);
     }

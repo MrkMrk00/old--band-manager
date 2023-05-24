@@ -2,6 +2,7 @@ import env from './env.mjs';
 import { ConnectionString } from 'connection-string';
 import { type Generated, Kysely, MysqlDialect } from 'kysely';
 import { createPool } from 'mysql2';
+import type { User } from '@/entity/user';
 
 interface InstrumentGroup {
     id: Generated<number>;
@@ -17,6 +18,7 @@ interface Instrument {
 export interface Database {
     instrument: Instrument;
     instrument_group: InstrumentGroup;
+    users: User;
 }
 
 const connection = new ConnectionString(env.DB_CONN);
@@ -30,11 +32,12 @@ const pool = createPool({
     user: connection.user,
     password: connection.password,
     database: connection.path[0],
-    ssl: { rejectUnauthorized: env.NODE_ENV === 'production', },
+    ssl: { rejectUnauthorized: env.NODE_ENV === 'production' },
 });
 
-const dialect = new MysqlDialect({ pool });
-
-const db = new Kysely<Database>({ dialect });
+const db = new Kysely<Database>({
+    dialect: new MysqlDialect({ pool }),
+    log: env.NODE_ENV === 'production' ? ['error'] : ['query', 'error'],
+});
 
 export default db;

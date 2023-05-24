@@ -1,4 +1,4 @@
-import { FacebookLoginButton } from '@/lib/facebook';
+import { FacebookLoginButton } from '@/lib/auth/facebook';
 
 export default function LoginPage() {
     return (
@@ -9,4 +9,4 @@ export default function LoginPage() {
             </div>
         </main>
     );
-};
+}
