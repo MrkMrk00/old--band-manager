@@ -1,4 +1,5 @@
-import { FacebookLoginButton } from '@/lib/auth/facebook';
+import FacebookLoginButton from '@/components/FacebookLoginButton';
+import { Button } from '@/components/layout';
 
 export default function LoginPage() {
     return (
@@ -6,6 +7,7 @@ export default function LoginPage() {
             <div className="flex flex-col gap-4">
                 <h3 className="text-2xl font-bold">Přihlásit se</h3>
                 <FacebookLoginButton />
+                <Button>Tvoje mama</Button>
             </div>
         </main>
     );

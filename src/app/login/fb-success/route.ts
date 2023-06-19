@@ -1,9 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { getAccessToken, getUserInfo, type FacebookUserDetailsResponse } from '@/lib/auth/facebook';
-import db from '@/database';
+import { getAccessToken, getUserInfo, handleFacebookAuth } from '@/lib/auth/facebook';
 import { COOKIE_SETTINGS, signJWT } from '@/lib/auth/jwt';
-import { sql } from 'kysely';
 
 function html(html: string, opts: ResponseInit = {}) {
     return new Response(html, {
@@ -12,37 +10,6 @@ function html(html: string, opts: ResponseInit = {}) {
         },
         ...opts,
     });
-}
-
-async function handleAuth(fbUser: FacebookUserDetailsResponse): Promise<{ id: number; display_name: string; } | Error> {
-    let existing = await db
-        .selectFrom('users')
-        .select(['id', 'display_name'])
-        .where('users.auth_type', '=', 'facebook')
-        .where('users.auth_secret', '=', fbUser.id)
-        .executeTakeFirst();
-
-    if (typeof existing === 'undefined') {
-        const res = await db.insertInto('users')
-            .values({
-                display_name: fbUser.name,
-                auth_type: 'facebook',
-                auth_secret: fbUser.id,
-                roles: sql`'["USER"]'`,
-            })
-            .executeTakeFirst();
-
-        if (typeof res.insertId === 'undefined') {
-            return Error(`Failed to register user ${fbUser.name} with id ${fbUser.id}!`);
-        }
-
-        existing = {
-            id: Number(res.insertId),
-            display_name: fbUser.name,
-        };
-    }
-
-    return existing;
 }
 
 export async function GET(req: NextRequest) {
@@ -75,15 +42,17 @@ export async function GET(req: NextRequest) {
         );
     }
 
-    const user = await handleAuth(userData);
-    if (user instanceof Error) {
-        return html(`<pre>Registration failed: ${JSON.stringify(user.message, null, 4)}</pre>`);
+    const persistentUser = await handleFacebookAuth(userData);
+    if (persistentUser instanceof Error) {
+        return html(
+            `<pre>Registration failed: ${JSON.stringify(persistentUser.message, null, 4)}</pre>`,
+        );
     }
 
     // @ts-ignore
     cookies().set({
         ...COOKIE_SETTINGS,
-        value: await signJWT(user),
+        value: await signJWT(persistentUser),
     });
 
     // happy path -> frontend listens to close event

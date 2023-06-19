@@ -1,15 +1,15 @@
 import { Roboto_Flex } from 'next/font/google';
-import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import { useUser$ } from '@/lib/hooks';
 
 const font = Roboto_Flex({ subsets: ['latin-ext'] });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+    const user = await useUser$(false);
+
     return (
         <body className={font.className}>
-            <nav className="flex flex-row h-12 px-2 gap-1 text-center items-center">
-                <Link className="underline p-1" href="/dashboard/">Domů</Link>
-                <Link className="underline p-1" href="/dashboard/me">Profil</Link>
-            </nav>
+            <Navbar user={user} />
             {children}
         </body>
     );

@@ -2,7 +2,7 @@ import env from './env.mjs';
 import { ConnectionString } from 'connection-string';
 import { type Generated, Kysely, MysqlDialect } from 'kysely';
 import { createPool } from 'mysql2';
-import type { User } from '@/entity/user';
+import type { UserDatabase } from '@/model/user';
 
 interface InstrumentGroup {
     id: Generated<number>;
@@ -18,7 +18,7 @@ interface Instrument {
 export interface Database {
     instrument: Instrument;
     instrument_group: InstrumentGroup;
-    users: User;
+    users: UserDatabase;
 }
 
 const connection = new ConnectionString(env.DB_CONN);
