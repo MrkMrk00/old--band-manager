@@ -19,7 +19,7 @@ const pool = createPool({
     user: connection.user,
     password: connection.password,
     database: connection.path[0],
-    ssl: { rejectUnauthorized: false /* env.NODE_ENV === 'production' */ },
+    ssl: { rejectUnauthorized: env.NODE_ENV === 'production' },
 });
 
 const db = new Kysely<Database>({
