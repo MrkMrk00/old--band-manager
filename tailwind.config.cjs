@@ -6,12 +6,6 @@ module.exports = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './src/lib/**/*.{jsx,tsx,mdx}',
   ],
-  safelist: [
-    {
-      pattern: /(bg|border)-(rose|pink|fuchsia|purple|blue|sky|cyan|teal|green|lime|yellow|orange|red|gray|slate)-(100|200|300|400|500|600|700|800)/,
-      variants: ['hover', 'focus'],
-    },
-  ],
   theme: {
     extend: {
       backgroundImage: {
