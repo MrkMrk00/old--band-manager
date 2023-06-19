@@ -24,7 +24,7 @@ export async function useSession(): Promise<AppSession | null> {
     return session as AppSession;
 }
 
-export async function useUser() {
+export async function useUser(): Promise<User | null> {
     const session = await useSession();
     if (!session) { return null; }
 

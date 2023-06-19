@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import Image from 'next/image';
 import fbLogo from '@/assets/fb_logo_250.png';
 import { redirect } from 'next/navigation';
+import { twMerge } from 'tailwind-merge';
 
 export const metadata = {
     title: 'Můj profil',
@@ -11,7 +12,7 @@ export const metadata = {
 
 function SectionRow(props: { children?: ReactNode; className?: string }) {
     return (
-        <div className={`flex flex-row gap-3 items-center px-5 ${props.className}`}>
+        <div className={twMerge('flex flex-row gap-3 items-center px-5', props.className)}>
             {props.children}
         </div>
     );

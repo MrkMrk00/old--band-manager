@@ -1,6 +1,5 @@
 import { type JWTPayload, type JWTVerifyResult, SignJWT, jwtVerify, decodeJwt } from 'jose';
 import env from '@/env.mjs';
-import { JWSInvalid } from 'jose/dist/types/util/errors';
 
 const alg = 'HS384';
 const secret = new TextEncoder().encode(env.APP_SECRET);
