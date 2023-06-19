@@ -1,3 +1,5 @@
+import useSWR from 'swr';
+
 type FetcherInit = RequestInit & {
     retries?: number;
 };

@@ -28,7 +28,9 @@ export function RippleAnimation() {
     const ref = useRef<HTMLSpanElement>(null);
 
     useEffect(() => {
-        if (!ref.current?.parentElement) { return; }
+        if (!ref.current?.parentElement) {
+            return;
+        }
         const parent = ref.current.parentElement;
 
         // @ts-ignore
@@ -40,5 +42,5 @@ export function RippleAnimation() {
         ref.current.remove();
     });
 
-    return <span ref={ref} />
+    return <span ref={ref} />;
 }

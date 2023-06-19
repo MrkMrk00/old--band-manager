@@ -24,6 +24,6 @@ export type User = PersistentUser & {
     created_at: number;
     updated_at: number;
 } & (
-    | { email: string; password: string; fb_id: null }
-    | { fb_id: number; email: null; password: null }
-);
+        | { email: string; password: string; fb_id: null }
+        | { fb_id: number; email: null; password: null }
+    );

@@ -7,14 +7,17 @@ import { RippleAnimation } from '@/view/layout';
 
 type NavbarProps = {
     user: PersistentUser | null;
-}
+};
 
-function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; }) {
+function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
     const { className, children, ...other } = props;
 
     return (
-        <Link className={twMerge('py-4 px-2 flex flex-row gap-1 with-ripple-anim', className)} { ...other }>
-            { children }
+        <Link
+            className={twMerge('py-4 px-2 flex flex-row gap-1 with-ripple-anim', className)}
+            {...other}
+        >
+            {children}
             <RippleAnimation />
         </Link>
     );
@@ -31,7 +34,7 @@ export default function Navbar({ user }: NavbarProps) {
 
                     <div className="flex flex-row gap-2 px-2 items-center h-100">
                         <NavLink href="/">
-                            <HouseIcon height="1.2em"/> Domů
+                            <HouseIcon height="1.2em" /> Domů
                         </NavLink>
                     </div>
                 </div>
