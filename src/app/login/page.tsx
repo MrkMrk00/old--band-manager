@@ -1,5 +1,5 @@
-import FacebookLoginButton from '@/components/FacebookLoginButton';
-import { Button } from '@/components/layout';
+import { FacebookLoginButton } from '@/view/components';
+import { Button } from '@/view/layout';
 
 export default function LoginPage() {
     return (

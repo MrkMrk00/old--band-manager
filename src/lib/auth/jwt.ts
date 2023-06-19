@@ -1,5 +1,6 @@
 import { type JWTPayload, type JWTVerifyResult, SignJWT, jwtVerify, decodeJwt } from 'jose';
 import env from '@/env.mjs';
+import { JWSInvalid } from 'jose/dist/types/util/errors';
 
 const alg = 'HS384';
 const secret = new TextEncoder().encode(env.APP_SECRET);
@@ -21,10 +22,14 @@ export function signJWT(payload: JWTPayload): Promise<string> {
         .sign(secret);
 }
 
-export function verifyJWT(token: string): Promise<JWTVerifyResult> {
-    return jwtVerify(token, secret, {
-        issuer: env.DOMAIN,
-    });
+export async function verifyJWT(token: string): Promise<JWTVerifyResult | null> {
+    try {
+        return await jwtVerify(token, secret, {
+            issuer: env.DOMAIN,
+        });
+    } catch (ignore: unknown) {}
+
+    return null;
 }
 
 export function decodeJWT(token: string): JWTPayload {

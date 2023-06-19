@@ -1,5 +1,5 @@
-import { useUser$ } from '@/lib/hooks';
-import { Button, Input } from '@/components/layout';
+import { useUser } from '@/lib/hooks';
+import { Button, Input } from '@/view/layout';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import fbLogo from '@/assets/fb_logo_250.png';
@@ -18,7 +18,7 @@ function SectionRow(props: { children?: ReactNode; className?: string }) {
 }
 
 export default async function Me() {
-    const user = await useUser$(true);
+    const user = await useUser();
 
     if (!user) {
         redirect('/login');

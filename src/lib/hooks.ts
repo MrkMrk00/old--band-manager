@@ -1,37 +1,39 @@
-import { cookies, headers } from 'next/headers';
+import { cookies } from 'next/headers';
 import { COOKIE_SETTINGS, decodeJWT, verifyJWT } from '@/lib/auth/jwt';
 import type { User } from '@/model/user';
 import db from '@/database';
 
-type PersistentUser = {
+type AppSession = {
     id: number;
     display_name: string;
 };
 
-type TUseUserRet<T extends boolean> = T extends true ? User | null : PersistentUser | null;
+async function verifyToken(jwtToken: string | undefined): Promise<boolean> {
+    return !!jwtToken && !!await verifyJWT(jwtToken);
+}
 
-export async function useUser$<T extends boolean>(
-    fetchFullUser: T = <T>false,
-): Promise<TUseUserRet<T>> {
+export async function useSession(): Promise<AppSession | null> {
     const token = cookies().get(COOKIE_SETTINGS.name);
-    if (typeof token === 'undefined' || !(await verifyJWT(token.value))) {
-        return <TUseUserRet<T>>null;
-    }
+    const correct = await verifyToken(token?.value);
 
-    const persistentUser = decodeJWT(token.value) as PersistentUser;
-    if (!fetchFullUser) {
-        return <TUseUserRet<T>>persistentUser;
-    }
+    if (!correct) { return null; }
+    const session = decodeJWT(token!.value);
+
+    if (!('id' in session) || !('display_name' in session)) { return null; }
+
+    return session as AppSession;
+}
+
+export async function useUser() {
+    const session = await useSession();
+    if (!session) { return null; }
 
     const result = await db
         .selectFrom('users')
         .selectAll()
-        .where('users.id', '=', persistentUser.id)
+        .where('users.id', '=', session.id)
         .executeTakeFirst();
 
-    if (typeof result === 'undefined') {
-        return <TUseUserRet<T>>null;
-    }
-
-    return <TUseUserRet<T>>(result as unknown);
+    if (typeof result === 'undefined') { return null; }
+    return <User>(result as unknown);
 }
