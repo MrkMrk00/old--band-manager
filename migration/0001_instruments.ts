@@ -20,9 +20,7 @@ export async function up(db: Kysely<any>) {
     const groupingsInstrumentsRelation = db.schema.createTable('instruments_instrument_groupings')
         .addColumn('id_instrument', 'integer', col => col.unsigned().notNull())
         .addColumn('id_instrument_grouping', 'integer', col => col.unsigned().notNull())
-        .addPrimaryKeyConstraint('pk_relation', ['id_instrument', 'id_instrument_grouping'])
-        .addForeignKeyConstraint('fk_instrument', ['id_instrument'], 'instruments', ['id'])
-        .addForeignKeyConstraint('fk_instrument_grouping', ['id_instrument_grouping'], 'instrument_groupings', ['id']);
+        .addPrimaryKeyConstraint('pk_relation', ['id_instrument', 'id_instrument_grouping']);
 
     await instruments.execute();
     await groupings.execute();
