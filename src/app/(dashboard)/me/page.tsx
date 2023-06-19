@@ -1,10 +1,10 @@
-import { useUser } from '@/lib/hooks';
 import { Button, Input } from '@/view/layout';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import fbLogo from '@/assets/fb_logo_250.png';
 import { redirect } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
+import { useUser } from '@/lib/hooks';
 
 export const metadata = {
     title: 'Můj profil',

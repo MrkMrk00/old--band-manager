@@ -1,6 +1,6 @@
 //@ts-ignore
 import { timestamps } from '../script/migrationUtil.ts';
-import { Kysely } from 'kysely';
+import type { Kysely } from 'kysely';
 
 export async function up(db: Kysely<any>): Promise<void> {
     const builder = db.schema.createTable('users')

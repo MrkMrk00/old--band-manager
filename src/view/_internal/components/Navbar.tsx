@@ -30,14 +30,14 @@ export default function Navbar({ user }: NavbarProps) {
                     </div>
 
                     <div className="flex flex-row gap-2 px-2 items-center h-100">
-                        <NavLink href="/dashboard">
+                        <NavLink href="/">
                             <HouseIcon height="1.2em"/> Domů
                         </NavLink>
                     </div>
                 </div>
                 {user && (
                     <div className="flex flex-col justify-center px-4">
-                        <NavLink href="/dashboard/me" className="items-center">
+                        <NavLink href="/me" className="items-center">
                             <UserCircleIcon />
                             <span>{user.display_name}</span>
                         </NavLink>

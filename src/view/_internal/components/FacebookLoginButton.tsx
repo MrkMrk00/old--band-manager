@@ -34,7 +34,7 @@ export default function FacebookLoginButton(props: Props) {
     function handleRedirect() {
         const url = new URL(location.href);
         const nextRoute = url.searchParams.get('next');
-        router.push(nextRoute ?? '/dashboard');
+        router.push(nextRoute ?? '/');
     }
 
     return (
