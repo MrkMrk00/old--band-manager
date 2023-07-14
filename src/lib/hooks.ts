@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers';
-import { COOKIE_SETTINGS, decodeJWT, verifyJWT } from '@/lib/auth/jwt';
+import { decodeJWT, verifyJWT } from '@/lib/auth/jwt';
 import { UserRepository } from '@/lib/repositories';
 import type { User } from '@/model/user';
+import { COOKIE_SETTINGS } from '@/lib/auth/session';
 
 type AppSession = {
     id: number;

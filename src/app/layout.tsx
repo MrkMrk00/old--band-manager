@@ -7,11 +7,9 @@ const font = Roboto_Flex({ subsets: ['latin-ext'] });
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="cs">
-            <body className={font.className}>
-                <TRPCProvider>
-                    {children}
-                </TRPCProvider>
-            </body>
+            <TRPCProvider>
+                <body className={font.className}>{children}</body>
+            </TRPCProvider>
         </html>
     );
 }

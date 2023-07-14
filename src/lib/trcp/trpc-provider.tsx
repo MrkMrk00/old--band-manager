@@ -4,8 +4,9 @@ import { type ReactNode, useState } from 'react';
 import env from '@/env.mjs';
 import trpc from '@/lib/trcp/trpc';
 import { httpBatchLink, loggerLink } from '@trpc/client';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { getSessionCookie } from '@/view/client.helpers';
 
 type TRPCProps = {
     children?: ReactNode;
@@ -20,22 +21,31 @@ export function TRPCProvider(props: TRPCProps) {
         });
     });
 
-    const url = env.NEXT_PUBLIC_DOMAIN;
+    const url = env.NEXT_PUBLIC_DOMAIN + 'api/trpc';
 
     const [trpcClient] = useState(() => {
         return trpc.createClient({
             links: [
                 loggerLink({ enabled: () => true }),
-                httpBatchLink({ url }),
+                httpBatchLink({
+                    url,
+                    headers: () => {
+                        const sessionCookie = getSessionCookie();
+                        if (sessionCookie) {
+                            return { 'X-TOKEN': sessionCookie };
+                        }
+
+                        return {};
+                    },
+                }),
             ],
         });
     });
 
     return (
-        // @ts-ignore :) happy
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
-                { children }
+                {children}
                 <ReactQueryDevtools />
             </QueryClientProvider>
         </trpc.Provider>

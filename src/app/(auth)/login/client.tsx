@@ -17,12 +17,7 @@ function EmailLoginForm(props: FormHTMLAttributes<HTMLFormElement>) {
 
                 <div className="flex flex-col gap-2">
                     <label htmlFor="passwordBtn">Heslo</label>
-                    <Input
-                        id="passwordBtn"
-                        name="password"
-                        type="password"
-                        placeholder="******"
-                    />
+                    <Input id="passwordBtn" name="password" type="password" placeholder="******" />
                 </div>
 
                 <Button type="submit" className="bg-green-400">
@@ -42,7 +37,8 @@ export function LoginForms() {
                 <h3 className="text-2xl font-bold">Přihlásit se</h3>
                 <div className="flex flex-col gap-2 2xl:w-1/2 w-full">
                     <FacebookLoginButton className="border flex flex-row gap-2" />
-                    <Button className={`border flex flex-row gap-2 items-center${
+                    <Button
+                        className={`border flex flex-row gap-2 items-center${
                             formDisplayed ? ' bg-green-200' : ''
                         }`}
                         onClick={() => setFormDisplayed(!formDisplayed)}
@@ -54,17 +50,19 @@ export function LoginForms() {
             </div>
 
             <main className="w-full md:w-2/3 flex flex-row justify-center items-center h-full">
-                { formDisplayed ?
-                    <EmailLoginForm className="flex flex-col md:justify-center md:w-2/3 xl:w-1/3 w-full px-16 md:px-4 h-full"
+                {formDisplayed ? (
+                    <EmailLoginForm
+                        className="flex flex-col md:justify-center md:w-2/3 xl:w-1/3 w-full px-16 md:px-4 h-full"
                         method="POST"
                         action="/login"
                     />
-                    :
-                    <Image src={bigBandLogo}
-                           alt="Big Band Vrchlabí"
-                           className="h-2/3 object-contain w-auto"
+                ) : (
+                    <Image
+                        src={bigBandLogo}
+                        alt="Big Band Vrchlabí"
+                        className="h-2/3 object-contain w-auto"
                     />
-                }
+                )}
             </main>
         </div>
     );

@@ -5,6 +5,8 @@ import fbLogo from '@/assets/fb_logo_250.png';
 import { redirect } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 import { useUser } from '@/lib/hooks';
+import trpc from '@/lib/trcp/trpc';
+import { TestElement } from '@/app/(dashboard)/me/client';
 
 export const metadata = {
     title: 'Můj profil',
@@ -33,6 +35,7 @@ export default async function Me() {
                 <Button type="submit" className="bg-red-500">
                     Odhlásit se
                 </Button>
+                <TestElement />
             </form>
 
             <form className="flex flex-col gap-4 w-full rounded-xl border shadow">

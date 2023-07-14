@@ -1,7 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
 import { getAccessToken, getUserInfo, handleFacebookAuth } from '@/lib/auth/facebook';
-import { COOKIE_SETTINGS, signJWT } from '@/lib/auth/jwt';
+import { sendSession } from '@/lib/auth/session';
 
 function html(html: string, opts: ResponseInit = {}) {
     return new Response(html, {
@@ -49,11 +48,7 @@ export async function GET(req: NextRequest) {
         );
     }
 
-    // @ts-ignore
-    cookies().set({
-        ...COOKIE_SETTINGS,
-        value: await signJWT(persistentUser),
-    });
+    await sendSession(persistentUser);
 
     // happy path -> frontend listens to close event
     return html('<script>window.close();</script>');

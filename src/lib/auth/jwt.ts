@@ -5,13 +5,6 @@ const alg = 'HS384';
 const secret = new TextEncoder().encode(env.APP_SECRET);
 const expiration = '72h';
 
-export const COOKIE_SETTINGS = {
-    name: 'BAND_MANAGER_AUTH',
-    httpOnly: false,
-    path: '/',
-    secure: env.NODE_ENV === 'production',
-};
-
 export function signJWT(payload: JWTPayload): Promise<string> {
     return new SignJWT(payload)
         .setProtectedHeader({ alg })

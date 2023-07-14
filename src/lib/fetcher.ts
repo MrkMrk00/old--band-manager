@@ -1,5 +1,3 @@
-import useSWR from 'swr';
-
 type FetcherInit = RequestInit & {
     retries?: number;
 };
@@ -25,9 +23,13 @@ export default async function fetcher(
     if (init && init.retries && init.retries > 0) {
         for (let i = 0; i < init.retries; i++) {
             try {
-                return fetch(input, init);
+                return await fetch(input, init);
             } catch (e: any) {
                 if (i === init?.retries - 1) {
+                    if (!(e instanceof Error)) {
+                        return new Error(e);
+                    }
+
                     return e;
                 }
             }
@@ -35,8 +37,12 @@ export default async function fetcher(
     }
 
     try {
-        return fetch(input, init);
+        return await fetch(input, init);
     } catch (e: any) {
+        if (!(e instanceof Error)) {
+            return new Error(e);
+        }
+
         return e;
     }
 }
