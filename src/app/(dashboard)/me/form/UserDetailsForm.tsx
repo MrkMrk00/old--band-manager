@@ -1,9 +1,9 @@
 'use client';
 
-import { Button, If, Input, LoadingSpinner } from '@/view/layout';
+import Modal, { Button, If, Input, LoadingSpinner } from '@/view/layout';
 import Image from 'next/image';
 import fbLogo from '@/assets/fb_logo_250.png';
-import { FormEvent, ReactNode, useState } from 'react';
+import { FormEvent, ReactNode, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import trpc from '@/lib/trcp/trpc';
 import toast from 'react-hot-toast';
@@ -18,17 +18,29 @@ function SectionRow(props: { children?: ReactNode; className?: string }) {
 
 export default function UserDetailsForm() {
     const { data: user, refetch } = trpc.user.me.useQuery();
-    const [hasMutated, setHasMutated] = useState(false);
     const mutation = trpc.user.update.useMutation();
+    const formRef = useRef(null);
+
+    const [hasMutated, setHasMutated] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     function handleFormSubmit(ev: FormEvent) {
         ev.preventDefault();
-        const formData = Object.fromEntries(new FormData(ev.target as HTMLFormElement));
-
-        mutation.mutate(formData as { display_name: string });
-        setHasMutated(true);
-        refetch();
+        setShowModal(true);
     }
+
+    function handleCloseModal(a: number|undefined) {
+        setShowModal(false);
+
+        if (a === 1) {
+            const data = Object.fromEntries(new FormData(formRef.current!));
+            mutation.mutate(data as { display_name: string });
+            setHasMutated(true);
+            refetch();
+            return;
+        }
+    }
+
 
     if (hasMutated && mutation.isSuccess) {
         toast.success(
@@ -48,10 +60,18 @@ export default function UserDetailsForm() {
 
     return (
         <form
+            ref={formRef}
             method="POST"
             className="flex flex-col gap-4 w-full rounded-xl border shadow h-[250px]"
             onSubmit={handleFormSubmit}
         >
+            <Modal title="Opravdu?" isOpen={showModal} onClose={handleCloseModal} buttons={[
+                { id: 2, className: 'border', children: 'Tak ne, no', rightSide: true },
+                { id: 1, className: 'bg-blue-200', children: 'Fakt, myslím to vážně!' },
+            ]}>
+                Opravdu chceš měnit svoje osobní údaje?
+            </Modal>
+
             <h3 className="font-bold text-xl border-b px-4 p-2 rounded-t-xl bg-gray-50">O mně</h3>
             <div className="flex flex-col gap-4 w-full">
                 <If condition={!user}>

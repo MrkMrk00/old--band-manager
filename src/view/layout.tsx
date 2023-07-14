@@ -40,7 +40,7 @@ export function Button(props: ButtonHTMLAttributes<HTMLButtonElement>) {
 type ModalProps = {
     title: string;
     isOpen: boolean;
-    buttons?: { id: number; className?: string; children?: ReactNode | string }[];
+    buttons?: { id: number; className?: string; children?: ReactNode | string; rightSide?: true|undefined }[];
     onClose?: (which: number | undefined) => void;
     children?: ReactNode;
 };
@@ -90,28 +90,45 @@ export default function Modal(props: ModalProps) {
                                         <p className="text-sm text-gray-500">{children}</p>
                                     </div>
 
-                                    <div className="mt-4">
-                                        {!!buttons &&
-                                            buttons.map((val, i) => (
+                                    <div className="mt-4 flex flex-row justify-between">
+                                        <div className="flex flex-row gap-2">
+                                            {!!buttons &&
+                                                buttons.filter(it => !it.rightSide).map((val, i) => (
+                                                    <Button
+                                                        key={`${i}_${val.id}`}
+                                                        type="button"
+                                                        onClick={() => onClose && onClose(val.id)}
+                                                        className={val.className}
+                                                        id={'Dialog__closeBtn--' + val.id}
+                                                    >
+                                                        {val.children}
+                                                    </Button>
+                                                ))}
+
+                                            {!buttons && (
                                                 <Button
                                                     type="button"
-                                                    onClick={() => onClose && onClose(val.id)}
-                                                    className={val.className}
-                                                    id={'Dialog__closeBtn--' + val.id}
+                                                    onClick={() => onClose && onClose(undefined)}
+                                                    id="Dialog__closeBtn"
                                                 >
-                                                    {val.children}
+                                                    OK
                                                 </Button>
-                                            ))}
-
-                                        {!buttons && (
-                                            <Button
-                                                type="button"
-                                                onClick={() => onClose && onClose(undefined)}
-                                                id="Dialog__closeBtn"
-                                            >
-                                                OK
-                                            </Button>
-                                        )}
+                                            )}
+                                        </div>
+                                        <div className="flex flex-row gap-2">
+                                            {!!buttons &&
+                                                buttons.filter(it => it.rightSide).map((val, i) => (
+                                                    <Button
+                                                        key={`${i}_${val.id}`}
+                                                        type="button"
+                                                        onClick={() => onClose && onClose(val.id)}
+                                                        className={val.className}
+                                                        id={'Dialog__closeBtn--' + val.id}
+                                                    >
+                                                        {val.children}
+                                                    </Button>
+                                                ))}
+                                        </div>
                                     </div>
                                 </Dialog.Panel>
                             </Transition.Child>

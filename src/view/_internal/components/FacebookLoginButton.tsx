@@ -36,7 +36,7 @@ export default function FacebookLoginButton(props: ButtonHTMLAttributes<HTMLButt
 
     return (
         <Button {...props} onClick={() => openFacebookDialog(handleRedirect)}>
-            <Image src={fbLogo} alt="Facebook logo" height={36} />
+            <Image src={fbLogo} alt="Facebook logo" height={36} width={36} />
             <span className="inline-flex items-center">Přihlásit se přes Facebook</span>
         </Button>
     );
