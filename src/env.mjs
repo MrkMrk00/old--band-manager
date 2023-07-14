@@ -23,7 +23,7 @@ const _env = createEnv({
         APP_SECRET: process.env.APP_SECRET,
 
         NEXT_PUBLIC_FB_APP_ID: process.env.NEXT_PUBLIC_FB_APP_ID,
-        NEXT_PUBLIC_DOMAIN: process.env.NEXT_PUBLIC_DOMAIN,
+        NEXT_PUBLIC_DOMAIN: process.env.NEXT_PUBLIC_VERCEL_URL ?? process.env.NEXT_PUBLIC_DOMAIN,
     },
 });
 

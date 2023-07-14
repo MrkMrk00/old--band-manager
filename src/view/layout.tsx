@@ -21,7 +21,7 @@ function Button(props: ButtonHTMLAttributes<HTMLButtonElement>) {
         <button
             className={twMerge(
                 `rounded-2xl shadow-md transition-all
-                py-2 px-4 bg-white hover:brightness-90`,
+                py-2 px-4 bg-white hover:brightness-90 _with-ripple-anim`,
                 className,
             )}
             {...other}

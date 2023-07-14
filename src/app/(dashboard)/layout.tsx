@@ -1,18 +1,19 @@
-import { Roboto_Flex } from 'next/font/google';
 import { Navbar } from '@/view/components';
 import { useSession } from '@/lib/hooks';
-
-const font = Roboto_Flex({ subsets: ['latin-ext'] });
+import { redirect } from 'next/navigation';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
     const user = await useSession();
 
+    if (!user) {
+        redirect('/login');
+        return;
+    }
+
     return (
-        <>
-            <body className={font.className}>
-                <Navbar user={user} />
-                {children}
-            </body>
-        </>
+        <body>
+            <Navbar user={user} />
+            {children}
+        </body>
     );
 }
