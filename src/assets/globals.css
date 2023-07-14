@@ -33,3 +33,21 @@ span.ripple {
 }
 
 /* END: Ripple animation */
+
+._loading-spinner {
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: _spinner-rotation 1s linear infinite;
+}
+
+@keyframes _spinner-rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

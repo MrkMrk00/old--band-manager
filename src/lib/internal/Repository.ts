@@ -1,67 +1,66 @@
 import db, { type Database } from '@/database';
-import type { AllSelection } from 'kysely/dist/esm/parser/select-parser';
+import { SelectType } from 'kysely';
 
-type ResultEntityType<T extends keyof Database, TProto extends object> = AllSelection<Database, T> &
-    TProto;
+export type PartialResultEntity<T extends keyof Database> = {
+    [key in keyof Database[T]]?: SelectType<Database[T][key]>;
+};
 
-export class Repository<T extends keyof Database, TProto extends object> {
-    readonly dbName: T;
-    readonly #prototype: TProto | null;
+export type ResultEntity<T extends keyof Database> = {
+    [key in keyof Database[T]]: SelectType<Database[T][key]>;
+};
 
-    constructor(dbName: T, prototype?: TProto) {
-        this.dbName = dbName;
-        this.#prototype = prototype ?? null;
-    }
+export class Repository<T extends keyof Database> {
+    readonly tableName: T;
 
-    #applyProto(result: object): ResultEntityType<T, TProto> {
-        if (this.#prototype) {
-            Object.setPrototypeOf(result, this.#prototype);
-        }
-
-        return result as unknown as ResultEntityType<T, TProto>;
+    constructor(dbName: T) {
+        this.tableName = dbName;
     }
 
     select() {
-        return db.selectFrom(this.dbName);
+        return db.selectFrom(this.tableName);
     }
 
     insert() {
-        return db.insertInto(this.dbName);
+        return db.insertInto(this.tableName);
     }
 
-    update() {
-        return db.insertInto(this.dbName);
+    update(where?: number | PartialResultEntity<T>) {
+        let qb = db.updateTable(this.tableName);
+
+        if (where) {
+            if (typeof where === 'number') {
+                // @ts-ignore
+                qb = qb.where(`${this.tableName}.id`, '=', where);
+            } else {
+                for (const [key, val] of Object.entries(where)) {
+                    // @ts-ignore
+                    qb = qb.where(`${this.tableName}.${key}`, '=', val);
+                }
+            }
+        }
+
+        return qb;
     }
 
-    async findById(id: number): Promise<ResultEntityType<T, TProto> | null> {
+    async findById(id: number): Promise<ResultEntity<T> | null> {
         const res = await this.select()
             .selectAll()
             // @ts-ignore
-            .where(`${this.dbName}.id`, '=', id)
+            .where(`${this.tableName}.id`, '=', id)
             .executeTakeFirst();
 
         if (typeof res === 'undefined') {
             return null;
         }
 
-        return this.#applyProto(res);
+        return res as ResultEntity<T>;
     }
 
-    async all(offset: number = 0, limit: number = 20): Promise<ResultEntityType<T, TProto>[]> {
-        const res = await this.select().selectAll().limit(limit).offset(offset).execute();
-
-        for (const singleRes of res) {
-            this.#applyProto(singleRes);
-        }
-
-        return res as unknown as ResultEntityType<T, TProto>[];
+    all(offset: number = 0, limit: number = 20) {
+        return this.select().limit(limit).offset(offset).selectAll();
     }
 
-    async findOne(): Promise<ResultEntityType<T, TProto> | null> {
-        const single = await this.all(0, 1);
-        if (single.length < 1) {
-            return null;
-        }
-        return single[0];
+    one() {
+        return this.select().limit(1).selectAll();
     }
 }

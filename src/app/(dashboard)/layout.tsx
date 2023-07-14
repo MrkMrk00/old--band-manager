@@ -1,6 +1,7 @@
 import { Navbar } from '@/view/components';
 import { useSession } from '@/lib/hooks';
 import { redirect } from 'next/navigation';
+import { Toaster } from 'react-hot-toast';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
     const user = await useSession();
@@ -14,6 +15,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <body>
             <Navbar user={user} />
             {children}
+            <Toaster />
         </body>
     );
 }
