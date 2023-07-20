@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { signJWT } from '@/lib/auth/jwt';
+import type { PersistentUser } from '@/model/user';
 import env from '@/env.mjs';
 
 export const COOKIE_SETTINGS = {
@@ -9,12 +10,7 @@ export const COOKIE_SETTINGS = {
     secure: env.NODE_ENV === 'production',
 };
 
-export type SessionUser = {
-    id: number;
-    display_name: string;
-};
-
-export type Session = SessionUser;
+export type Session = PersistentUser;
 
 export async function sendSession<T extends Session>(data: T) {
     // @ts-ignore
