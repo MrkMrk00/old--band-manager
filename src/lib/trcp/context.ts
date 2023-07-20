@@ -22,4 +22,4 @@ export async function createContext({ req }: FetchCreateContextFnOptions) {
     };
 }
 
-export type Context = inferAsyncReturnType<typeof createContext>;
+export type TrpcContext = inferAsyncReturnType<typeof createContext>;

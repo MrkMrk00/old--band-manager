@@ -1,7 +1,7 @@
 import env from '@/env.mjs';
 import fetcher from '@/lib/fetcher';
 import { sql } from 'kysely';
-import { UserRepository } from '@/lib/repositories';
+import { UsersRepository } from '@/lib/repositories';
 
 const urls = {
     getAccessToken: (clientId: string, clientSecret: string, accessCode: string, url: string) =>
@@ -103,13 +103,13 @@ export async function handleFacebookAuth(
         return new Error('wrong id format');
     }
 
-    let existing = await UserRepository.select()
+    let existing = await UsersRepository.select()
         .select(['id', 'display_name'])
         .where('fb_id', '=', +facebookUser.id)
         .executeTakeFirst();
 
     if (typeof existing === 'undefined') {
-        const res = await UserRepository.insert()
+        const res = await UsersRepository.insert()
             .values({
                 fb_id: +facebookUser.id,
                 display_name: facebookUser.name,

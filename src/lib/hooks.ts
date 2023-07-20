@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { decodeJWT, verifyJWT } from '@/lib/auth/jwt';
-import { UserRepository } from '@/lib/repositories';
+import { UsersRepository } from '@/lib/repositories';
 import type { User } from '@/model/user';
 import { COOKIE_SETTINGS } from '@/lib/auth/session';
 
@@ -35,5 +35,5 @@ export async function useUser() {
         return null;
     }
 
-    return (await UserRepository.findById(session.id)) as unknown as User;
+    return (await UsersRepository.findById(session.id)) as unknown as User;
 }

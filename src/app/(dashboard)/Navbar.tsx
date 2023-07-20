@@ -39,7 +39,8 @@ export default function Navbar({ user }: NavbarProps) {
                     </div>
                 </div>
                 {user && (
-                    <div className="flex flex-col justify-center px-4">
+                    <div className="flex flex-row justify-center px-4">
+                        <NavLink href="/admin">Nastavení aplikace</NavLink>
                         <NavLink href="/me" className="items-center">
                             <UserCircleIcon />
                             <span>{user.display_name}</span>

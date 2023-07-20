@@ -12,10 +12,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     }
 
     return (
-        <body>
+        <>
             <Navbar user={user} />
             {children}
             <Toaster />
-        </body>
+        </>
     );
 }

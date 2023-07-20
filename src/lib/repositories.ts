@@ -1,3 +1,4 @@
 import { Repository } from '@/lib/internal/Repository';
 
-export const UserRepository = new Repository('users');
+export const UsersRepository = new Repository('users');
+export const InstrumentsRepository = new Repository('instruments');

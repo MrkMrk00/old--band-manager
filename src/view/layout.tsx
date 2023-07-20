@@ -1,10 +1,17 @@
 'use client';
 
-import { Fragment, type InputHTMLAttributes, type ReactNode } from 'react';
+import type {
+    AnchorHTMLAttributes,
+    ComponentPropsWithRef,
+    InputHTMLAttributes,
+    ReactNode,
+} from 'react';
+import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { twMerge } from 'tailwind-merge';
 import { ButtonHTMLAttributes } from 'react';
 import { RippleAnimation } from '@/view/_internal/client.layout';
+import NextLink from 'next/link';
 
 export { RippleAnimation };
 
@@ -19,8 +26,12 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
     );
 }
 
+type ButtonProps =
+    | ({ asLink?: false | undefined } & ButtonHTMLAttributes<HTMLButtonElement>)
+    | ({ asLink: true } & AnchorHTMLAttributes<HTMLAnchorElement>);
+
 export function Button(props: ButtonHTMLAttributes<HTMLButtonElement>) {
-    const { className, children, ...other } = props;
+    const { children, className, ...rest } = props;
 
     return (
         <button
@@ -29,7 +40,7 @@ export function Button(props: ButtonHTMLAttributes<HTMLButtonElement>) {
                 py-2 px-4 bg-white hover:brightness-90 _with-ripple-anim`,
                 className,
             )}
-            {...other}
+            {...rest}
         >
             {children}
             <RippleAnimation />
@@ -37,10 +48,51 @@ export function Button(props: ButtonHTMLAttributes<HTMLButtonElement>) {
     );
 }
 
+export function Anchor(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
+    const { className, children, ...rest } = props;
+
+    return (
+        <a
+            className={twMerge(
+                `rounded-2xl shadow-md transition-all
+                py-2 px-4 bg-white hover:brightness-90 _with-ripple-anim`,
+                className,
+            )}
+            {...rest}
+        >
+            {children}
+            <RippleAnimation />
+        </a>
+    );
+}
+
+export function Link(props: ComponentPropsWithRef<typeof NextLink>) {
+    const { className, children, ...rest } = props;
+
+    return (
+        <NextLink
+            className={twMerge(
+                `rounded-2xl shadow-md transition-all
+                py-2 px-4 bg-white hover:brightness-90 _with-ripple-anim`,
+                className,
+            )}
+            {...rest}
+        >
+            {children}
+            <RippleAnimation />
+        </NextLink>
+    );
+}
+
 type ModalProps = {
     title: string;
     isOpen: boolean;
-    buttons?: { id: number; className?: string; children?: ReactNode | string; rightSide?: true|undefined }[];
+    buttons?: {
+        id: number;
+        className?: string;
+        children?: ReactNode | string;
+        rightSide?: true | undefined;
+    }[];
     onClose?: (which: number | undefined) => void;
     children?: ReactNode;
 };
@@ -93,17 +145,21 @@ export default function Modal(props: ModalProps) {
                                     <div className="mt-4 flex flex-row justify-between">
                                         <div className="flex flex-row gap-2">
                                             {!!buttons &&
-                                                buttons.filter(it => !it.rightSide).map((val, i) => (
-                                                    <Button
-                                                        key={`${i}_${val.id}`}
-                                                        type="button"
-                                                        onClick={() => onClose && onClose(val.id)}
-                                                        className={val.className}
-                                                        id={'Dialog__closeBtn--' + val.id}
-                                                    >
-                                                        {val.children}
-                                                    </Button>
-                                                ))}
+                                                buttons
+                                                    .filter(it => !it.rightSide)
+                                                    .map((val, i) => (
+                                                        <Button
+                                                            key={`${i}_${val.id}`}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                onClose && onClose(val.id)
+                                                            }
+                                                            className={val.className}
+                                                            id={'Dialog__closeBtn--' + val.id}
+                                                        >
+                                                            {val.children}
+                                                        </Button>
+                                                    ))}
 
                                             {!buttons && (
                                                 <Button
@@ -117,17 +173,21 @@ export default function Modal(props: ModalProps) {
                                         </div>
                                         <div className="flex flex-row gap-2">
                                             {!!buttons &&
-                                                buttons.filter(it => it.rightSide).map((val, i) => (
-                                                    <Button
-                                                        key={`${i}_${val.id}`}
-                                                        type="button"
-                                                        onClick={() => onClose && onClose(val.id)}
-                                                        className={val.className}
-                                                        id={'Dialog__closeBtn--' + val.id}
-                                                    >
-                                                        {val.children}
-                                                    </Button>
-                                                ))}
+                                                buttons
+                                                    .filter(it => it.rightSide)
+                                                    .map((val, i) => (
+                                                        <Button
+                                                            key={`${i}_${val.id}`}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                onClose && onClose(val.id)
+                                                            }
+                                                            className={val.className}
+                                                            id={'Dialog__closeBtn--' + val.id}
+                                                        >
+                                                            {val.children}
+                                                        </Button>
+                                                    ))}
                                         </div>
                                     </div>
                                 </Dialog.Panel>

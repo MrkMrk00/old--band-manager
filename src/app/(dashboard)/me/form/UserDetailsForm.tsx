@@ -5,7 +5,7 @@ import Image from 'next/image';
 import fbLogo from '@/assets/fb_logo_250.png';
 import { FormEvent, ReactNode, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import trpc from '@/lib/trcp/trpc';
+import trpc from '@/lib/trcp/client';
 import toast from 'react-hot-toast';
 
 function SectionRow(props: { children?: ReactNode; className?: string }) {
@@ -17,8 +17,8 @@ function SectionRow(props: { children?: ReactNode; className?: string }) {
 }
 
 export default function UserDetailsForm() {
-    const { data: user, refetch } = trpc.user.me.useQuery();
-    const mutation = trpc.user.update.useMutation();
+    const { data: user, refetch } = trpc.users.me.useQuery();
+    const mutation = trpc.users.update.useMutation();
     const formRef = useRef(null);
 
     const [hasMutated, setHasMutated] = useState(false);
@@ -29,7 +29,7 @@ export default function UserDetailsForm() {
         setShowModal(true);
     }
 
-    function handleCloseModal(a: number|undefined) {
+    function handleCloseModal(a: number | undefined) {
         setShowModal(false);
 
         if (a === 1) {
@@ -40,7 +40,6 @@ export default function UserDetailsForm() {
             return;
         }
     }
-
 
     if (hasMutated && mutation.isSuccess) {
         toast.success(
@@ -65,10 +64,15 @@ export default function UserDetailsForm() {
             className="flex flex-col gap-4 w-full rounded-xl border shadow h-[250px]"
             onSubmit={handleFormSubmit}
         >
-            <Modal title="Opravdu?" isOpen={showModal} onClose={handleCloseModal} buttons={[
-                { id: 2, className: 'border', children: 'Tak ne, no', rightSide: true },
-                { id: 1, className: 'bg-blue-200', children: 'Fakt, myslím to vážně!' },
-            ]}>
+            <Modal
+                title="Opravdu?"
+                isOpen={showModal}
+                onClose={handleCloseModal}
+                buttons={[
+                    { id: 2, className: 'border', children: 'Tak ne, no', rightSide: true },
+                    { id: 1, className: 'bg-blue-200', children: 'Fakt, myslím to vážně!' },
+                ]}
+            >
                 Opravdu chceš měnit svoje osobní údaje?
             </Modal>
 

@@ -2,10 +2,13 @@ import env from './env.mjs';
 import { ConnectionString } from 'connection-string';
 import { Kysely, MysqlDialect } from 'kysely';
 import { createPool } from 'mysql2';
+
 import type { UserDatabase } from '@/model/user';
+import type { InstrumentDatabase } from '@/model/instruments';
 
 export interface Database {
     users: UserDatabase;
+    instruments: InstrumentDatabase;
 }
 
 const connection = new ConnectionString(env.DB_CONN);
