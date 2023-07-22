@@ -7,7 +7,7 @@ const update = Authenticated.input(z.object({ display_name: z.string() })).mutat
     async ({ ctx, input }) => {
         const user = ctx.user!;
 
-        const result = await UsersRepository.update(user.id).set(input).execute();
+        const result = await UsersRepository.updateQb(user.id).set(input).execute();
 
         const numUpdated = Number(result[0]?.numUpdatedRows);
 

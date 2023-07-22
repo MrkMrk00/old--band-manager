@@ -103,13 +103,13 @@ export async function handleFacebookAuth(
         return new Error('wrong id format');
     }
 
-    let existing = await UsersRepository.select()
+    let existing = await UsersRepository.selectQb()
         .select(['id', 'display_name'])
         .where('fb_id', '=', +facebookUser.id)
         .executeTakeFirst();
 
     if (typeof existing === 'undefined') {
-        const res = await UsersRepository.insert()
+        const res = await UsersRepository.insertQb()
             .values({
                 fb_id: +facebookUser.id,
                 display_name: facebookUser.name,

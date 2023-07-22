@@ -9,7 +9,7 @@ export class Repository<T extends keyof Database> {
         this.tableName = dbName;
     }
 
-    select(
+    selectQb(
         what?: SelectArg<
             Database,
             ExtractTableAlias<Database, T>,
@@ -24,11 +24,11 @@ export class Repository<T extends keyof Database> {
         return qb;
     }
 
-    insert(): InsertQueryBuilder<Database, T, InsertResult> {
+    insertQb(): InsertQueryBuilder<Database, T, InsertResult> {
         return db.insertInto(this.tableName);
     }
 
-    update(where?: number | PartialResultEntity<T>) {
+    updateQb(where?: number | PartialResultEntity<T>) {
         let qb = db.updateTable(this.tableName);
 
         if (where) {
@@ -65,7 +65,7 @@ export class Repository<T extends keyof Database> {
     }
 
     async findById(id: number): Promise<ResultEntity<T> | null> {
-        const res = await this.select()
+        const res = await this.selectQb()
             .selectAll()
             // @ts-ignore
             .where(`${this.tableName}.id`, '=', id)
@@ -79,10 +79,10 @@ export class Repository<T extends keyof Database> {
     }
 
     all(offset: number = 0, limit: number = 20) {
-        return this.select().limit(limit).offset(offset).selectAll();
+        return this.selectQb().limit(limit).offset(offset).selectAll();
     }
 
     one() {
-        return this.select().limit(1).selectAll();
+        return this.selectQb().limit(1).selectAll();
     }
 }

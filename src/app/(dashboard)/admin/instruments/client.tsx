@@ -1,6 +1,6 @@
 'use client';
 
-import { ListView, type ListViewProps, type OnRowClickCallbackParameter } from '@/view/list';
+import ListView, { type ListViewProps, type OnRowClickCallbackParameter } from '@/view/list';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import trpc from '@/lib/trcp/client';
@@ -24,7 +24,7 @@ export default function InstrumentList() {
         toast.error('Nepodařilo se načíst nástroje :(');
     }
 
-    const objects = data?.map(({ id, name, subname, created_at }) => {
+    const objects = data?.payload.map(({ id, name, subname, created_at }) => {
         return {
             id,
             icon: <FaFaceSmile size="1em" />,
@@ -56,6 +56,12 @@ export default function InstrumentList() {
                     only={['icon', 'name', 'created_at']}
                     headerMapping={headerMapping}
                 />
+            )}
+
+            {data && (
+                <div className="flex flex-row">
+                    <ListView.Pager maxPage={data.maxPage} curPage={data.page} onChange={console.log} btnClassName="bg-white"/>
+                </div>
             )}
         </>
     );

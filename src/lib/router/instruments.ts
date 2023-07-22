@@ -2,15 +2,37 @@ import { Authenticated, Router } from '@/lib/trcp/server';
 import { InstrumentsRepository } from '@/lib/repositories';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import { type Pageable, Pager } from '@/lib/pager';
+import { sql } from 'kysely';
+
+const fetchAll = Authenticated
+    .input(Pager.input)
+    .query(async function ({ input }) {
+        let allCount = (await InstrumentsRepository
+            .selectQb()
+            .select(sql<number>`COUNT(*)`.as('count'))
+            .executeTakeFirst())?.count;
+
+        if (!allCount) {
+            allCount = 0;
+        }
+
+        const { maxPage, offset } = Pager.query(allCount, input.perPage, input.page);
+
+        const result = await InstrumentsRepository
+            .all(offset, input.perPage)
+            .orderBy('instruments.name', 'asc')
+            .execute();
+
+        return {
+            maxPage,
+            page: input.page,
+            payload: result,
+        } satisfies Pageable<typeof result[0]>;
+    });
 
 export default Router({
-    fetchAll: Authenticated.input(
-        z.object({
-            page: z.number().min(1).optional().default(1),
-        }),
-    ).query(async ({ input }) => {
-        return await InstrumentsRepository.all(input.page ?? 1).execute();
-    }),
+    fetchAll,
 
     one: Authenticated.input(z.number().int().min(0)).query(
         async ({ input }) => await InstrumentsRepository.findById(input),
@@ -35,7 +57,7 @@ export default Router({
         }),
     ).mutation(async ({ ctx, input }) => {
         if (typeof input.id === 'undefined') {
-            const result = await InstrumentsRepository.insert()
+            const result = await InstrumentsRepository.insertQb()
                 .values({
                     name: input.name,
                     subname: input.subname,
@@ -54,7 +76,7 @@ export default Router({
             return Number(result[0].insertId);
         }
 
-        const result = await InstrumentsRepository.update({ id: input.id })
+        const result = await InstrumentsRepository.updateQb({ id: input.id })
             .set({
                 name: input.name,
                 subname: input.subname,
