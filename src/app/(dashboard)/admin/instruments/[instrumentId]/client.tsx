@@ -6,7 +6,7 @@ import type { FormEvent, ReactNode, AllHTMLAttributes } from 'react';
 import trpc from '@/lib/trcp/client';
 import { FaTrash } from 'react-icons/fa6';
 import { useState } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 type FormRowProps = {
     children?: ReactNode;
@@ -27,6 +27,8 @@ function FormRow({ children, className, ...rest }: FormRowProps) {
 }
 
 export default function InstrumentForm({ instrumentId }: { instrumentId: `${number}` | 'add' }) {
+    const router = useRouter();
+
     const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
 
     const { data: instrument, refetch } = trpc.instruments.one.useQuery(+instrumentId);
@@ -51,7 +53,7 @@ export default function InstrumentForm({ instrumentId }: { instrumentId: `${numb
     }
 
     if (isSuccess && !instrument) {
-        redirect(`/admin/instruments/${data}`);
+        router.push(`/admin/instruments/${data}`);
     }
 
     if (isSuccess && instrument) {
@@ -59,8 +61,7 @@ export default function InstrumentForm({ instrumentId }: { instrumentId: `${numb
     }
 
     if (deleteMut.isSuccess) {
-        // force reload data
-        location.replace('/admin/instruments');
+        router.push('/admin/instruments');
     }
 
     return (
