@@ -1,6 +1,12 @@
 'use client';
 
-import { type ComponentPropsWithRef, type MouseEvent, useEffect, useState } from 'react';
+import {
+    type AllHTMLAttributes,
+    type ComponentPropsWithRef,
+    type MouseEvent,
+    useEffect,
+    useState,
+} from 'react';
 import { Link } from '@/view/layout';
 import { twMerge } from 'tailwind-merge';
 
@@ -29,7 +35,7 @@ function matchPathname(hrefPathname: string | undefined) {
     return '';
 }
 
-export function AdminNavigation() {
+export function AdminNavigation(props: AllHTMLAttributes<HTMLDivElement>) {
     const [active, setActive] = useState<string>('');
 
     useEffect(() => {
@@ -43,8 +49,8 @@ export function AdminNavigation() {
     }
 
     return (
-        <aside className="md:w-1/6 flex flex-col gap-2 mx-4">
-            <span className="mx-auto">Vyber pyčo</span>
+        <aside {...props}>
+            <span className="mx-auto">Sekce nastavení</span>
 
             <TableListChooser
                 href="/admin/instruments"

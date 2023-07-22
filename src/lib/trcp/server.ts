@@ -15,7 +15,11 @@ const userAuthMiddleware = Middleware(({ ctx, next }) => {
         });
     }
 
-    return next();
+    return next({
+        ctx: {
+            user: ctx.user,
+        },
+    });
 });
 
 export const Authenticated = Public.use(userAuthMiddleware);

@@ -1,0 +1,17 @@
+extends:
+    - next/core-web-vitals
+
+plugins:
+    - unused-imports
+
+rules:
+    unused-imports/no-unused-imports: error
+    linebreak-style:
+        - error
+        - unix
+    quotes:
+        - error
+        - single
+    jsx-quotes:
+        - error
+        - prefer-double

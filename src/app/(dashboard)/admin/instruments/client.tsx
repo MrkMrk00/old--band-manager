@@ -14,7 +14,7 @@ const headerMapping: ListViewProps<any>['headerMapping'] = {
     created_at: { title: 'Vytvořeno' },
 };
 
-export default function ClientPage() {
+export default function InstrumentList() {
     const router = useRouter();
 
     const [page, setPage] = useState(1);
@@ -33,28 +33,30 @@ export default function ClientPage() {
         };
     });
 
-    function handleRowClick({ payload }: OnRowClickCallbackParameter<Defined<typeof objects>[0]>) {
+    function handleRowClick({
+        payload,
+    }: OnRowClickCallbackParameter<AssertDefined<typeof objects>[0]>) {
         router.push(`/admin/instruments/${payload.id}`);
     }
 
     return (
-        <div className="flex flex-row w-100 justify-center">
+        <>
             <If condition={isLoading}>
-                <div className="max-w-lg w-full h-[200px] rounded-xl shadow flex flex-row justify-center items-center">
+                <div className="w-full h-[200px] rounded-xl shadow flex flex-row justify-center items-center">
                     <LoadingSpinner size="4em" color="black" />
                 </div>
             </If>
 
             {objects && (
                 <ListView
-                    className="max-w-lg rounded-xl shadow w-full h-full text-center"
-                    headerClassName="bg-slate-50"
+                    className="rounded-xl shadow w-full h-full text-center"
+                    headerClassName="bg-slate-100"
                     objects={objects}
                     onRowClick={handleRowClick}
                     only={['icon', 'name', 'created_at']}
                     headerMapping={headerMapping}
                 />
             )}
-        </div>
+        </>
     );
 }

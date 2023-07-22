@@ -1,13 +1,6 @@
 import db, { type Database } from '@/database';
-import { SelectType } from 'kysely';
-
-export type PartialResultEntity<T extends keyof Database> = {
-    [key in keyof Database[T]]?: SelectType<Database[T][key]>;
-};
-
-export type ResultEntity<T extends keyof Database> = {
-    [key in keyof Database[T]]: SelectType<Database[T][key]>;
-};
+import type { InsertQueryBuilder, InsertResult, SelectArg, SelectExpression } from 'kysely';
+import { ExtractTableAlias } from 'kysely/dist/cjs/parser/table-parser';
 
 export class Repository<T extends keyof Database> {
     readonly tableName: T;
@@ -16,16 +9,45 @@ export class Repository<T extends keyof Database> {
         this.tableName = dbName;
     }
 
-    select() {
-        return db.selectFrom(this.tableName);
+    select(
+        what?: SelectArg<
+            Database,
+            ExtractTableAlias<Database, T>,
+            SelectExpression<Database, ExtractTableAlias<Database, T>>
+        >,
+    ) {
+        let qb = db.selectFrom(this.tableName);
+        if (what) {
+            qb = qb.select(what);
+        }
+
+        return qb;
     }
 
-    insert() {
+    insert(): InsertQueryBuilder<Database, T, InsertResult> {
         return db.insertInto(this.tableName);
     }
 
     update(where?: number | PartialResultEntity<T>) {
         let qb = db.updateTable(this.tableName);
+
+        if (where) {
+            if (typeof where === 'number') {
+                // @ts-ignore
+                qb = qb.where(`${this.tableName}.id`, '=', where);
+            } else {
+                for (const [key, val] of Object.entries(where)) {
+                    // @ts-ignore
+                    qb = qb.where(`${this.tableName}.${key}`, '=', val);
+                }
+            }
+        }
+
+        return qb;
+    }
+
+    delete(where?: number | PartialResultEntity<T>) {
+        let qb = db.deleteFrom(this.tableName);
 
         if (where) {
             if (typeof where === 'number') {

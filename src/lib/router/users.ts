@@ -24,8 +24,11 @@ const update = Authenticated.input(z.object({ display_name: z.string() })).mutat
     },
 );
 
+const me = Authenticated.query(async ({ ctx }) => await UsersRepository.findById(ctx.user.id));
+
 const usersRouter = Router({
     update,
+    me,
 });
 
 export default usersRouter;

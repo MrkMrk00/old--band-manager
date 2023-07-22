@@ -1,27 +1,20 @@
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import { Link } from '@/view/layout';
-import { InstrumentsRepository } from '@/lib/repositories';
-import { Instrument } from '@/model/instruments';
 import { redirect } from 'next/navigation';
+import InstrumentForm from './client';
 
 export default async function InstrumentView({
     params: { instrumentId },
 }: {
     params: { instrumentId: string };
 }) {
-    let instrument: Instrument | null = null;
-
-    if (instrumentId !== '' && !isNaN(+instrumentId)) {
-        instrument = await InstrumentsRepository.findById(+instrumentId);
-    }
-
-    if (!instrument) {
+    if ((instrumentId === '' || isNaN(+instrumentId)) && instrumentId !== 'add') {
         redirect('/admin/instruments');
     }
 
     return (
-        <div className="flex flex-row gap-2">
-            <aside>
+        <div className="max-w-2xl w-full flex flex-col items-center gap-5">
+            <div className="flex flex-row w-full">
                 <Link
                     href="/admin/instruments"
                     className="inline-flex flex-row justify-center items-center bg-green-300"
@@ -29,8 +22,8 @@ export default async function InstrumentView({
                     <FaArrowLeftLong size="1em" />
                     &emsp;Zpět
                 </Link>
-            </aside>
-            <div>Tady bude nástroj</div>
+            </div>
+            <InstrumentForm instrumentId={instrumentId as `${number}` | 'add'} />
         </div>
     );
 }

@@ -12,5 +12,5 @@ export type InstrumentDatabase = {
 };
 
 export type Instrument = {
-    [key in InstrumentDatabase]: SelectType<InstrumentDatabase[key]>;
+    [key in keyof InstrumentDatabase]: SelectType<InstrumentDatabase[key]>;
 };

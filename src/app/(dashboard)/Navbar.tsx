@@ -26,7 +26,7 @@ function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string
 export default function Navbar({ user }: NavbarProps) {
     return (
         <>
-            <nav className="flex flex-row justify-between shadow">
+            <nav className="flex flex-row justify-between shadow sticky">
                 <div className="flex flex-row">
                     <div className="flex flex-col justify-center px-4">
                         <h1 className="font-bold text-xl">BigBand ZUŠ Vrchlabí</h1>
