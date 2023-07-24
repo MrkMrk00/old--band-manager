@@ -105,7 +105,7 @@ export function InstrumentForm({ id }: FormProps) {
                         <h3 className="text-2xl font-bold">
                             {!instrument
                                 ? 'Přidej nový nástroj'
-                                : `${instrument.name + ' ' + instrument.subname}`}
+                                : `${instrument.name + ' ' + (instrument.subname ?? '')}`}
                         </h3>
                     </FormRow>
 

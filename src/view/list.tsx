@@ -42,7 +42,7 @@ function ListView<T extends ObjectType>(props: ListViewProps<T>) {
     return (
         <table {...rest}>
             <thead>
-                <tr>
+                <tr style={{ lineHeight: '24px' }}>
                     {(only ?? Object.keys(objects[0])).map((key, idx, arr) => {
                         const isFirst = idx === 0;
                         const isLast = idx === arr.length - 1;
@@ -53,9 +53,9 @@ function ListView<T extends ObjectType>(props: ListViewProps<T>) {
                         ) as string;
 
                         return (
-                            <td
+                            <th
                                 className={twMerge(
-                                    `px-4 py-2 ${headerClassName}`,
+                                    `px-4 py-2 h-[30px] ${headerClassName}`,
                                     !isFirst
                                         ? ''
                                         : `text-left${
@@ -70,7 +70,7 @@ function ListView<T extends ObjectType>(props: ListViewProps<T>) {
                                 key={key}
                             >
                                 {title}
-                            </td>
+                            </th>
                         );
                     })}
                 </tr>
@@ -86,8 +86,8 @@ function ListView<T extends ObjectType>(props: ListViewProps<T>) {
                                     : undefined
                             }
                             className={twMerge(
-                                `bg-white ${
-                                    !!onRowClick ? 'hover:cursor-pointer hover:brightness-90' : ''
+                                `bg-white${
+                                    !!onRowClick ? ' hover:cursor-pointer hover:brightness-90' : ''
                                 }`,
                                 rowClassName,
                             )}
@@ -95,7 +95,7 @@ function ListView<T extends ObjectType>(props: ListViewProps<T>) {
                             {(only ?? Object.keys(obj)).map(function (key, idx2) {
                                 return (
                                     <td
-                                        className={`px-4 py-2 border-t border-t-gray-300${
+                                        className={`px-4 py-2 h-[24px] border-t border-t-gray-300${
                                             idx2 === 0 ? ' text-left' : ''
                                         }`}
                                         key={idx2}

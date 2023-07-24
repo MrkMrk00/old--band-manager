@@ -15,7 +15,7 @@ const headerMapping: ListViewProps<any>['headerMapping'] = {
 export default function InstrumentList() {
     const router = useRouter();
     const [page, setPage] = useState(1);
-    const { data, isLoading, error } = trpc.instruments.fetchAll.useQuery({ page });
+    const { data, isLoading, error } = trpc.instruments.fetchAll.useQuery({ page, perPage: 5 });
 
     if (error) {
         console.error(error);
@@ -64,7 +64,7 @@ export default function InstrumentList() {
                     />
 
                     <If condition={data.maxPage > 1}>
-                        <div className="flex flex-row">
+                        <div className="flex flex-row pt-5">
                             <ListView.Pager
                                 maxPage={data.maxPage}
                                 curPage={data.page}
