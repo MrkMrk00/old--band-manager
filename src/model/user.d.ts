@@ -9,8 +9,8 @@ export interface UserDatabase {
     fb_id?: number;
     roles: Role[];
 
-    created_at: Generated<number>;
-    updated_at: Generated<number>;
+    created_at: Generated<string>;
+    updated_at: Generated<string>;
 }
 
 export type PersistentUser = {
@@ -21,8 +21,8 @@ export type PersistentUser = {
 export type User = PersistentUser & {
     roles: Role[];
 
-    created_at: number;
-    updated_at: number;
+    created_at: string | Date;
+    updated_at: string | Date;
 } & (
         | { email: string; password: string; fb_id: null }
         | { fb_id: number; email: null; password: null }

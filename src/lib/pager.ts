@@ -16,6 +16,6 @@ export const Pager = {
     /** #pure */
     query: (allCount: number, perPage: number, curPage: number) => ({
         offset: perPage * (curPage - 1),
-        maxPage: Math.floor(allCount / perPage) + 1,
+        maxPage: Math.ceil(allCount / perPage),
     }),
 };

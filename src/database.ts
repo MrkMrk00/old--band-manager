@@ -5,10 +5,13 @@ import { createPool } from 'mysql2';
 
 import type { UserDatabase } from '@/model/user';
 import type { InstrumentDatabase } from '@/model/instruments';
+import { InstrumentGroupingDatabase } from '@/model/instrument_groupings';
 
 export interface Database {
     users: UserDatabase;
     instruments: InstrumentDatabase;
+    instrument_groupings: InstrumentGroupingDatabase;
+    instruments_instrument_groupings: { id_instrument: number; id_instrument_grouping: number };
 }
 
 const connection = new ConnectionString(env.DB_CONN);

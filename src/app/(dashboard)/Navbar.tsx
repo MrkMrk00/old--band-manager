@@ -1,9 +1,10 @@
-import { HouseIcon, UserCircleIcon } from '@/view/icons';
 import type { PersistentUser } from '@/model/user';
 import Link from 'next/link';
 import { AnchorHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { RippleAnimation } from '@/view/layout';
+import { FaHouse } from 'react-icons/fa6';
+import { FaUserCircle } from 'react-icons/fa';
 
 type NavbarProps = {
     user: PersistentUser | null;
@@ -34,7 +35,7 @@ export default function Navbar({ user }: NavbarProps) {
 
                     <div className="flex flex-row gap-2 px-2 items-center h-100">
                         <NavLink href="/">
-                            <HouseIcon height="1.2em" /> Domů
+                            <FaHouse size="1.2em" /> Domů
                         </NavLink>
                     </div>
                 </div>
@@ -42,7 +43,7 @@ export default function Navbar({ user }: NavbarProps) {
                     <div className="flex flex-row justify-center px-4">
                         <NavLink href="/admin">Nastavení aplikace</NavLink>
                         <NavLink href="/me" className="items-center">
-                            <UserCircleIcon />
+                            <FaUserCircle size="1.2em" />
                             <span>{user.display_name}</span>
                         </NavLink>
                     </div>

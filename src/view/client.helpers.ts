@@ -47,3 +47,20 @@ export async function useSession(): Promise<
 
     return decodeJwt(sessionCookie) as JWTPayload & { id: number; display_name: string };
 }
+
+export function parseRoundedClassName(className: string | undefined): null | string[] {
+    if (!className) {
+        return null;
+    }
+
+    const roundedClassName = /(rounded[-\w]*) /.exec(className ?? '');
+    if (!roundedClassName || roundedClassName.length < 2) {
+        return null;
+    }
+
+    return roundedClassName[1].split('-');
+}
+
+export function withSecondModifier(cls: string[], modifier: string, joiner: string = '-'): string {
+    return [cls[0], modifier, ...cls.slice(1)].join(joiner);
+}

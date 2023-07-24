@@ -76,7 +76,7 @@ export default function UserDetailsForm() {
                 Opravdu chceš měnit svoje osobní údaje?
             </Modal>
 
-            <h3 className="font-bold text-xl border-b px-4 p-2 rounded-t-xl bg-gray-50">O mně</h3>
+            <h3 className="font-bold text-xl border-b px-4 p-2 rounded-t-xl bg-slate-200">O mně</h3>
             <div className="flex flex-col gap-4 w-full">
                 <If condition={!user}>
                     <div className="flex flex-row justify-center items-center w-full">
@@ -114,7 +114,13 @@ export default function UserDetailsForm() {
                         </SectionRow>
                         <hr />
 
-                        <SectionRow className="justify-end">
+                        <SectionRow className="justify-between items-center">
+                            <form action="/logout" method="POST">
+                                <Button type="submit" className="bg-red-500">
+                                    Odhlásit se
+                                </Button>
+                            </form>
+
                             <Button className="bg-green-400" type="submit">
                                 Uložit
                             </Button>

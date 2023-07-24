@@ -1,8 +1,15 @@
 'use client';
 
-import type { ReactNode, TableHTMLAttributes, MouseEvent, AllHTMLAttributes, ButtonHTMLAttributes } from 'react';
+import type {
+    ReactNode,
+    TableHTMLAttributes,
+    MouseEvent,
+    AllHTMLAttributes,
+    ButtonHTMLAttributes,
+} from 'react';
 import { twMerge } from 'tailwind-merge';
 import { FaLeftLong, FaRightLong } from 'react-icons/fa6';
+import { parseRoundedClassName, withSecondModifier } from '@/view/client.helpers';
 
 export type ObjectType = Record<string, ReactNode | undefined>;
 export type OnRowClickCallback<T extends ObjectType> = (ev: {
@@ -30,11 +37,16 @@ function ListView<T extends ObjectType>(props: ListViewProps<T>) {
         return <table {...rest}></table>;
     }
 
+    const rounded = parseRoundedClassName(rest.className);
+
     return (
         <table {...rest}>
             <thead>
                 <tr>
-                    {(only ?? Object.keys(objects[0])).map((key, idx) => {
+                    {(only ?? Object.keys(objects[0])).map((key, idx, arr) => {
+                        const isFirst = idx === 0;
+                        const isLast = idx === arr.length - 1;
+
                         key = key as string;
                         const title = (
                             headerMapping ? headerMapping[key as keyof T]?.title ?? key : key
@@ -43,8 +55,17 @@ function ListView<T extends ObjectType>(props: ListViewProps<T>) {
                         return (
                             <td
                                 className={twMerge(
-                                    `px-4 py-2 font-bold${idx === 0 ? ' text-left' : ''}`,
-                                    headerClassName,
+                                    `px-4 py-2 ${headerClassName}`,
+                                    !isFirst
+                                        ? ''
+                                        : `text-left${
+                                              rounded ? ' ' + withSecondModifier(rounded, 'tl') : ''
+                                          }`,
+                                    !isLast
+                                        ? ''
+                                        : rounded
+                                        ? ' ' + withSecondModifier(rounded, 'tr')
+                                        : '',
                                 )}
                                 key={key}
                             >
@@ -96,48 +117,66 @@ function ListView<T extends ObjectType>(props: ListViewProps<T>) {
 type PagerProps = OmitKeys<AllHTMLAttributes<HTMLDivElement>, 'children'> & {
     maxPage: number;
     curPage: number;
-    onChange: (page: number) => void;
+    onPageChange: (page: number) => void;
     btnClassName?: string;
 };
 
-function PagerButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
-    const { className, children, ...restProps } = props;
+function PagerButton(props: ButtonHTMLAttributes<HTMLButtonElement> & { disabled?: boolean }) {
+    const { className, children, disabled, ...restProps } = props;
 
     return (
         <button
             {...restProps}
-            className={twMerge('w-full h-full px-4 py-2 cursor-pointer hover:brightness-90 border inline-flex justify-center items-center', className)}
+            className={twMerge(
+                'w-full h-full px-4 py-2 border inline-flex justify-center items-center transition-all',
+                className,
+                disabled ? 'pointer-events-none' : 'hover:brightness-90',
+            )}
         >
-            { children }
+            {children}
         </button>
     );
 }
 
-function Pager({ maxPage, curPage, className, onChange, btnClassName, ...divProps }: PagerProps) {
-
+function Pager({
+    maxPage,
+    curPage,
+    className,
+    onPageChange,
+    btnClassName,
+    ...divProps
+}: PagerProps) {
     return (
         <div
             {...divProps}
             className={twMerge('flex flex-row rounded-xl items-center bg-white', className)}
         >
             <PagerButton
-                className="rounded-l-xl"
+                disabled={curPage === 1}
+                className="rounded-l-xl bg-inherit"
                 onClick={() => {
-                if (curPage <= 1) { return; }
-                onChange(curPage - 1);
-            }}>
-                <FaLeftLong />
+                    if (curPage <= 1) {
+                        return;
+                    }
+                    onPageChange(curPage - 1);
+                }}
+            >
+                {curPage > 1 ? <FaLeftLong /> : <span className="w-[1em] h-[1em]"></span>}
             </PagerButton>
-            <div className="px-4 py-2 border-y">
-                { curPage }
+            <div className="px-4 py-2 border-y bg-inherit whitespace-nowrap">
+                <span className="font-bold">{curPage}</span> <small>z {maxPage}</small>
             </div>
-            { curPage !== maxPage && (
-                <div className="p-4">
-                    { maxPage }
-                </div>
-            )}
-            <PagerButton className="rounded-r-xl">
-                <FaRightLong />
+            <PagerButton
+                className="rounded-r-xl bg-inherit"
+                disabled={curPage === maxPage}
+                onClick={() => {
+                    if (curPage >= maxPage) {
+                        return;
+                    }
+                    onPageChange(curPage + 1);
+                }}
+            >
+                {curPage < maxPage ? <FaRightLong /> : <span className="w-[1em] h-[1em]"></span>}
             </PagerButton>
         </div>
     );
