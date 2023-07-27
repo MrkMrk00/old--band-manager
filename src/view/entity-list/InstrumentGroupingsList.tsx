@@ -69,7 +69,7 @@ export default function InstrumentGroupingsList() {
                         <div className="flex flex-row">
                             <Pager
                                 maxPage={data.maxPage}
-                                curPage={data.page}
+                                curPage={page}
                                 onPageChange={num => setPage(num)}
                                 btnClassName="bg-white"
                             />

@@ -25,7 +25,6 @@ const fetchAll = Authenticated.input(Pager.input).query(async function ({ input 
 
     return {
         maxPage,
-        page: input.page,
         payload: result,
     } satisfies Pageable<(typeof result)[0]>;
 });
@@ -52,6 +51,7 @@ const upsert = Authenticated.input(
                 subname: input.subname,
                 icon: input.icon,
                 created_by: ctx.user.id,
+                groupings: [],
             })
             .execute();
 
@@ -128,9 +128,7 @@ const grouping_fetchAll = Authenticated.input(Pager.input).query(async function 
         };
     }
 
-    const { offset, maxPage } = Pager.query(allCount.count, input.perPage, input.page);
-
-    const objects = await query()
+    let objectsQb = query()
         .selectFrom('instrument_groupings')
         .leftJoin(
             eb => {
@@ -154,14 +152,14 @@ const grouping_fetchAll = Authenticated.input(Pager.input).query(async function 
             'instrument_groupings.updated_at',
             'users.display_name as admin_name',
         ])
-        .orderBy('instrument_groupings.name')
-        .limit(input.perPage)
-        .offset(offset)
-        .execute();
+        .orderBy('instrument_groupings.name');
+
+    const result = Pager.handleQuery(objectsQb, allCount.count, input.perPage, input.page);
+
+    const objects = await result.queryBuilder.execute();
 
     return {
-        maxPage: maxPage,
-        page: input.page,
+        maxPage: result.maxPage,
         payload: objects,
     } satisfies Pageable<(typeof objects)[0]>;
 });

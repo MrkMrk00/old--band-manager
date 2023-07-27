@@ -1,6 +1,6 @@
 import { COOKIE_SETTINGS } from '@/lib/auth/session';
 
-export async function POST() {
+async function handler() {
     return new Response(null, {
         status: 301,
         headers: {
@@ -9,3 +9,5 @@ export async function POST() {
         },
     });
 }
+
+export { handler as GET, handler as POST };
