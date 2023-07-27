@@ -1,16 +1,18 @@
 'use client';
 
-import ListView, { type ListViewProps, type OnRowClickCallbackParameter } from '@/view/list';
+import type { RowClickCallbackEvent, HeaderMapping, ObjectType } from '@/view/list';
+
+import { ListView, Pager } from '@/view/list';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import trpc from '@/lib/trcp/client';
 import { If, LoadingSpinner } from '@/view/layout';
+import trpc from '@/lib/trcp/client';
 
-const headerMapping: ListViewProps<any>['headerMapping'] = {
-    icon: { title: '' },
+const headerMapping = {
+    icon: { title: '', className: 'w-1/4' },
     name: { title: 'Název' },
     created_at: { title: 'Vytvořeno' },
-};
+} satisfies HeaderMapping<ObjectType>;
 
 export default function InstrumentList() {
     const router = useRouter();
@@ -22,26 +24,28 @@ export default function InstrumentList() {
     }
 
     const objects = useMemo(() => {
-        if (!data) {
+        if (!data || data.payload.length === 0) {
             return [];
         }
 
-        const mapped = new Array(data.payload.length);
-        for (const { id, name, subname, created_at } of data.payload) {
-            mapped.push({
+        const objects = new Array(data.payload.length);
+        let at = 0;
+        for (const { id, name, subname, created_at, icon } of data.payload) {
+            objects[at] = {
                 id,
-                icon: ':)',
-                name: `${name}${subname ? ` ${subname}` : ''}`,
+                name: `${name}${subname ? ' ' + subname : ''}`,
                 created_at: new Date(created_at).toLocaleString('cs'),
-            });
+                icon: ':)',
+            };
+
+            at++;
         }
 
-        return mapped;
+        return objects;
     }, [data]);
 
-    type TParam = OnRowClickCallbackParameter<AssertDefined<typeof objects>[0]>;
-    function handleRowClick({ payload }: TParam) {
-        router.push(`/admin/instruments/${payload.id}`);
+    function handleRowClick(ev: RowClickCallbackEvent) {
+        router.push(`/admin/instruments/${ev.currentTarget.dataset.objectId}`);
     }
 
     return (
@@ -52,11 +56,9 @@ export default function InstrumentList() {
                 </div>
             </If>
 
-            {data && (
+            {data && objects && (
                 <>
                     <ListView
-                        className="rounded-xl shadow w-full h-full text-center"
-                        headerClassName="bg-slate-100 font-bold"
                         objects={objects}
                         onRowClick={handleRowClick}
                         only={['icon', 'name', 'created_at']}
@@ -65,7 +67,7 @@ export default function InstrumentList() {
 
                     <If condition={data.maxPage > 1}>
                         <div className="flex flex-row pt-5">
-                            <ListView.Pager
+                            <Pager
                                 maxPage={data.maxPage}
                                 curPage={data.page}
                                 onPageChange={num => setPage(num)}

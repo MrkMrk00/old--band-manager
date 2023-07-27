@@ -15,7 +15,13 @@ function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string
 
     return (
         <Link
-            className={twMerge('py-4 px-2 flex flex-row gap-1 with-ripple-anim', className)}
+            className={twMerge(
+                `py-4 px-2 flex 
+                flex-row gap-1 border-b-2
+                hover:border-green-400 border-transparent hover:text-green-900
+                transition-colors ease-in-out _with-ripple-anim`,
+                className,
+            )}
             {...other}
         >
             {children}

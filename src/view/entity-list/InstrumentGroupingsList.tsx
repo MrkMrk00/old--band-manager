@@ -1,16 +1,18 @@
 'use client';
 
-import ListView, { type ListViewProps, type OnRowClickCallbackParameter } from '@/view/list';
+import type { RowClickCallbackEvent, HeaderMapping, ObjectType } from '@/view/list';
+
+import { ListView, Pager } from '@/view/list';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { If, LoadingSpinner } from '@/view/layout';
 import trpc from '@/lib/trcp/client';
 
-const headerMapping: ListViewProps<any>['headerMapping'] = {
+const headerMapping = {
     name: { title: 'Název' },
     created_at: { title: 'Vytvořeno' },
     admin_name: { title: 'Přidal admin' },
-};
+} satisfies HeaderMapping<ObjectType>;
 
 export default function InstrumentGroupingsList() {
     const router = useRouter();
@@ -23,13 +25,16 @@ export default function InstrumentGroupingsList() {
         }
 
         const mapped = new Array(data.payload.length);
+        let at = 0;
         for (const { id, name, created_at, admin_name } of data.payload) {
-            mapped.push({
+            mapped[at] = {
                 id,
                 name,
                 created_at: new Date(created_at).toLocaleString('cs'),
                 admin_name: !admin_name ? '' : admin_name.split(' ')[0],
-            });
+            };
+
+            at++;
         }
 
         return mapped;
@@ -39,9 +44,8 @@ export default function InstrumentGroupingsList() {
         console.error(error);
     }
 
-    type TParam = OnRowClickCallbackParameter<AssertDefined<typeof objects>[0]>;
-    function handleRowClick({ payload }: TParam) {
-        router.push(`/admin/instruments/${payload.id}?t=groupings`);
+    function handleRowClick(ev: RowClickCallbackEvent) {
+        router.push(`/admin/instruments/${ev.currentTarget.dataset.objectId}?t=groupings`);
     }
 
     return (
@@ -52,11 +56,9 @@ export default function InstrumentGroupingsList() {
                 </div>
             </If>
 
-            {data && (
+            {data && objects && (
                 <>
                     <ListView
-                        className="rounded-xl shadow w-full h-full text-center"
-                        headerClassName="bg-slate-100 font-bold"
                         objects={objects}
                         onRowClick={handleRowClick}
                         only={['name', 'created_at', 'admin_name']}
@@ -65,7 +67,7 @@ export default function InstrumentGroupingsList() {
 
                     <If condition={data.maxPage > 1}>
                         <div className="flex flex-row">
-                            <ListView.Pager
+                            <Pager
                                 maxPage={data.maxPage}
                                 curPage={data.page}
                                 onPageChange={num => setPage(num)}

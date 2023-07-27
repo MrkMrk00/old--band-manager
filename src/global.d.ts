@@ -12,10 +12,12 @@ declare global {
         [key in keyof TIn]: TWhich extends TIn[key] ? never : TIn[key];
     };
 
+    /** @deprecated */
     export type PartialResultEntity<T extends keyof Database> = {
         [key in keyof Database[T]]?: SelectType<Database[T][key]>;
     };
 
+    /** @deprecated */
     export type ResultEntity<T extends keyof Database> = {
         [key in keyof Database[T]]: SelectType<Database[T][key]>;
     };
