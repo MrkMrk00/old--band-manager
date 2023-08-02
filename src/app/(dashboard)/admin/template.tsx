@@ -1,14 +1,14 @@
 'use client';
 
 import {
-    type AllHTMLAttributes,
     type ComponentPropsWithRef,
-    type MouseEvent,
+    type ReactNode,
     useEffect,
     useState,
 } from 'react';
 import { Link } from '@/view/layout';
 import { twMerge } from 'tailwind-merge';
+import { useRouter } from 'next/navigation';
 
 function TableListChooser(props: ComponentPropsWithRef<typeof Link> & { active?: boolean }) {
     const { className, children, active, ...other } = props;
@@ -35,30 +35,28 @@ function matchPathname(hrefPathname: string | undefined) {
     return '';
 }
 
-export function AdminNavigation(props: AllHTMLAttributes<HTMLDivElement>) {
+export default function MenuTemplate({ children }: { children?: ReactNode }) {
     const [active, setActive] = useState<string>('');
+    const router = useRouter();
 
     useEffect(() => {
         setActive(matchPathname(location.pathname));
-    }, []);
-
-    function handleClick(ev: MouseEvent<HTMLAnchorElement>) {
-        const hrefPathname = ev.currentTarget.attributes.getNamedItem('href')?.value;
-
-        setActive(matchPathname(hrefPathname));
-    }
+    }, [children]);
 
     return (
-        <aside {...props}>
-            <span className="mx-auto">Sekce nastavení</span>
+        <div className="flex md:flex-row flex-col h-full w-full">
+            <aside className="md:w-1/5 md:max-w-md flex flex-col gap-2 bg-slate-100 p-4 shadow">
+                <span className="mx-auto">Sekce nastavení</span>
 
-            <TableListChooser
-                href="/admin/instruments"
-                active={active === 'instruments'}
-                onClick={handleClick}
-            >
-                Nástoje
-            </TableListChooser>
-        </aside>
+                <TableListChooser
+                    href="/admin/instruments"
+                    onClick={() => void setActive(matchPathname(location.pathname))}
+                    active={active === 'instruments'}
+                >
+                    Nástoje
+                </TableListChooser>
+            </aside>
+            <main className="flex flex-row justify-center p-4 w-full">{ children }</main>
+        </div>
     );
 }

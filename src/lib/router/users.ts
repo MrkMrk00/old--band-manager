@@ -21,7 +21,7 @@ const update = Authenticated.input(z.object({ display_name: z.string().min(5).ma
 );
 
 const me = Authenticated.query(async function ({ ctx }) {
-    return await UsersRepository.findById(ctx.user.id);
+    return await UsersRepository.findById(ctx.user.id).executeTakeFirst();
 });
 
 const usersRouter = Router({

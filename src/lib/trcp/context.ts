@@ -1,6 +1,5 @@
 import { inferAsyncReturnType } from '@trpc/server';
-import { decodeJWT, verifyJWT } from '@/lib/auth/jwt';
-import { Session } from '@/lib/auth/session';
+import { decodeJWT, verifyJWT, type Session } from '@/lib/auth/session';
 import type { FetchCreateContextFnOptions } from '@trpc/server/src/adapters/fetch/types';
 
 async function handleGetUser(req: FetchCreateContextFnOptions['req']) {

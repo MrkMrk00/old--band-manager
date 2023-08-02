@@ -6,12 +6,12 @@ import { EntityType } from '../page';
 
 type PageProps = {
     params: { id: string };
-    searchParams: { t?: EntityType };
+    searchParams: { t?: EntityType, back_ref?: string };
 };
 
 export default async function InstrumentView({ params: { id }, searchParams }: PageProps) {
     const type = searchParams.t ?? 'instruments';
-    const backUrl = `/admin/instruments?t=${type}`;
+    const backUrl = searchParams.back_ref ?? `/admin/instruments?t=${type}`;
 
     if ((id === '' || isNaN(+id)) && id !== 'add') {
         redirect(backUrl);

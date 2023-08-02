@@ -1,11 +1,15 @@
 import type { NextRequest } from 'next/server';
 import { getAccessToken, getUserInfo, handleFacebookAuth } from '@/lib/auth/facebook';
-import { sendSession } from '@/lib/auth/session';
+import { createSessionCookie } from '@/lib/auth/session';
+import { cookies } from 'next/headers';
 
-function html(html: string, opts: ResponseInit = {}) {
+function html(html: string, { headers, ...opts }: ResponseInit = {}) {
+    headers = headers ?? {};
+
     return new Response(html, {
         headers: {
             'Content-Type': 'text/html',
+            ...headers,
         },
         ...opts,
     });
@@ -48,7 +52,10 @@ export async function GET(req: NextRequest) {
         );
     }
 
-    await sendSession(persistentUser);
+    const authCookie = await createSessionCookie(persistentUser);
+
+    // @ts-ignore debilové
+    cookies().set(authCookie);
 
     // happy path -> frontend listens to close event
     return html('<script>window.close();</script>');

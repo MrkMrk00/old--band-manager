@@ -2,9 +2,9 @@
 
 import Modal, { Button, Input, LoadingSpinner } from '@/view/layout';
 import { twMerge } from 'tailwind-merge';
-import type { FormEvent, ReactNode, AllHTMLAttributes } from 'react';
+import type { FormEvent, ReactNode, AllHTMLAttributes, MouseEvent } from 'react';
 import trpc from '@/lib/trcp/client';
-import { FaTrash } from 'react-icons/fa6';
+import { FaPlus, FaTrash } from 'react-icons/fa6';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -60,6 +60,10 @@ export function InstrumentForm({ id }: FormProps) {
         if (id === 1 && instrument?.id) {
             deleteMut.mutate(instrument.id);
         }
+    }
+
+    function handleDeleteGrouping(ev: MouseEvent<HTMLSpanElement>) {
+        ev.currentTarget.parentElement?.remove();
     }
 
     if (isSuccess && !instrument) {
@@ -145,6 +149,27 @@ export function InstrumentForm({ id }: FormProps) {
                                 defaultValue={instrument?.icon}
                                 placeholder="https://instrument-icons.com/trombone.png"
                             />
+                        </div>
+                    </FormRow>
+
+                    <FormRow className="px-4 py-2 border-b border-b-gray-200">
+                        <label>Sekce</label>
+                        <div className="flex flex-row justify-between w-2/3 items-center">
+                            <div className="px-2 py-4">
+                                {instrument?.groupings.map(g =>
+                                    <div title={g.name} className="flex flex-row gap-2 justify-between rounded-3xl bg-yellow-300 border border-yellow-300 pl-3" key={g.id}>
+                                        <input type="hidden" name="groupings[]" value={g.id} />
+                                        <span className="pl-2">{ g.name.at(0) }</span>
+                                        <small
+                                            onClick={handleDeleteGrouping}
+                                            className="flex flex-col justify-center text-transparent hover:text-red-500 px-1 cursor-pointer"
+                                        >
+                                            X
+                                        </small>
+                                    </div>
+                                )}
+                            </div>
+                            <span className="text-gray-500 hover:brightness-95 bg-white p-2 rounded-xl cursor-pointer"><FaPlus size="1.3em" /></span>
                         </div>
                     </FormRow>
 

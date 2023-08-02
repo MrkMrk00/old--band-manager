@@ -20,7 +20,9 @@ function renderGroupings(groupings: InstrumentGrouping[]): ReactNode {
     return (
         <div className="flex flex-row">
             {groupings.map(g =>
-                <span className="rounded-2xl h-[1em] bg-yellow-300 p-3 inline-flex justify-center items-center" key={g.id}>{g.name.at(0)}</span>
+                <small className="rounded-2xl h-[1em] bg-yellow-300 p-2 inline-flex justify-center items-center" key={g.id}>
+                    {g.name.at(0)}
+                </small>
             )}
         </div>
     );
@@ -45,7 +47,6 @@ export default function InstrumentList() {
         let at = 0;
         for (let obj of data.payload) {
             const { id, name, subname, created_at, groupings } = obj;
-            debugger;
             const includeGroupings = allGroupings?.payload.filter(({ id }) => groupings.includes(id));
 
             objects[at] = {

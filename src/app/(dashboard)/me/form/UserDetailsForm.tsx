@@ -114,13 +114,7 @@ export default function UserDetailsForm() {
                         </SectionRow>
                         <hr />
 
-                        <SectionRow className="justify-between items-center">
-                            <form action="/logout" method="POST">
-                                <Button type="submit" className="bg-red-500">
-                                    Odhlásit se
-                                </Button>
-                            </form>
-
+                        <SectionRow className="justify-end">
                             <Button className="bg-green-400" type="submit">
                                 Uložit
                             </Button>

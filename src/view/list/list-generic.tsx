@@ -4,11 +4,23 @@ import type { AllHTMLAttributes, MouseEvent, ReactNode } from 'react';
 import type { ColumnOptions, HeaderMapping, ObjectType } from '@/view/list/types';
 import List from '@/view/list/list-layout';
 import { twJoin, twMerge } from 'tailwind-merge';
+import { useEffect, useState } from 'react';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa6';
 
-type DatasetWithId = HTMLDivElement['dataset'] & {
+export type DatasetWithId = HTMLDivElement['dataset'] & {
     objectId?: `${number}`;
     objectIdx: `${number}`;
 };
+
+export type SortablePayload<T extends ObjectType> = {
+    field: keyof T;
+    order: 'ASC' | 'DESC';
+}
+
+type OrderByState<T extends ObjectType> = [
+    orderBy: SortablePayload<T> | undefined,
+    setOrderBy: (payload: SortablePayload<T> | undefined) => void,
+];
 
 export type RowClickCallbackEvent = MouseEvent<HTMLDivElement & { dataset: DatasetWithId }>;
 export type RowClickCallback = (ev: RowClickCallbackEvent) => void;
@@ -20,12 +32,45 @@ export type GenericListProps<T extends ObjectType> = {
     onRowClick?: RowClickCallback;
     rowClassName?: string;
     headerClassName?: string;
+    onOrderByChange?: (payload: SortablePayload<T> | undefined) => void;
 } & AllHTMLAttributes<HTMLDivElement>;
 
-function renderGenericHeader<T extends ObjectType>(
+type HeaderProps<T extends ObjectType> = {
     headerMapping: HeaderMapping<T> | undefined,
     headerKeys: (keyof T)[],
-): ReactNode[] {
+    onOrderChange?: (payload: SortablePayload<T> | undefined) => void;
+};
+
+function GenericListHeader<T extends ObjectType>({ headerMapping, headerKeys, onOrderChange }: HeaderProps<T>) {
+    const [orderBy, setOrderBy] = useState<SortablePayload<T> | undefined>();
+
+    useEffect(() => {
+        if (onOrderChange) {
+            onOrderChange(orderBy);
+        }
+    }, [orderBy, onOrderChange]);
+
+    function handleOrderChange(ev: MouseEvent<HTMLButtonElement>) {
+        const key = ev.currentTarget.dataset.columnKey;
+        if (!key || !setOrderBy) {
+            return;
+        }
+
+        if (orderBy?.field !== key) {
+            setOrderBy({ order: 'ASC', field: key });
+            return;
+        }
+
+        if (orderBy?.field === key && orderBy.order === 'ASC') {
+            setOrderBy({ order: 'DESC', field: key });
+            return;
+        }
+
+        if (orderBy?.field === key && orderBy.order === 'DESC') {
+            setOrderBy(undefined);
+        }
+    }
+
     const elems = new Array(headerKeys.length);
 
     let at = 0;
@@ -33,8 +78,33 @@ function renderGenericHeader<T extends ObjectType>(
         const isFirst = at === 0;
         const isLast = at === headerKeys.length - 1;
 
-        const title = getKeyFromHeaderMapping(headerMapping, key, 'title');
         const className = getKeyFromHeaderMapping(headerMapping, key, 'className');
+        let title: ReactNode = getKeyFromHeaderMapping(headerMapping, key, 'title');
+
+        if (onOrderChange && title) {
+            title = (
+                <>
+                    <span className="w-[1em] mr-1"></span>
+                    <button
+                        type="button"
+                        className="hover:underline"
+                        onClick={handleOrderChange}
+                        data-column-key={key}
+                    >
+                        { title ?? (key) as string }
+                    </button>
+                    <span className="w-[1em] ml-1">
+                        {orderBy?.field === key && orderBy.order === 'ASC' && (
+                            <FaChevronUp />
+                        )}
+
+                        {orderBy?.field === key && orderBy.order === 'DESC' && (
+                            <FaChevronDown />
+                        )}
+                    </span>
+                </>
+            );
+        }
 
         elems[at] = (
             <List.Value
@@ -51,14 +121,20 @@ function renderGenericHeader<T extends ObjectType>(
         at++;
     }
 
-    return elems;
+    return (
+        <List.Header>{ elems }</List.Header>
+    );
 }
 
-function renderGenericListRow<T extends ObjectType>(
+type RowProps<T extends ObjectType> = {
     keys: (keyof T)[],
     values: T,
     headerMapping?: HeaderMapping<T>,
-): ReactNode {
+    className?: string;
+    onClick?: RowClickCallback,
+};
+
+function GenericListRow<T extends ObjectType>({ values, keys, headerMapping, className, onClick }: RowProps<T>) {
     const elems = new Array(keys.length);
 
     let at = 0;
@@ -75,15 +151,28 @@ function renderGenericListRow<T extends ObjectType>(
         at++;
     }
 
-    return elems;
+    return (
+        <List.Row
+            className={twJoin(
+                `bg-white${onClick ? ' hover:brightness-90 cursor-pointer' : ''}`,
+                className,
+            )}
+            onClick={onClick}
+            data-object-id={'id' in values ? values.id : undefined}
+            data-object-idx={at}
+            key={at}
+        >
+            { elems }
+        </List.Row>
+    );
 }
 
 function renderGenericListBody<T extends ObjectType>(
     objects: T[],
     keys: (keyof T)[],
     headerMapping?: HeaderMapping<T>,
-    className?: string,
-    onClick?: RowClickCallback,
+    rowClassName?: string,
+    onRowClick?: RowClickCallback,
 ): ReactNode[] {
     const elems: ReactNode[] = new Array(objects.length);
 
@@ -94,18 +183,14 @@ function renderGenericListBody<T extends ObjectType>(
         }
 
         elems[at] = (
-            <List.Row
-                className={twJoin(
-                    `bg-white${onClick ? ' hover:brightness-90 cursor-pointer' : ''}`,
-                    className,
-                )}
-                onClick={onClick}
-                data-object-id={'id' in elem ? elem.id : undefined}
-                data-object-idx={at}
+            <GenericListRow
+                keys={keys}
+                values={elem}
+                headerMapping={headerMapping}
+                className={rowClassName}
+                onClick={onRowClick}
                 key={at}
-            >
-                {renderGenericListRow(keys, elem, headerMapping)}
-            </List.Row>
+            />
         );
 
         at++;
@@ -115,16 +200,24 @@ function renderGenericListBody<T extends ObjectType>(
 }
 
 export default function ListView<T extends ObjectType>(props: GenericListProps<T>) {
-    const { objects, headerMapping, headerClassName, only, onRowClick, rowClassName, ...rest } =
-        props;
+    const {
+        objects,
+        headerMapping,
+        headerClassName,
+        only,
+        onRowClick,
+        rowClassName,
+        onOrderByChange,
+        ...rest
+    } = props;
 
     const keys: (keyof T)[] = only ?? (objects.length === 0 ? [] : Object.keys(objects[0]));
 
     return (
         <List {...rest}>
-            <List.Header>{renderGenericHeader(headerMapping, keys)}</List.Header>
+            <GenericListHeader headerMapping={headerMapping} headerKeys={keys} onOrderChange={onOrderByChange} />
             {renderGenericListBody(objects, keys, headerMapping, rowClassName, onRowClick)}
-            <List.Row className="h-[1em] border-none"></List.Row>
+            <span className="h-[1em] border-none"></span>
         </List>
     );
 }

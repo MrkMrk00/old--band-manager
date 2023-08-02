@@ -21,7 +21,7 @@ export default function InstrumentListPage({ searchParams }: { searchParams: { t
         <div className="flex flex-col w-full items-center">
             <div className="w-full h-full max-w-2xl flex flex-col gap-5">
                 <div className="flex flex-row w-full justify-between">
-                    <div className="flex flex-row rounded-2xl shadow w-1/3 justify-between text-center">
+                    <div className="flex flex-row rounded-2xl shadow md:w-1/3 w-1/2 justify-between text-center">
                         <Link
                             className={`rounded-r-none shadow-none border-r w-full${
                                 type === 'instruments' ? ' bg-slate-200' : ''

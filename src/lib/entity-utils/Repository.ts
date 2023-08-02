@@ -64,18 +64,11 @@ export class Repository<T extends keyof Database> {
         return qb;
     }
 
-    async findById(id: number): Promise<ResultEntity<T> | null> {
-        const res = await this.selectQb()
+    findById(id: number) {
+        return this.selectQb()
             .selectAll()
             // @ts-ignore
             .where(`${this.tableName}.id`, '=', id)
-            .executeTakeFirst();
-
-        if (typeof res === 'undefined') {
-            return null;
-        }
-
-        return res as ResultEntity<T>;
     }
 
     all(offset: number = 0, limit: number = 20) {

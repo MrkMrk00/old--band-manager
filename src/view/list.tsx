@@ -6,6 +6,8 @@ import ListView, {
     type GenericListProps,
     type RowClickCallback,
     type RowClickCallbackEvent,
+    type SortablePayload,
+    type DatasetWithId,
 } from '@/view/list/list-generic';
 import Pager, { PagerProps } from '@/view/list/pager';
 import TableView, {
@@ -26,4 +28,6 @@ export type {
     TableViewProps,
     OnRowClickCallback,
     OnRowClickCallbackParameter,
+    SortablePayload,
+    DatasetWithId,
 };
