@@ -8,7 +8,6 @@ import {
 } from 'react';
 import { Link } from '@/view/layout';
 import { twMerge } from 'tailwind-merge';
-import { useRouter } from 'next/navigation';
 
 function TableListChooser(props: ComponentPropsWithRef<typeof Link> & { active?: boolean }) {
     const { className, children, active, ...other } = props;
@@ -27,9 +26,12 @@ function TableListChooser(props: ComponentPropsWithRef<typeof Link> & { active?:
 }
 
 function matchPathname(hrefPathname: string | undefined) {
-    switch (hrefPathname) {
-        case '/admin/instruments':
-            return 'instruments';
+    if (hrefPathname?.startsWith('/admin/instruments')) {
+        return 'instruments';
+    }
+
+    if (hrefPathname?.startsWith('/admin/users')) {
+        return 'users;'
     }
 
     return '';
@@ -37,7 +39,6 @@ function matchPathname(hrefPathname: string | undefined) {
 
 export default function MenuTemplate({ children }: { children?: ReactNode }) {
     const [active, setActive] = useState<string>('');
-    const router = useRouter();
 
     useEffect(() => {
         setActive(matchPathname(location.pathname));
@@ -45,7 +46,7 @@ export default function MenuTemplate({ children }: { children?: ReactNode }) {
 
     return (
         <div className="flex md:flex-row flex-col h-full w-full">
-            <aside className="md:w-1/5 md:max-w-md flex flex-col gap-2 bg-slate-100 p-4 shadow">
+            <aside className="md:max-w-xs w-full flex flex-col gap-2 bg-slate-100 p-4 shadow">
                 <span className="mx-auto">Sekce nastavení</span>
 
                 <TableListChooser
@@ -54,6 +55,14 @@ export default function MenuTemplate({ children }: { children?: ReactNode }) {
                     active={active === 'instruments'}
                 >
                     Nástoje
+                </TableListChooser>
+
+                <TableListChooser
+                    href="/admin/users"
+                    onClick={() => void setActive(matchPathname(location.pathname))}
+                    active={active === 'users'}
+                >
+                    Uživatelé
                 </TableListChooser>
             </aside>
             <main className="flex flex-row justify-center p-4 w-full">{ children }</main>

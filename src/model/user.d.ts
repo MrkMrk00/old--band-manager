@@ -1,5 +1,7 @@
-import type { Generated } from 'kysely';
-export type Role = 'ADMIN' | 'USER';
+import type { Generated, Selectable } from 'kysely';
+
+export type SystemRole = 'SUPER_ADMIN' | 'ADMIN';
+export type Role = SystemRole;
 
 export interface UserDatabase {
     id: Generated<number>;
@@ -18,12 +20,4 @@ export type PersistentUser = {
     display_name: string;
 };
 
-export type User = PersistentUser & {
-    roles: Role[];
-
-    created_at: string | Date;
-    updated_at: string | Date;
-} & (
-        | { email: string; password: string; fb_id: null }
-        | { fb_id: number; email: null; password: null }
-    );
+export type User = Selectable<UserDatabase>;

@@ -1,7 +1,7 @@
-import InstrumentList from '@/view/entity-list/InstrumentsList';
+import InstrumentList from '@/view/entity-list/instruments';
 import { Link } from '@/view/layout';
 import { FaPlus } from 'react-icons/fa6';
-import InstrumentGroupingsList from '@/view/entity-list/InstrumentGroupingsList';
+import InstrumentGroupingsList from '@/view/entity-list/instrument_groupings';
 import { redirect } from 'next/navigation';
 
 export const metadata = {
