@@ -3,8 +3,10 @@
 import { type ComponentPropsWithRef, type ReactNode, useEffect, useState } from 'react';
 import { Link } from '@/view/layout';
 import { twMerge } from 'tailwind-merge';
+import { FaMusic, FaUser } from 'react-icons/fa6';
+import { FaHome } from 'react-icons/fa';
 
-function TableListChooser(props: ComponentPropsWithRef<typeof Link> & { active?: boolean }) {
+function SettingsButton(props: ComponentPropsWithRef<typeof Link> & { active?: boolean }) {
     const { className, children, active, ...other } = props;
 
     return (
@@ -19,6 +21,18 @@ function TableListChooser(props: ComponentPropsWithRef<typeof Link> & { active?:
         >
             {children}
         </Link>
+    );
+}
+
+SettingsButton.Icon = function ({ children, active }: { children?: ReactNode, active?: boolean }) {
+    return (
+        <span className={`absolute w-full h-full inline-flex justify-start items-center px-4${!active ? ' hover:text-green-300 transition-colors' : ''}`}>{ children }</span>
+    );
+};
+
+SettingsButton.Title = function ({ children }: { children?: ReactNode }) {
+    return (
+        <span className="w-full inline-flex justify-center items-center">{ children }</span>
     );
 }
 
@@ -50,29 +64,32 @@ export default function MenuTemplate({ children }: { children?: ReactNode }) {
             <aside className="md:max-w-xs w-full flex flex-col gap-2 bg-slate-100 p-4 shadow">
                 <span className="mx-auto">Sekce nastavení</span>
 
-                <TableListChooser
+                <SettingsButton
                     href="/admin"
                     onClick={() => void setActive(matchPathname(location.pathname))}
                     active={active === 'home'}
                 >
-                    Domovská stránka
-                </TableListChooser>
+                    <SettingsButton.Icon active={active === 'home'}><FaHome /></SettingsButton.Icon>
+                    <SettingsButton.Title>Domovská stránka</SettingsButton.Title>
+                </SettingsButton>
 
-                <TableListChooser
+                <SettingsButton
                     href="/admin/instruments"
                     onClick={() => void setActive(matchPathname(location.pathname))}
                     active={active === 'instruments'}
                 >
-                    Nástoje
-                </TableListChooser>
+                    <SettingsButton.Icon active={active === 'instruments'}><FaMusic /></SettingsButton.Icon>
+                    <SettingsButton.Title>Nástroje</SettingsButton.Title>
+                </SettingsButton>
 
-                <TableListChooser
+                <SettingsButton
                     href="/admin/users"
                     onClick={() => void setActive(matchPathname(location.pathname))}
                     active={active === 'users'}
                 >
-                    Uživatelé
-                </TableListChooser>
+                    <SettingsButton.Icon active={active === 'users'}><FaUser /></SettingsButton.Icon>
+                    <SettingsButton.Title>Uživatelé</SettingsButton.Title>
+                </SettingsButton>
             </aside>
             <main className="flex flex-row justify-center p-4 w-full">{children}</main>
         </div>

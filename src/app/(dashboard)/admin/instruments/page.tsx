@@ -1,4 +1,4 @@
-import InstrumentList from '@/view/entity-list/instruments';
+import InstrumentsList from '@/view/entity-list/instruments';
 import InstrumentGroupingsList from '@/view/entity-list/instrument_groupings';
 import { Link } from '@/view/layout';
 import { FaPlus } from 'react-icons/fa6';
@@ -10,11 +10,11 @@ export const metadata = {
 
 export type EntityType = 'instruments' | 'groupings';
 
-export default function InstrumentListPage({
-    searchParams,
-}: {
+type PageProps = {
     searchParams: { t?: EntityType; refetch?: string };
-}) {
+};
+
+export default function InstrumentListPage({ searchParams }: PageProps) {
     if (searchParams.t === 'instruments') {
         redirect('/admin/instruments');
     }
@@ -54,7 +54,7 @@ export default function InstrumentListPage({
                     </Link>
                 </div>
                 <div>
-                    {type === 'instruments' && <InstrumentList refetch={refetch} />}
+                    {type === 'instruments' && <InstrumentsList refetch={refetch} />}
 
                     {type === 'groupings' && <InstrumentGroupingsList refetch={refetch} />}
                 </div>

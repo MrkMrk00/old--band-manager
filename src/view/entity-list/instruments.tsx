@@ -31,7 +31,7 @@ function renderGroupings(groupings: InstrumentGrouping[]): ReactNode {
     );
 }
 
-export default function InstrumentList({ refetch: forceRefetch }: { refetch?: boolean }) {
+export default function InstrumentsList({ refetch: forceRefetch }: { refetch?: boolean }) {
     const router = useRouter();
     const [page, setPage] = useState(1);
     const { data, isLoading, error, refetch } = trpc.instruments.fetchAll.useQuery({

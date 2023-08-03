@@ -1,6 +1,5 @@
 import db, { type Database } from '@/database';
-import type { InsertQueryBuilder, InsertResult, SelectArg, SelectExpression } from 'kysely';
-import { ExtractTableAlias } from 'kysely/dist/cjs/parser/table-parser';
+import type { InsertQueryBuilder, InsertResult } from 'kysely';
 
 export class Repository<T extends keyof Database> {
     readonly tableName: T;
@@ -9,19 +8,8 @@ export class Repository<T extends keyof Database> {
         this.tableName = dbName;
     }
 
-    selectQb(
-        what?: SelectArg<
-            Database,
-            ExtractTableAlias<Database, T>,
-            SelectExpression<Database, ExtractTableAlias<Database, T>>
-        >,
-    ) {
-        let qb = db.selectFrom(this.tableName);
-        if (what) {
-            qb = qb.select(what);
-        }
-
-        return qb;
+    selectQb() {
+        return db.selectFrom(this.tableName);
     }
 
     insertQb(): InsertQueryBuilder<Database, T, InsertResult> {

@@ -2,6 +2,8 @@ import { Authenticated, Router } from '@/lib/trcp/server';
 import { UsersRepository } from '@/lib/repositories';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+import { Pageable, Pager } from '@/lib/pager';
+import { sql } from 'kysely';
 
 const update = Authenticated.input(z.object({ display_name: z.string().min(5).max(512) })).mutation(
     async ({ ctx: { user }, input }) => {
@@ -24,9 +26,31 @@ const me = Authenticated.query(async function ({ ctx }) {
     return await UsersRepository.findById(ctx.user.id).executeTakeFirst();
 });
 
+const fetchAll = Authenticated.input(Pager.input)
+    .query(async function ({ ctx, input }) {
+        const allCount = (
+            await UsersRepository.selectQb().select(sql<number>`COUNT(*)`.as('count')).executeTakeFirst()
+        )?.count ?? 0;
+
+        const { maxPage, queryBuilder } = Pager.handleQuery(
+            UsersRepository.all(),
+            allCount,
+            input.perPage,
+            input.page,
+        );
+
+        const result = await queryBuilder.execute();
+
+        return {
+            maxPage,
+            payload: result,
+        } satisfies Pageable<typeof result[0]>;
+    });
+
 const usersRouter = Router({
-    update,
+    update, // update self
     me,
+    fetchAll,
 });
 
 export default usersRouter;

@@ -36,7 +36,6 @@ export const Pager = {
 
         return {
             maxPage,
-            perPage,
             queryBuilder,
         };
     },

@@ -15,3 +15,5 @@ rules:
     jsx-quotes:
         - error
         - prefer-double
+
+    react/display-name: 0

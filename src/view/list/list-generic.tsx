@@ -17,11 +17,6 @@ export type SortablePayload<T extends ObjectType> = {
     order: 'ASC' | 'DESC';
 };
 
-type OrderByState<T extends ObjectType> = [
-    orderBy: SortablePayload<T> | undefined,
-    setOrderBy: (payload: SortablePayload<T> | undefined) => void,
-];
-
 export type RowClickCallbackEvent = MouseEvent<HTMLDivElement & { dataset: DatasetWithId }>;
 export type RowClickCallback = (ev: RowClickCallbackEvent) => void;
 
@@ -130,6 +125,7 @@ type RowProps<T extends ObjectType> = {
     headerMapping?: HeaderMapping<T>;
     className?: string;
     onClick?: RowClickCallback;
+    index?: number;
 };
 
 function GenericListRow<T extends ObjectType>({
@@ -138,6 +134,7 @@ function GenericListRow<T extends ObjectType>({
     headerMapping,
     className,
     onClick,
+    index,
 }: RowProps<T>) {
     const elems = new Array(keys.length);
 
@@ -163,7 +160,7 @@ function GenericListRow<T extends ObjectType>({
             )}
             onClick={onClick}
             data-object-id={'id' in values ? values.id : undefined}
-            data-object-idx={at}
+            data-object-idx={index}
             key={at}
         >
             {elems}
@@ -194,6 +191,7 @@ function renderGenericListBody<T extends ObjectType>(
                 className={rowClassName}
                 onClick={onRowClick}
                 key={at}
+                index={at}
             />
         );
 
