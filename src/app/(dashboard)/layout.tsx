@@ -13,7 +13,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
     // Issued more than 15 minutes ago
     // Check if user still exits
-    if ((user.iat ?? 0) < ((Date.now() / 1000) - (15 * 60))) {
+    if ((user.iat ?? 0) < Date.now() / 1000 - 15 * 60) {
         redirect('/login/verify');
     }
 

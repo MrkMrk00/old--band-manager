@@ -15,7 +15,7 @@ export type DatasetWithId = HTMLDivElement['dataset'] & {
 export type SortablePayload<T extends ObjectType> = {
     field: keyof T;
     order: 'ASC' | 'DESC';
-}
+};
 
 type OrderByState<T extends ObjectType> = [
     orderBy: SortablePayload<T> | undefined,
@@ -36,12 +36,16 @@ export type GenericListProps<T extends ObjectType> = {
 } & AllHTMLAttributes<HTMLDivElement>;
 
 type HeaderProps<T extends ObjectType> = {
-    headerMapping: HeaderMapping<T> | undefined,
-    headerKeys: (keyof T)[],
+    headerMapping: HeaderMapping<T> | undefined;
+    headerKeys: (keyof T)[];
     onOrderChange?: (payload: SortablePayload<T> | undefined) => void;
 };
 
-function GenericListHeader<T extends ObjectType>({ headerMapping, headerKeys, onOrderChange }: HeaderProps<T>) {
+function GenericListHeader<T extends ObjectType>({
+    headerMapping,
+    headerKeys,
+    onOrderChange,
+}: HeaderProps<T>) {
     const [orderBy, setOrderBy] = useState<SortablePayload<T> | undefined>();
 
     useEffect(() => {
@@ -91,16 +95,12 @@ function GenericListHeader<T extends ObjectType>({ headerMapping, headerKeys, on
                         onClick={handleOrderChange}
                         data-column-key={key}
                     >
-                        { title ?? (key) as string }
+                        {title ?? (key as string)}
                     </button>
                     <span className="w-[1em] ml-1">
-                        {orderBy?.field === key && orderBy.order === 'ASC' && (
-                            <FaChevronUp />
-                        )}
+                        {orderBy?.field === key && orderBy.order === 'ASC' && <FaChevronUp />}
 
-                        {orderBy?.field === key && orderBy.order === 'DESC' && (
-                            <FaChevronDown />
-                        )}
+                        {orderBy?.field === key && orderBy.order === 'DESC' && <FaChevronDown />}
                     </span>
                 </>
             );
@@ -121,20 +121,24 @@ function GenericListHeader<T extends ObjectType>({ headerMapping, headerKeys, on
         at++;
     }
 
-    return (
-        <List.Header>{ elems }</List.Header>
-    );
+    return <List.Header>{elems}</List.Header>;
 }
 
 type RowProps<T extends ObjectType> = {
-    keys: (keyof T)[],
-    values: T,
-    headerMapping?: HeaderMapping<T>,
+    keys: (keyof T)[];
+    values: T;
+    headerMapping?: HeaderMapping<T>;
     className?: string;
-    onClick?: RowClickCallback,
+    onClick?: RowClickCallback;
 };
 
-function GenericListRow<T extends ObjectType>({ values, keys, headerMapping, className, onClick }: RowProps<T>) {
+function GenericListRow<T extends ObjectType>({
+    values,
+    keys,
+    headerMapping,
+    className,
+    onClick,
+}: RowProps<T>) {
     const elems = new Array(keys.length);
 
     let at = 0;
@@ -162,7 +166,7 @@ function GenericListRow<T extends ObjectType>({ values, keys, headerMapping, cla
             data-object-idx={at}
             key={at}
         >
-            { elems }
+            {elems}
         </List.Row>
     );
 }
@@ -215,7 +219,11 @@ export default function ListView<T extends ObjectType>(props: GenericListProps<T
 
     return (
         <List {...rest}>
-            <GenericListHeader headerMapping={headerMapping} headerKeys={keys} onOrderChange={onOrderByChange} />
+            <GenericListHeader
+                headerMapping={headerMapping}
+                headerKeys={keys}
+                onOrderChange={onOrderByChange}
+            />
             {renderGenericListBody(objects, keys, headerMapping, rowClassName, onRowClick)}
             <span className="h-[1em] border-none"></span>
         </List>

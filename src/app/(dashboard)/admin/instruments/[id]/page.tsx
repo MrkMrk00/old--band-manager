@@ -1,12 +1,17 @@
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import { Link } from '@/view/layout';
 import { redirect } from 'next/navigation';
-import { GroupingForm, InstrumentForm } from './client';
 import { EntityType } from '../page';
+import InstrumentForm from '@/view/entity-form/instrument';
+import GroupingForm from '@/view/entity-form/instrument_grouping';
+
+export const metadata = {
+    title: 'Přidej nástroj!',
+};
 
 type PageProps = {
     params: { id: string };
-    searchParams: { t?: EntityType, back_ref?: string };
+    searchParams: { t?: EntityType; back_ref?: string };
 };
 
 export default async function InstrumentView({ params: { id }, searchParams }: PageProps) {

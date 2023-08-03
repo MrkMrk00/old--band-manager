@@ -1,11 +1,6 @@
 'use client';
 
-import {
-    type ComponentPropsWithRef,
-    type ReactNode,
-    useEffect,
-    useState,
-} from 'react';
+import { type ComponentPropsWithRef, type ReactNode, useEffect, useState } from 'react';
 import { Link } from '@/view/layout';
 import { twMerge } from 'tailwind-merge';
 
@@ -16,7 +11,9 @@ function TableListChooser(props: ComponentPropsWithRef<typeof Link> & { active?:
         <Link
             {...other}
             className={twMerge(
-                `rounded-md shadow-none border text-center${active ? ' bg-green-300' : ''}`,
+                `rounded-md shadow-none border text-center inline-flex flex-row justify-center items-center${
+                    active ? ' bg-green-300' : ''
+                }`,
                 className,
             )}
         >
@@ -31,7 +28,11 @@ function matchPathname(hrefPathname: string | undefined) {
     }
 
     if (hrefPathname?.startsWith('/admin/users')) {
-        return 'users;'
+        return 'users';
+    }
+
+    if (hrefPathname && hrefPathname === '/admin') {
+        return 'home';
     }
 
     return '';
@@ -50,6 +51,14 @@ export default function MenuTemplate({ children }: { children?: ReactNode }) {
                 <span className="mx-auto">Sekce nastavení</span>
 
                 <TableListChooser
+                    href="/admin"
+                    onClick={() => void setActive(matchPathname(location.pathname))}
+                    active={active === 'home'}
+                >
+                    Domovská stránka
+                </TableListChooser>
+
+                <TableListChooser
                     href="/admin/instruments"
                     onClick={() => void setActive(matchPathname(location.pathname))}
                     active={active === 'instruments'}
@@ -65,7 +74,7 @@ export default function MenuTemplate({ children }: { children?: ReactNode }) {
                     Uživatelé
                 </TableListChooser>
             </aside>
-            <main className="flex flex-row justify-center p-4 w-full">{ children }</main>
+            <main className="flex flex-row justify-center p-4 w-full">{children}</main>
         </div>
     );
 }

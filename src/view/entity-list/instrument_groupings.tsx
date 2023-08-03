@@ -14,10 +14,16 @@ const headerMapping = {
     admin_name: { title: 'Přidal admin' },
 } satisfies HeaderMapping<ObjectType>;
 
-export default function InstrumentGroupingsList() {
+export default function InstrumentGroupingsList({ refetch: forceRefetch }: { refetch?: boolean }) {
     const router = useRouter();
     const [page, setPage] = useState(1);
-    const { data, isLoading, error } = trpc.instruments.groupings.fetchAll.useQuery({ page });
+    const { data, isLoading, error, refetch } = trpc.instruments.groupings.fetchAll.useQuery({
+        page,
+    });
+
+    if (forceRefetch) {
+        void refetch();
+    }
 
     const objects = useMemo(() => {
         if (!data) {

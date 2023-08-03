@@ -65,10 +65,12 @@ export class Repository<T extends keyof Database> {
     }
 
     findById(id: number) {
-        return this.selectQb()
-            .selectAll()
-            // @ts-ignore
-            .where(`${this.tableName}.id`, '=', id)
+        return (
+            this.selectQb()
+                .selectAll()
+                // @ts-ignore
+                .where(`${this.tableName}.id`, '=', id)
+        );
     }
 
     all(offset: number = 0, limit: number = 20) {

@@ -9,7 +9,7 @@ const alg = 'HS384';
 const secret = new TextEncoder().encode(env.APP_SECRET);
 const expiration = '72h';
 
-export function signJWT(payload: Record<string, string|number>): Promise<string> {
+export function signJWT(payload: Record<string, string | number>): Promise<string> {
     return new SignJWT(payload)
         .setProtectedHeader({ alg })
         .setIssuedAt()
@@ -42,13 +42,14 @@ export const COOKIE_SETTINGS = {
 
 export type Session = PersistentUser;
 
-export async function createSessionCookie(data: Record<string, number|string>): Promise<Record<string, number|string|boolean>> {
+export async function createSessionCookie(
+    data: Record<string, number | string>,
+): Promise<Record<string, number | string | boolean>> {
     return {
         ...COOKIE_SETTINGS,
         value: await signJWT(data),
     };
 }
-
 
 type AppSession = {
     id: number;
@@ -59,8 +60,8 @@ async function verifyToken(jwtToken: string | undefined): Promise<boolean> {
     return !!jwtToken && !!(await verifyJWT(jwtToken));
 }
 
-export async function getSession(req?: NextRequest): Promise<AppSession & JWTPayload | null> {
-    let token: string|undefined;
+export async function getSession(req?: NextRequest): Promise<(AppSession & JWTPayload) | null> {
+    let token: string | undefined;
 
     if (req) {
         token = req.cookies.get(COOKIE_SETTINGS.name)?.value;
@@ -68,7 +69,7 @@ export async function getSession(req?: NextRequest): Promise<AppSession & JWTPay
         token = cookies().get(COOKIE_SETTINGS.name)?.value;
     }
 
-    if (!token || !await verifyToken(token)) {
+    if (!token || !(await verifyToken(token))) {
         return null;
     }
 

@@ -46,14 +46,13 @@ const upsert = Authenticated.input(
     }),
 ).mutation(async ({ ctx, input }) => {
     if (typeof input.id === 'undefined') {
-        const qb = InstrumentsRepository.insertQb()
-            .values({
-                name: input.name,
-                subname: input.subname,
-                icon: input.icon,
-                created_by: ctx.user.id,
-                groupings: sql`'[]'`,
-            });
+        const qb = InstrumentsRepository.insertQb().values({
+            name: input.name,
+            subname: input.subname,
+            icon: input.icon,
+            created_by: ctx.user.id,
+            groupings: sql`'[]'`,
+        });
 
         const result = await qb.execute();
 
@@ -112,39 +111,42 @@ const deleteOne = Authenticated.input(z.number().int()).mutation(async ({ input 
     return true;
 });
 
-const one = Authenticated.input(z.number().int().min(0))
-    .query(async function ({ input }) {
-        let res = await InstrumentsRepository.findById(input).executeTakeFirst();
+const one = Authenticated.input(z.number().int().min(0)).query(async function ({ input }) {
+    let res = await InstrumentsRepository.findById(input).executeTakeFirst();
 
-        if (!res) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Tenhle nástroj neexistuje.',
-            });
-        }
+    if (!res) {
+        throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Tenhle nástroj neexistuje.',
+        });
+    }
 
-        const user = await UsersRepository.findById(res?.created_by)
-            .executeTakeFirst();
+    const user = await UsersRepository.findById(res?.created_by).executeTakeFirst();
 
-        const groupings = await query().selectFrom('instrument_groupings')
-            .selectAll()
-            .$call(inIntArray('id', res.groupings))
-            .execute();
+    const groupings = await query()
+        .selectFrom('instrument_groupings')
+        .selectAll()
+        .$call(inIntArray('id', res.groupings))
+        .execute();
 
-        return {
-            ...res,
-            user: user,
-            groupings: groupings,
-        };
-    });
+    return {
+        ...res,
+        user: user,
+        groupings: groupings,
+    };
+});
 
 // ================================================================================================
 // =====================================Instrument Groupings=======================================
 // ================================================================================================
 
-const grouping_fetchAll = Authenticated.input(z.object({
-    ids: z.array(z.number()).optional(),
-}).merge(Pager.input)).query(async function ({ input }) {
+const grouping_fetchAll = Authenticated.input(
+    z
+        .object({
+            ids: z.array(z.number()).optional(),
+        })
+        .merge(Pager.input),
+).query(async function ({ input }) {
     const allCount = await query()
         .selectFrom('instrument_groupings')
         .select(sql<number>`COUNT(*)`.as('count'))

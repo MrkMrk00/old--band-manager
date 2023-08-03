@@ -19,20 +19,32 @@ const headerMapping = {
 function renderGroupings(groupings: InstrumentGrouping[]): ReactNode {
     return (
         <div className="flex flex-row">
-            {groupings.map(g =>
-                <small className="rounded-2xl h-[1em] bg-yellow-300 p-2 inline-flex justify-center items-center" key={g.id}>
+            {groupings.map(g => (
+                <small
+                    className="rounded-2xl h-[1em] bg-yellow-300 p-2 inline-flex justify-center items-center"
+                    key={g.id}
+                >
                     {g.name.at(0)}
                 </small>
-            )}
+            ))}
         </div>
     );
 }
 
-export default function InstrumentList() {
+export default function InstrumentList({ refetch: forceRefetch }: { refetch?: boolean }) {
     const router = useRouter();
     const [page, setPage] = useState(1);
-    const { data, isLoading, error } = trpc.instruments.fetchAll.useQuery({ page, perPage: 5 });
-    const { data: allGroupings } = trpc.instruments.groupings.fetchAll.useQuery({ perPage: Number.MAX_SAFE_INTEGER });
+    const { data, isLoading, error, refetch } = trpc.instruments.fetchAll.useQuery({
+        page,
+        perPage: 5,
+    });
+    const { data: allGroupings } = trpc.instruments.groupings.fetchAll.useQuery({
+        perPage: Number.MAX_SAFE_INTEGER,
+    });
+
+    if (forceRefetch) {
+        void refetch();
+    }
 
     if (error) {
         console.error(error);
@@ -47,7 +59,9 @@ export default function InstrumentList() {
         let at = 0;
         for (let obj of data.payload) {
             const { id, name, subname, created_at, groupings } = obj;
-            const includeGroupings = allGroupings?.payload.filter(({ id }) => groupings.includes(id));
+            const includeGroupings = allGroupings?.payload.filter(({ id }) =>
+                groupings.includes(id),
+            );
 
             objects[at] = {
                 id,

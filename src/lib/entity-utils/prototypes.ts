@@ -8,12 +8,12 @@ const instrumentProto = {
         }
 
         return JSON.parse(this.groupings);
-    }
+    },
 };
 
 export function asInstrument(instrument: Instrument): Instrument & typeof instrumentProto {
     if (Object.getPrototypeOf(instrument) === instrumentProto) {
-        return instrument as Instrument  & typeof instrumentProto;
+        return instrument as Instrument & typeof instrumentProto;
     }
 
     return Object.setPrototypeOf(instrument, instrumentProto);

@@ -9,7 +9,7 @@ export const Router = t.router;
 export const Middleware = t.middleware;
 export const Public = t.procedure;
 
-const userAuthMiddleware = Middleware(async function({ ctx, next }) {
+const userAuthMiddleware = Middleware(async function ({ ctx, next }) {
     if (!ctx.user) {
         throw new TRPCError({
             code: 'FORBIDDEN',
@@ -38,11 +38,11 @@ const roleMiddlewareCache: Map<string, typeof Authenticated> = new Map();
 function createUnauthorizedError(): TRPCError {
     return new TRPCError({
         code: 'UNAUTHORIZED',
-        message: 'You don\'t have access to this resource!',
+        message: "You don't have access to this resource!",
     });
 }
 
-function createAuthorizedProcedure(roles: Role[], query: 'any'|'all' = 'any') {
+function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') {
     return Authenticated.use(async function ({ ctx, next }) {
         const user = asUser(ctx.user);
 
@@ -69,14 +69,15 @@ function createAuthorizedProcedure(roles: Role[], query: 'any'|'all' = 'any') {
                 throw createUnauthorizedError();
             }
 
-            default: throw new TRPCError({
-                code: 'INTERNAL_SERVER_ERROR',
-            });
+            default:
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                });
         }
     });
 }
 
-export function Authorized(roles: Role[], query: 'any'|'all' = 'any'): typeof Authenticated {
+export function Authorized(roles: Role[], query: 'any' | 'all' = 'any'): typeof Authenticated {
     const cacheKey = roles.filter(Boolean).join(',');
     let procedureBuilder = roleMiddlewareCache.get(cacheKey);
 

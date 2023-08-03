@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     }
 
     // @ts-ignore
-    cookies().set(await createSessionCookie(user as Record<string, number|string>));
+    cookies().set(await createSessionCookie(user as Record<string, number | string>));
 
     return NextResponse.redirect(req.headers.get('referer') ?? new URL('/', req.url));
 }

@@ -19,8 +19,12 @@ export const Pager = {
         maxPage: Math.ceil(allCount / perPage),
     }),
 
-
-    handleQuery: function <D, T extends keyof D, O>(queryBuilder: SelectQueryBuilder<D, T, O>, allCount: number, perPage: number, curPage: number) {
+    handleQuery: function <D, T extends keyof D, O>(
+        queryBuilder: SelectQueryBuilder<D, T, O>,
+        allCount: number,
+        perPage: number,
+        curPage: number,
+    ) {
         const { maxPage, offset } = this.query(allCount, perPage, curPage);
         if (offset !== 0) {
             queryBuilder = queryBuilder.offset(offset);
@@ -35,5 +39,5 @@ export const Pager = {
             perPage,
             queryBuilder,
         };
-    }
+    },
 };
