@@ -1,33 +1,31 @@
 import { UsersRepository } from '@/lib/repositories';
 import { sql } from 'kysely';
-import { COOKIE_SETTINGS, createSessionCookie, getSession } from '@/lib/auth/session';
-import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { SessionReader, SessionWriter } from '@/lib/auth/session';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
-    const user = await getSession(req);
+    const reader = await SessionReader.fromRequest(req);
 
-    if (!user) {
-        const resp = NextResponse.redirect(new URL('/login', req.url));
-        resp.cookies.delete(COOKIE_SETTINGS.name);
-
-        return resp;
+    if (!reader.isValid) {
+        return await new SessionWriter().deleteSession().inject(
+            NextResponse.redirect(new URL('/login', req.url)),
+        );
     }
 
     const exists = await UsersRepository.selectQb()
         .select(sql<number>`COUNT(*)`.as('count'))
-        .where('id', '=', user.id)
+        .where('id', '=', reader.userId)
         .executeTakeFirst();
 
     if (!exists || exists.count < 1) {
-        const response = NextResponse.redirect(new URL('/login', req.url));
-        response.cookies.delete(COOKIE_SETTINGS.name);
-
-        return response;
+        return await new SessionWriter().deleteSession().inject(
+            NextResponse.redirect(new URL('/login', req.url)),
+        );
     }
 
-    // @ts-ignore
-    cookies().set(await createSessionCookie(user as Record<string, number | string>));
+    const response = NextResponse.redirect(req.headers.get('referer') ?? new URL('/', req.url));
 
-    return NextResponse.redirect(req.headers.get('referer') ?? new URL('/', req.url));
+    return await new SessionWriter()
+        .setData(reader.session)
+        .inject(response);
 }

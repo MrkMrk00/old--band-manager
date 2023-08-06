@@ -53,7 +53,7 @@ export default function InstrumentListPage({ searchParams }: PageProps) {
                         &emsp;Přidat
                     </Link>
                 </div>
-                <div>
+                <div className="whitespace-nowrap">
                     {type === 'instruments' && <InstrumentsList refetch={refetch} />}
 
                     {type === 'groupings' && <InstrumentGroupingsList refetch={refetch} />}

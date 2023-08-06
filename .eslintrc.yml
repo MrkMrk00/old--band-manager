@@ -9,11 +9,9 @@ rules:
     linebreak-style:
         - error
         - unix
-    quotes:
-        - error
-        - single
     jsx-quotes:
         - error
         - prefer-double
 
+    quotes: 0
     react/display-name: 0

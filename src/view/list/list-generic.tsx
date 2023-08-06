@@ -23,7 +23,6 @@ export type RowClickCallback = (ev: RowClickCallbackEvent) => void;
 export type GenericListProps<T extends ObjectType> = {
     objects: T[];
     headerMapping?: HeaderMapping<T>;
-    only?: (keyof T)[];
     onRowClick?: RowClickCallback;
     rowClassName?: string;
     headerClassName?: string;
@@ -188,7 +187,7 @@ function renderGenericListBody<T extends ObjectType>(
                 keys={keys}
                 values={elem}
                 headerMapping={headerMapping}
-                className={rowClassName}
+                className={`list__body ${rowClassName}`}
                 onClick={onRowClick}
                 key={at}
                 index={at}
@@ -206,14 +205,13 @@ export default function ListView<T extends ObjectType>(props: GenericListProps<T
         objects,
         headerMapping,
         headerClassName,
-        only,
         onRowClick,
         rowClassName,
         onOrderByChange,
         ...rest
     } = props;
 
-    const keys: (keyof T)[] = only ?? (objects.length === 0 ? [] : Object.keys(objects[0]));
+    const keys: (keyof T)[] = (!headerMapping ? undefined : Object.keys(headerMapping)) ?? (objects.length === 0 ? [] : Object.keys(objects[0]));
 
     return (
         <List {...rest}>

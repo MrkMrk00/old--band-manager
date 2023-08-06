@@ -17,7 +17,7 @@ function ListField({ className, children, ...rest }: AllHTMLAttributes<HTMLDivEl
 
 function ListHeader({ className, children, ...rest }: AllHTMLAttributes<HTMLDivElement>) {
     return (
-        <ListRow className={twMerge('rounded-t-xl bg-slate-200 font-bold', className)} {...rest}>
+        <ListRow className={twMerge('rounded-t-xl bg-slate-200 font-bold header', className)} {...rest}>
             {children}
         </ListRow>
     );
@@ -26,7 +26,7 @@ function ListHeader({ className, children, ...rest }: AllHTMLAttributes<HTMLDivE
 function ListRow({ className, children, ...rest }: AllHTMLAttributes<HTMLDivElement>) {
     return (
         <div
-            className={twMerge('flex flex-row justify-between border-t h-[3em]', className)}
+            className={twMerge('group flex flex-row justify-between border-t h-[3em]', className)}
             {...rest}
         >
             {children}

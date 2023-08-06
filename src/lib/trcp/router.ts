@@ -1,6 +1,6 @@
 import { Router } from '@/lib/trcp/server';
-import InstrumentsRouter from '@/lib/router/instruments';
-import UsersRouter from '@/lib/router/users';
+import InstrumentsRouter from '@/router/instruments';
+import UsersRouter from '@/router/users';
 
 const router = Router({
     instruments: InstrumentsRouter,

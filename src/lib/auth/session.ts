@@ -1,92 +1,175 @@
-import type { PersistentUser } from '@/model/user';
+import type { NextResponse } from 'next/server';
+import type { JWTPayload } from 'jose';
+import type { ResponseCookie, Session } from '@/lib/auth/utils';
+
 import env from '@/env.mjs';
+import { SignJWT, jwtVerify, decodeJwt } from 'jose';
 import { NextRequest } from 'next/server';
-import { JWTPayload, type JWTVerifyResult, SignJWT, jwtVerify, decodeJwt } from 'jose';
-import { cookies } from 'next/headers';
-import { UsersRepository } from '@/lib/repositories';
 
 const alg = 'HS384';
 const secret = new TextEncoder().encode(env.APP_SECRET);
-const expiration = '72h';
+const expirationHours = 72;
 
 export function signJWT(payload: Record<string, string | number>): Promise<string> {
     return new SignJWT(payload)
         .setProtectedHeader({ alg })
         .setIssuedAt()
         .setIssuer(env.DOMAIN)
-        .setExpirationTime(expiration)
+        .setExpirationTime(`${expirationHours}h`)
         .sign(secret);
 }
 
-export async function verifyJWT(token: string): Promise<JWTVerifyResult | null> {
-    try {
-        return await jwtVerify(token, secret, {
-            issuer: env.DOMAIN,
-        });
-    } catch (ignore: unknown) {}
-
-    return null;
-}
-
-export function decodeJWT(token: string): JWTPayload {
-    return decodeJwt(token);
-}
-import { User } from '@/model/user';
-
-export const COOKIE_SETTINGS = {
+export const COOKIE_SETTINGS: Omit<ResponseCookie, 'value'> = {
     name: 'BAND_MANAGER_AUTH',
     httpOnly: false, // tRPC has to have access
     path: '/',
     secure: env.NODE_ENV === 'production',
-};
+    maxAge: expirationHours * 60 * 60,
+    sameSite: 'strict',
+} as const;
 
-export type Session = PersistentUser;
+const UnreadableToken = null;
 
-export async function createSessionCookie(
-    data: Record<string, number | string>,
-): Promise<Record<string, number | string | boolean>> {
-    return {
-        ...COOKIE_SETTINGS,
-        value: await signJWT(data),
-    };
+export class SessionReader {
+    #valid: boolean = false;
+    #rawToken: string;
+    #payload: (JWTPayload & Session) | typeof UnreadableToken | undefined = undefined;
+
+    private constructor(token: string, isValid: boolean) {
+        this.#rawToken = token;
+        this.#valid = isValid;
+    }
+
+    get isValid() {
+        return this.#valid;
+    }
+
+    static async fromToken(token?: string) {
+        if (!token) {
+            return new SessionReader('', false);
+        }
+
+        let isValid = false;
+
+        try {
+            isValid = !!(await jwtVerify(token, secret, { issuer: env.DOMAIN }));
+        } catch {}
+
+        return new SessionReader(token, isValid);
+    }
+
+    static async fromRequest(request: Request) {
+       const nextReq = request instanceof NextRequest ? request : new NextRequest(request);
+
+        return SessionReader.fromToken(nextReq.cookies.get(COOKIE_SETTINGS.name)?.value);
+    }
+
+
+    get userId(): number {
+        if (!this.#getPayload()?.id) {
+            throw new InvalidTokenError();
+        }
+
+        return this.#getPayload()!.id;
+    }
+
+    get displayName(): string {
+        if (!this.#getPayload()?.display_name) {
+            throw new InvalidTokenError();
+        }
+
+        return this.#getPayload()!.display_name;
+    }
+
+    get session() {
+        if (!this.#getPayload()) {
+            throw new InvalidTokenError();
+        }
+
+        return {
+            id: this.#getPayload()!.id,
+            display_name: this.#getPayload()!.display_name,
+        };
+    }
+
+    get payload(): (JWTPayload & Session) {
+        const payload = this.#getPayload();
+
+        if (!payload) {
+            throw new InvalidTokenError();
+        }
+
+        return payload;
+    }
+
+    #getPayload(): (JWTPayload & Session) | typeof UnreadableToken {
+        if (!this.#valid) {
+            return UnreadableToken;
+        }
+
+        if (this.#payload !== undefined) {
+            return this.#payload;
+        }
+
+        try {
+            this.#payload = decodeJwt(this.#rawToken) as JWTPayload & Session;
+        } catch {
+            this.#valid = false;
+
+            return UnreadableToken;
+        }
+
+        return this.#payload;
+    }
 }
 
-type AppSession = {
-    id: number;
-    display_name: string;
-};
+class InvalidTokenError extends Error {}
 
-async function verifyToken(jwtToken: string | undefined): Promise<boolean> {
-    return !!jwtToken && !!(await verifyJWT(jwtToken));
-}
+const DeleteSession = null;
 
-export async function getSession(req?: NextRequest): Promise<(AppSession & JWTPayload) | null> {
-    let token: string | undefined;
+export class SessionWriter {
+    #data: Session | typeof DeleteSession | undefined = undefined;
 
-    if (req) {
-        token = req.cookies.get(COOKIE_SETTINGS.name)?.value;
-    } else {
-        token = cookies().get(COOKIE_SETTINGS.name)?.value;
+    static async loadFromRequest(request: Request): Promise<SessionWriter> {
+        const reader = await SessionReader.fromRequest(request);
+
+        const writer = new SessionWriter();
+        if (reader.isValid) {
+            writer.setData(reader.session);
+        }
+
+        return writer;
     }
 
-    if (!token || !(await verifyToken(token))) {
-        return null;
+    deleteSession(): SessionWriter {
+        this.#data = null;
+
+        return this;
     }
 
-    const session = decodeJWT(token);
+    setData(data: Session): SessionWriter {
+        this.#data = data;
 
-    if (!('id' in session) || !('display_name' in session)) {
-        return null;
+        return this;
     }
 
-    return session as AppSession & JWTPayload;
-}
+    async inject(response: NextResponse): Promise<NextResponse> {
+        if (this.#data === undefined) {
+            return response;
+        }
 
-export async function useUser() {
-    const session = await getSession();
-    if (!session) {
-        return null;
+        if (this.#data === DeleteSession) {
+            response.cookies.delete(COOKIE_SETTINGS.name);
+
+            return response;
+        }
+
+        // @ts-ignore
+        response.cookies.set({
+            ...COOKIE_SETTINGS,
+            value: await signJWT(this.#data),
+        });
+
+        return response;
     }
-
-    return (await UsersRepository.findById(session.id).executeTakeFirst()) as unknown as User;
 }

@@ -11,9 +11,9 @@ const instrumentProto = {
     },
 };
 
-export function asInstrument(instrument: Instrument): Instrument & typeof instrumentProto {
+export function asInstrument<T extends Instrument>(instrument: T): T & typeof instrumentProto {
     if (Object.getPrototypeOf(instrument) === instrumentProto) {
-        return instrument as Instrument & typeof instrumentProto;
+        return instrument as T & typeof instrumentProto;
     }
 
     return Object.setPrototypeOf(instrument, instrumentProto);
@@ -28,7 +28,7 @@ const userProto = {
         return this.roles.includes(role);
     },
 
-    hasAllRoles(roles: Role[]) {
+    hasAllRoles(roles: Role[]): boolean {
         if (roles.length < 1) {
             return true;
         }

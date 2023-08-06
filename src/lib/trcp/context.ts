@@ -1,23 +1,16 @@
-import { inferAsyncReturnType } from '@trpc/server';
-import { decodeJWT, verifyJWT, type Session } from '@/lib/auth/session';
+import type { inferAsyncReturnType } from '@trpc/server';
 import type { FetchCreateContextFnOptions } from '@trpc/server/src/adapters/fetch/types';
-
-async function handleGetUser(req: FetchCreateContextFnOptions['req']) {
-    const token = req.headers.get('X-TOKEN');
-
-    if (!token || !(await verifyJWT(token))) {
-        return null;
-    }
-
-    const session = decodeJWT(token);
-    return session as Session;
-}
+import { SessionReader } from '@/lib/auth/session';
 
 export async function createContext({ req }: FetchCreateContextFnOptions) {
-    const user = await handleGetUser(req);
+    const reader = await SessionReader.fromToken(req.headers.get('X-TOKEN') || undefined);
+
+    if (!reader.isValid) {
+        return {};
+    }
 
     return {
-        user,
+        user: reader.session,
     };
 }
 

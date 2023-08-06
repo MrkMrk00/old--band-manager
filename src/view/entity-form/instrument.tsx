@@ -9,6 +9,35 @@ import { type FormProps, FormRow } from '@/view/entity-form/_form-utils';
 
 export type { FormProps };
 
+type GroupingProps = {
+    namePrefix: string;
+    id: number;
+
+    className: string;
+    text: string;
+    onDelete: (id: number) => void;
+};
+
+function Grouping({ namePrefix, id, className, text, onDelete }: GroupingProps) {
+
+    return (
+        <div
+            title={text}
+            className="flex flex-row gap-2 justify-between rounded-3xl bg-yellow-300 border border-yellow-300 pl-3"
+            key={id}
+        >
+            <input type="hidden" name="groupings[]" value={id} />
+            <span className="pl-2">{text.at(0)}</span>
+            <small
+                onClick={() => void onDelete(id)}
+                className="flex flex-col justify-center text-transparent hover:text-red-500 px-1 cursor-pointer"
+            >
+                X
+            </small>
+        </div>
+    );
+}
+
 export default function InstrumentForm({ id }: FormProps) {
     const router = useRouter();
 

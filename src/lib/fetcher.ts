@@ -1,4 +1,4 @@
-type FetcherInit = RequestInit & {
+export type FetcherInit = RequestInit & {
     retries?: number;
 };
 

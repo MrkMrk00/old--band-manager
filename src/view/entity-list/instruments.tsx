@@ -84,7 +84,7 @@ export default function InstrumentsList({ refetch: forceRefetch }: { refetch?: b
     return (
         <>
             <If condition={isLoading}>
-                <div className="w-full h-full p-4 rounded-xl shadow flex flex-row justify-center items-center">
+                <div className="w-full h-full flex justify-center items-center">
                     <LoadingSpinner size="4em" color="black" />
                 </div>
             </If>
@@ -94,7 +94,6 @@ export default function InstrumentsList({ refetch: forceRefetch }: { refetch?: b
                     <ListView
                         objects={objects}
                         onRowClick={handleRowClick}
-                        only={['icon', 'name', 'groupings', 'created_at']}
                         headerMapping={headerMapping}
                     />
 

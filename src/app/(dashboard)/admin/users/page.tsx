@@ -1,5 +1,3 @@
-'use client';
-
 import UsersList from '@/view/entity-list/users';
 import { Link } from '@/view/layout';
 import { FaPlus } from 'react-icons/fa6';

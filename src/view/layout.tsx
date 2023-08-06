@@ -21,7 +21,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
 
     return (
         <input
-            className={twMerge('border border-slate-200 rounded-2xl py-2 px-4', className)}
+            className={twMerge('border-2 border-slate-200 rounded-2xl py-2 px-4 focus:outline-none focus:border-green-300', className)}
             {...other}
         />
     );

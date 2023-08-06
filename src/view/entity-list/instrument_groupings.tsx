@@ -57,7 +57,7 @@ export default function InstrumentGroupingsList({ refetch: forceRefetch }: { ref
     return (
         <>
             <If condition={isLoading}>
-                <div className="w-full h-full p-4 rounded-xl shadow flex flex-row justify-center items-center">
+                <div className="w-full h-full flex justify-center items-center">
                     <LoadingSpinner size="4em" color="black" />
                 </div>
             </If>
@@ -67,7 +67,6 @@ export default function InstrumentGroupingsList({ refetch: forceRefetch }: { ref
                     <ListView
                         objects={objects}
                         onRowClick={handleRowClick}
-                        only={['name', 'created_at', 'admin_name']}
                         headerMapping={headerMapping}
                     />
 
