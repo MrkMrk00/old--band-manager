@@ -211,7 +211,9 @@ export default function ListView<T extends ObjectType>(props: GenericListProps<T
         ...rest
     } = props;
 
-    const keys: (keyof T)[] = (!headerMapping ? undefined : Object.keys(headerMapping)) ?? (objects.length === 0 ? [] : Object.keys(objects[0]));
+    const keys: (keyof T)[] =
+        (!headerMapping ? undefined : Object.keys(headerMapping)) ??
+        (objects.length === 0 ? [] : Object.keys(objects[0]));
 
     return (
         <List {...rest}>

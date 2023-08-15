@@ -1,57 +1,32 @@
 'use client';
 
 import type { RowClickCallbackEvent, HeaderMapping, ObjectType } from '@/view/list';
-
 import { ListView, Pager } from '@/view/list';
-import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { If, LoadingSpinner } from '@/view/layout';
-import trpc from '@/lib/trcp/client';
+import { useInstrumentsList } from '@/view/list/hooks';
 
 const headerMapping = {
+    icon: { title: '', className: 'w-1/4' },
     name: { title: 'Název' },
     created_at: { title: 'Vytvořeno' },
-    admin_name: { title: 'Přidal admin' },
+    groupings: { title: 'Sekce' },
 } satisfies HeaderMapping<ObjectType>;
 
-export default function InstrumentGroupingsList({ refetch: forceRefetch }: { refetch?: boolean }) {
+export default function InstrumentsList({ refetch: forceRefetch }: { refetch?: boolean }) {
     const router = useRouter();
-    const [page, setPage] = useState(1);
-    const { data, isLoading, error, refetch } = trpc.instruments.groupings.fetchAll.useQuery({
-        page,
-    });
+    const { maxPage, instruments, refetch, error, page, setPage, isLoading } = useInstrumentsList();
 
     if (forceRefetch) {
         void refetch();
     }
-
-    const objects = useMemo(() => {
-        if (!data) {
-            return [];
-        }
-
-        const mapped = new Array(data.payload.length);
-        let at = 0;
-        for (const { id, name, created_at, admin_name } of data.payload) {
-            mapped[at] = {
-                id,
-                name,
-                created_at: new Date(created_at).toLocaleString('cs'),
-                admin_name: !admin_name ? '' : admin_name.split(' ')[0],
-            };
-
-            at++;
-        }
-
-        return mapped;
-    }, [data]);
 
     if (error) {
         console.error(error);
     }
 
     function handleRowClick(ev: RowClickCallbackEvent) {
-        router.push(`/admin/instruments/${ev.currentTarget.dataset.objectId}?t=groupings`);
+        router.push(`/admin/instruments/${ev.currentTarget.dataset.objectId}`);
     }
 
     return (
@@ -62,18 +37,18 @@ export default function InstrumentGroupingsList({ refetch: forceRefetch }: { ref
                 </div>
             </If>
 
-            {data && objects && (
+            {instruments && (
                 <>
                     <ListView
-                        objects={objects}
+                        objects={instruments}
                         onRowClick={handleRowClick}
                         headerMapping={headerMapping}
                     />
 
-                    <If condition={data.maxPage > 1}>
-                        <div className="flex flex-row">
+                    <If condition={maxPage ? maxPage > 1 : false}>
+                        <div className="flex flex-row pt-5">
                             <Pager
-                                maxPage={data.maxPage}
+                                maxPage={maxPage!}
                                 curPage={page}
                                 onPageChange={num => setPage(num)}
                                 btnClassName="bg-white"

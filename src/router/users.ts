@@ -26,26 +26,28 @@ const me = Authenticated.query(async function ({ ctx }) {
     return await UsersRepository.findById(ctx.user.id).executeTakeFirst();
 });
 
-const fetchAll = Authenticated.input(Pager.input)
-    .query(async function ({ ctx, input }) {
-        const allCount = (
-            await UsersRepository.selectQb().select(sql<number>`COUNT(*)`.as('count')).executeTakeFirst()
+const fetchAll = Authenticated.input(Pager.input).query(async function ({ ctx, input }) {
+    const allCount =
+        (
+            await UsersRepository.selectQb()
+                .select(sql<number>`COUNT(*)`.as('count'))
+                .executeTakeFirst()
         )?.count ?? 0;
 
-        const { maxPage, queryBuilder } = Pager.handleQuery(
-            UsersRepository.all(),
-            allCount,
-            input.perPage,
-            input.page,
-        );
+    const { maxPage, queryBuilder } = Pager.handleQuery(
+        UsersRepository.all(),
+        allCount,
+        input.perPage,
+        input.page,
+    );
 
-        const result = await queryBuilder.execute();
+    const result = await queryBuilder.execute();
 
-        return {
-            maxPage,
-            payload: result,
-        } satisfies Pageable<typeof result[0]>;
-    });
+    return {
+        maxPage,
+        payload: result,
+    } satisfies Pageable<(typeof result)[0]>;
+});
 
 const usersRouter = Router({
     update, // update self

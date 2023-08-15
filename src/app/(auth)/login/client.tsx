@@ -1,6 +1,6 @@
 'use client';
 
-import { FacebookLoginButton } from '@/view/components';
+import FacebookLoginButton from '@/view/components/FacebookLoginButton';
 import Image from 'next/image';
 import bigBandLogo from '@/assets/bigbandlogo.png';
 import { FormHTMLAttributes, useState } from 'react';

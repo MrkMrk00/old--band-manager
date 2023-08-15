@@ -3,9 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useState } from 'react';
 import trpc from '@/lib/trcp/client';
-import Modal, { Button, Input, LoadingSpinner } from '@/view/layout';
+import { Button, Input, LoadingSpinner } from '@/view/layout';
+import { Modal } from '@/view/layout-stateful';
 import { FaTrash } from 'react-icons/fa6';
-import { type FormProps, FormRow } from '@/view/entity-form/_form-utils';
+import { type FormProps, FormRow } from '@/view/form/components';
 
 export type { FormProps };
 

@@ -1,5 +1,5 @@
-import InstrumentsList from '@/view/entity-list/instruments';
-import InstrumentGroupingsList from '@/view/entity-list/instrument_groupings';
+import InstrumentsList from '@/view/list/entity/instruments';
+import InstrumentGroupingsList from '@/view/list/entity/instrument_groupings';
 import { Link } from '@/view/layout';
 import { FaPlus } from 'react-icons/fa6';
 import { redirect } from 'next/navigation';
@@ -50,7 +50,7 @@ export default function InstrumentListPage({ searchParams }: PageProps) {
                         className="inline-flex items-center bg-green-300"
                     >
                         <FaPlus />
-                        &emsp;Přidat
+                        &nbsp;Přidat
                     </Link>
                 </div>
                 <div className="whitespace-nowrap">

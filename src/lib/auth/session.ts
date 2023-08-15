@@ -59,11 +59,14 @@ export class SessionReader {
     }
 
     static async fromRequest(request: Request) {
-       const nextReq = request instanceof NextRequest ? request : new NextRequest(request);
+        if (!('cookies' in request)) {
+            request = new NextRequest(request);
+        }
 
-        return SessionReader.fromToken(nextReq.cookies.get(COOKIE_SETTINGS.name)?.value);
+        return SessionReader.fromToken(
+            (request as NextRequest).cookies.get(COOKIE_SETTINGS.name)?.value,
+        );
     }
-
 
     get userId(): number {
         if (!this.#getPayload()?.id) {
@@ -92,7 +95,7 @@ export class SessionReader {
         };
     }
 
-    get payload(): (JWTPayload & Session) {
+    get payload(): JWTPayload & Session {
         const payload = this.#getPayload();
 
         if (!payload) {

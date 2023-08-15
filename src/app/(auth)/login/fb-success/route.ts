@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const facebookUser = await loginResolver.accept(req);
 
     if ('error' in facebookUser) {
-        return html(`<pre>Nepodařilo se přihlásit.<br />${facebookUser.error?.message}</pre>`)
+        return html(`<pre>Nepodařilo se přihlásit.<br />${facebookUser.error?.message}</pre>`);
     }
 
     const persistentUser = await handleFacebookAuth(facebookUser);
@@ -34,9 +34,7 @@ export async function GET(req: NextRequest) {
     }
 
     // happy path -> frontend listens to close event
-    const response = await new SessionWriter()
+    return await new SessionWriter()
         .setData(persistentUser)
         .inject(html('<script>window.close();</script>'));
-
-    return response;
 }

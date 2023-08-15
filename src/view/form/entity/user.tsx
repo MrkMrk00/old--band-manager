@@ -1,6 +1,7 @@
 'use client';
 
-import Modal, { Button, If, Input, LoadingSpinner } from '@/view/layout';
+import { Button, If, Input, LoadingSpinner } from '@/view/layout';
+import { Modal } from '@/view/layout-stateful';
 import Image from 'next/image';
 import fbLogo from '@/assets/fb_logo_250.png';
 import { FormEvent, ReactNode, useRef, useState } from 'react';

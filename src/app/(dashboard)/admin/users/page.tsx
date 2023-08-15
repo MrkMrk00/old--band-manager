@@ -1,4 +1,4 @@
-import UsersList from '@/view/entity-list/users';
+import UsersList from '@/view/list/entity/users';
 import { Link } from '@/view/layout';
 import { FaPlus } from 'react-icons/fa6';
 
@@ -8,7 +8,8 @@ export default function UsersAdminPage() {
             <div className="w-full h-full max-w-2xl flex flex-col gap-5">
                 <div className="flex flex-row justify-end">
                     <Link href="/admin/users/add" className="bg-green-300 inline-flex items-center">
-                        <FaPlus />&emsp;Přidat
+                        <FaPlus />
+                        &emsp;Přidat
                     </Link>
                 </div>
                 <UsersList />

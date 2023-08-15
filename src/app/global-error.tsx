@@ -12,17 +12,30 @@ export default function GlobalErrorHandler({ reset, error }: HandlerProps) {
     return (
         <html>
             <body>
-            <main className="w-full h-full flex flex-row justify-center items-center">
-                <div className="max-w-xl flex flex-col items-center gap-5">
-                    <h1 className="font-bold text-5xl">Čas dát si kávu ☕<small className="font-normal">({ error.name.slice(0, 10) })</small></h1>
-                    <pre>{ error.message }</pre>
+                <main className="w-full h-full flex flex-row justify-center items-center">
+                    <div className="max-w-xl flex flex-col items-center gap-5">
+                        <h1 className="font-bold text-5xl">
+                            Čas dát si kávu ☕
+                            <small className="font-normal">({error.name.slice(0, 10)})</small>
+                        </h1>
+                        <pre>{error.message}</pre>
 
-                    <div className="flex flex-row w-full justify-between">
-                        <Button type="button" onClick={reset} className="inline-flex items-center bg-green-300"><FaRepeat />&emsp;Zkusit znovu</Button>
-                        <Link href="/" className="inline-flex items-center bg-green-300">Domů&emsp;<FaHouse /></Link>
+                        <div className="flex flex-row w-full justify-between">
+                            <Button
+                                type="button"
+                                onClick={reset}
+                                className="inline-flex items-center bg-green-300"
+                            >
+                                <FaRepeat />
+                                &emsp;Zkusit znovu
+                            </Button>
+                            <Link href="/" className="inline-flex items-center bg-green-300">
+                                Domů&emsp;
+                                <FaHouse />
+                            </Link>
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
             </body>
         </html>
     );

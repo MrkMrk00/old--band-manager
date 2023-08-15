@@ -6,6 +6,7 @@ import { TRPCError } from '@trpc/server';
 import { type Pageable, Pager } from '@/lib/pager';
 import { sql } from 'kysely';
 import { inIntArray } from '@/lib/specs';
+import { EntityRouterDef } from '@/lib/trcp/router';
 
 const fetchAll = Authenticated.input(Pager.input).query(async function ({ input }) {
     let allCount = (
@@ -43,6 +44,7 @@ const upsert = Authenticated.input(
             .string()
             .optional()
             .transform(s => (!s || !z.string().url().parse(s) ? undefined : s)),
+        groupings: z.array(z.number().int().min(0)).optional(),
     }),
 ).mutation(async ({ ctx, input }) => {
     if (typeof input.id === 'undefined') {
@@ -54,16 +56,9 @@ const upsert = Authenticated.input(
             groupings: sql`'[]'`,
         });
 
-        const result = await qb.execute();
+        const result = await qb.executeTakeFirst();
 
-        if (result.length !== 1) {
-            throw new TRPCError({
-                message: 'Failed to insert a new instrument',
-                code: 'INTERNAL_SERVER_ERROR',
-            });
-        }
-
-        return Number(result[0].insertId);
+        return Number(result.insertId);
     }
 
     const result = await InstrumentsRepository.updateQb({ id: input.id })
@@ -71,17 +66,11 @@ const upsert = Authenticated.input(
             name: input.name,
             subname: input.subname,
             icon: input.icon,
+            groupings: input.groupings ? sql`${JSON.stringify(input.groupings)}` : sql`'[]'`,
         })
-        .execute();
+        .executeTakeFirst();
 
-    if (result.length !== 1) {
-        throw new TRPCError({
-            message: 'Nevim',
-            code: 'BAD_REQUEST',
-        });
-    }
-
-    if (Number(result[0].numUpdatedRows) > 1) {
+    if (Number(result.numUpdatedRows) > 1) {
         throw new TRPCError({
             message: 'Kurva, zas to updatuje jinak než má',
             code: 'INTERNAL_SERVER_ERROR',
@@ -290,4 +279,4 @@ export default Router({
     one,
 
     groupings: groupingsRouter,
-});
+} satisfies EntityRouterDef);

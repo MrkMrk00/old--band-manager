@@ -69,8 +69,9 @@ export async function handleFacebookAuth(
 
 type AsyncFacebookResponse = AsyncAuthResponse<FacebookUserDetailsResponse, FacebookErrorResponse>;
 
-export class FacebookAuth implements AuthHandler<number, FacebookUserDetailsResponse, FacebookErrorResponse> {
-
+export class FacebookAuth
+    implements AuthHandler<number, FacebookUserDetailsResponse, FacebookErrorResponse>
+{
     readonly redirectURL: string;
 
     constructor(redirectURL: string) {
@@ -80,7 +81,10 @@ export class FacebookAuth implements AuthHandler<number, FacebookUserDetailsResp
     async accept(request: Request): AsyncFacebookResponse {
         const url = new URL(request.url);
 
-        const tokenResponse = await this.getAccessToken(url.searchParams.get('code') ?? '', this.redirectURL);
+        const tokenResponse = await this.getAccessToken(
+            url.searchParams.get('code') ?? '',
+            this.redirectURL,
+        );
         if ('error' in tokenResponse) {
             return tokenResponse;
         }

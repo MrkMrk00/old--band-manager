@@ -2,7 +2,7 @@ import type { PersistentUser } from '@/model/user';
 import Link from 'next/link';
 import { AnchorHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { RippleAnimation } from '@/view/layout';
+import { RippleAnimation } from '@/view/layout-stateful';
 import { FaHouse } from 'react-icons/fa6';
 import { FaUserCircle } from 'react-icons/fa';
 

@@ -14,7 +14,5 @@ export const ArgonUtil = {
         return await argon.hash(password, argonOptions);
     },
 
-    verify(password: string, hash: string) {
-
-    },
+    verify(password: string, hash: string) {},
 };

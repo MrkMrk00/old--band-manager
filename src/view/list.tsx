@@ -1,5 +1,3 @@
-'use client';
-
 import type { ObjectType, HeaderMapping } from '@/view/list/types';
 import List from '@/view/list/list-layout';
 import ListView, {

@@ -7,9 +7,16 @@ export async function GET(req: NextRequest) {
     const reader = await SessionReader.fromRequest(req);
 
     if (!reader.isValid) {
-        return await new SessionWriter().deleteSession().inject(
-            NextResponse.redirect(new URL('/login', req.url)),
-        );
+        return await new SessionWriter()
+            .deleteSession()
+            .inject(
+                NextResponse.redirect(
+                    new URL(
+                        '/login',
+                        `${req.nextUrl.protocol}/${req.nextUrl.host}${req.nextUrl.pathname}`,
+                    ),
+                ),
+            );
     }
 
     const exists = await UsersRepository.selectQb()
@@ -18,14 +25,13 @@ export async function GET(req: NextRequest) {
         .executeTakeFirst();
 
     if (!exists || exists.count < 1) {
-        return await new SessionWriter().deleteSession().inject(
-            NextResponse.redirect(new URL('/login', req.url)),
-        );
+        return await new SessionWriter()
+            .deleteSession()
+            .inject(NextResponse.redirect(new URL('/login', req.url)));
     }
 
-    const response = NextResponse.redirect(req.headers.get('referer') ?? new URL('/', req.url));
+    const next = new URL(req.url).searchParams.get('next');
+    const response = NextResponse.redirect(next ? decodeURIComponent(next) : new URL('/', req.url));
 
-    return await new SessionWriter()
-        .setData(reader.session)
-        .inject(response);
+    return await new SessionWriter().setData(reader.session).inject(response);
 }
