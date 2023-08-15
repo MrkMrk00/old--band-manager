@@ -4,8 +4,8 @@ docker-compose up -d
 
 EXEC='npm'
 
-if pnpm -v; then
-    EXEC='pnpm' > /dev/null
+if pnpm -v > /dev/null; then
+    EXEC='pnpm'
 fi
 
 echo "Executing with $EXEC"
