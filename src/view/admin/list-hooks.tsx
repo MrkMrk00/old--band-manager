@@ -1,7 +1,23 @@
 import trpc from '@/lib/trcp/client';
-import { ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { InstrumentGrouping } from '@/model/instrument_groupings';
 import { FaAt, FaFacebook } from 'react-icons/fa6';
+import type { TRPCClientErrorLike } from '@trpc/client';
+import type { ObjectType } from '@/view/list/types';
+
+export type HookReturn = {
+    page: number;
+    setPage: (a: number) => void;
+
+    maxPage: number;
+
+    refetch: () => void;
+    remove: () => void;
+    error: TRPCClientErrorLike<any> | null;
+    isLoading: boolean;
+
+    objects: ObjectType[];
+};
 
 function usePager() {
     const [page, setPage] = useState(1);
@@ -27,7 +43,7 @@ function renderGroupings(groupings: InstrumentGrouping[]): ReactNode {
     );
 }
 
-export function useInstrumentsList(perPage: number = 20) {
+export function useInstrumentsList(perPage: number = 20): HookReturn {
     const { page, setPage } = usePager();
     const { data, refetch, remove, error, isLoading } = trpc.instruments.fetchAll.useQuery({
         page,
@@ -68,16 +84,16 @@ export function useInstrumentsList(perPage: number = 20) {
     return {
         page,
         setPage,
-        maxPage: data?.maxPage,
+        maxPage: data?.maxPage ?? 0,
         refetch,
         remove,
         error,
-        instruments: objects,
+        objects,
         isLoading,
-    };
+    } satisfies HookReturn;
 }
 
-export function useInstrumentGroupingsList(perPage: number = 20) {
+export function useInstrumentGroupingsList(perPage: number = 20): HookReturn {
     const { page, setPage } = usePager();
     const { data, isLoading, error, refetch, remove } =
         trpc.instruments.groupings.fetchAll.useQuery({
@@ -113,12 +129,12 @@ export function useInstrumentGroupingsList(perPage: number = 20) {
         refetch,
         remove,
         isLoading,
-        groupings,
-        maxPage: data?.maxPage,
-    };
+        objects: groupings,
+        maxPage: data?.maxPage ?? 0,
+    } satisfies HookReturn;
 }
 
-export function useUsersList(perPage: number = 20) {
+export function useUsersList(perPage: number = 20): HookReturn {
     const { page, setPage } = usePager();
     const { data, error, refetch, isLoading, remove } = trpc.users.fetchAll.useQuery({ page });
 
@@ -152,11 +168,11 @@ export function useUsersList(perPage: number = 20) {
     return {
         page,
         setPage,
-        users: objects,
+        objects,
         refetch,
         remove,
         isLoading,
         error,
         maxPage: data?.maxPage ?? 0,
-    };
+    } satisfies HookReturn;
 }

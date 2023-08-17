@@ -1,5 +1,5 @@
 import { Button } from '@/view/layout';
-import UserDetailsForm from '@/view/form/entity/user';
+import UserDetailsForm from '@/view/admin/form/user';
 
 export const metadata = {
     title: 'Můj profil',

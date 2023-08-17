@@ -2,8 +2,8 @@ import { FaArrowLeftLong } from 'react-icons/fa6';
 import { Link } from '@/view/layout';
 import { redirect } from 'next/navigation';
 import { EntityType } from '../page';
-import InstrumentForm from '@/view/form/entity/instrument';
-import GroupingForm from '@/view/form/entity/instrument_grouping';
+import InstrumentForm from '@/view/admin/form/instrument';
+import GroupingForm from '@/view/admin/form/instrument_grouping';
 
 export const metadata = {
     title: 'Přidej nástroj!',

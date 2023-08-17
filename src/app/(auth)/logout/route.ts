@@ -1,10 +1,3 @@
-import { SessionWriter } from '@/lib/auth/session';
-import { type NextRequest, NextResponse } from 'next/server';
+import { handleLogout } from '@/lib/auth/api-handlers';
 
-async function handler(request: NextRequest) {
-    return await new SessionWriter()
-        .deleteSession()
-        .inject(NextResponse.redirect(new URL('/login', request.url)));
-}
-
-export { handler as GET, handler as POST };
+export { handleLogout as GET, handleLogout as POST };
