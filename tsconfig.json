@@ -16,6 +16,7 @@
     "jsx": "preserve",
     "incremental": true,
     "sourceMap": true,
+    "experimentalDecorators": true,
     "plugins": [
       {
         "name": "next"

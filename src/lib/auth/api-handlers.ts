@@ -4,20 +4,33 @@ import { SessionReader, SessionWriter } from '@/lib/auth/session';
 import { UsersRepository } from '@/lib/repositories';
 import { sql } from 'kysely';
 
-function html(html: string, { headers, ...opts }: ResponseInit = {}) {
-    headers = headers ?? {};
+type RouteHandler = (req: NextRequest) => Promise<NextResponse>;
+const routes = new Map<string, RouteHandler>;
 
-    return new NextResponse(html, {
-        headers: {
-            'Content-Type': 'text/html',
-            ...headers,
-        },
-        ...opts,
-    });
+/**
+ * Function decorator - register handler for a route /login/{handler}
+ * @param endpoint
+ * @param handler
+ */
+function route(endpoint: string, handler: RouteHandler): void {
+    routes.set(endpoint, handler);
 }
 
-// /login/fb-success
-export async function handleFacebookLogin(req: NextRequest): Promise<NextResponse> {
+export default function authApiHandler(request: NextRequest, { params }: { params: Record<string, string> }): Promise<NextResponse> {
+    const { handler } = params;
+
+    const handlerFunc = routes.get(handler);
+
+    if (!handlerFunc) {
+        return Promise.resolve(new NextResponse(null, {
+            status: 404,
+        }));
+    }
+
+    return handlerFunc(request);
+}
+
+route('fb-success', async function (req: NextRequest) {
     const url = new URL(req.url);
 
     const loginResolver = new FacebookAuth(url.href.replace(url.search, ''));
@@ -39,10 +52,9 @@ export async function handleFacebookLogin(req: NextRequest): Promise<NextRespons
     return await new SessionWriter()
         .setData(persistentUser)
         .inject(html('<script>window.close();</script>'));
-}
+});
 
-// /login/verify
-export async function handleVerifyLogin(req: NextRequest): Promise<NextResponse> {
+route('verify', async function (req: NextRequest) {
     const reader = await SessionReader.fromRequest(req);
 
     if (!reader.isValid) {
@@ -73,11 +85,23 @@ export async function handleVerifyLogin(req: NextRequest): Promise<NextResponse>
     const response = NextResponse.redirect(next ? decodeURIComponent(next) : new URL('/', req.url));
 
     return await new SessionWriter().setData(reader.session).inject(response);
-}
+});
 
 // /logout
 export async function handleLogout(req: NextRequest): Promise<NextResponse> {
     return await new SessionWriter()
         .deleteSession()
         .inject(NextResponse.redirect(new URL('/login', req.url)));
+}
+
+function html(html: string, { headers, ...opts }: ResponseInit = {}) {
+    headers = headers ?? {};
+
+    return new NextResponse(html, {
+        headers: {
+            'Content-Type': 'text/html',
+            ...headers,
+        },
+        ...opts,
+    });
 }

@@ -7,6 +7,7 @@ import { If, LoadingSpinner } from '@/view/layout';
 import { ListView, Pager } from '@/view/list';
 import { instrument, instrumentGrouping, user } from '@/view/admin/headerMapping';
 
+
 type ListProps = {
     entity: string;
 };

@@ -54,7 +54,7 @@ export function LoginForms() {
                     <EmailLoginForm
                         className="flex flex-col md:justify-center md:w-2/3 xl:w-1/3 w-full px-16 md:px-4 h-full"
                         method="POST"
-                        action="/login"
+                        action="/login/form"
                     />
                 ) : (
                     <Image

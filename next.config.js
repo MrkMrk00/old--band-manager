@@ -20,6 +20,7 @@ const nextConfig = {
             { source: '/', headers: secureHeaders },
         ];
     },
+    poweredByHeader: false,
 };
 
 export default nextConfig;
