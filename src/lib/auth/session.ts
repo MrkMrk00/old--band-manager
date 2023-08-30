@@ -133,7 +133,7 @@ const DeleteSession = null;
 export class SessionWriter {
     #data: Session | typeof DeleteSession | undefined = undefined;
 
-    static async loadFromRequest(request: Request): Promise<SessionWriter> {
+    static async fromRequest(request: Request): Promise<SessionWriter> {
         const reader = await SessionReader.fromRequest(request);
 
         const writer = new SessionWriter();

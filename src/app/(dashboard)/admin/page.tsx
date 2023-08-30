@@ -1,5 +1,11 @@
+import type { Metadata } from 'next';
 import { Link } from '@/view/layout';
 import { FaPlus } from 'react-icons/fa6';
+import { admin } from '@/lib/route-register';
+
+export const metadata: Metadata = {
+    title: 'Nastavení aplikace',
+};
 
 export default function AdminBasePage() {
     return (
@@ -15,16 +21,14 @@ export default function AdminBasePage() {
                 <h3 className="text-lg">Rychlé akce</h3>
                 <hr />
                 <Link
-                    href={`/admin/instruments/add?back_ref=${encodeURIComponent('/admin')}`}
+                    href={admin().add('instruments').setBackRef('/admin').build()}
                     className="inline-flex flex-row items-center bg-green-300"
                 >
                     <FaPlus size="2em" />
                     &emsp;Přidat nový nástroj
                 </Link>
                 <Link
-                    href={`/admin/instruments/add?t=groupings&back_ref=${encodeURIComponent(
-                        '/admin',
-                    )}`}
+                    href={admin().add('instrument_groupings').setBackRef('/admin').build()}
                     className="inline-flex flex-row items-center bg-green-300"
                 >
                     <FaPlus size="2em" />

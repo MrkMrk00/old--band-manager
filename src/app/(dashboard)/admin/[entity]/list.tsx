@@ -1,12 +1,15 @@
 'use client';
 
 import type { RowClickCallbackEvent } from '@/view/list/list-generic';
-import { useInstrumentGroupingsList, useInstrumentsList, useUsersList } from '@/view/admin/list-hooks';
+import {
+    useInstrumentGroupingsList,
+    useInstrumentsList,
+    useUsersList,
+} from '@/view/admin/list-hooks';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { If, LoadingSpinner } from '@/view/layout';
 import { ListView, Pager } from '@/view/list';
 import { instrument, instrumentGrouping, user } from '@/view/admin/headerMapping';
-
 
 type ListProps = {
     entity: string;
@@ -22,7 +25,8 @@ export function AdminList({ entity }: ListProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const dataProvider = entity in dataProviders ? dataProviders[entity as keyof typeof dataProviders] : null;
+    const dataProvider =
+        entity in dataProviders ? dataProviders[entity as keyof typeof dataProviders] : null;
     if (!dataProvider) {
         throw new Error('Unknown entity type');
     }

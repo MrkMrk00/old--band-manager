@@ -5,7 +5,7 @@ import { UsersRepository } from '@/lib/repositories';
 import { sql } from 'kysely';
 
 type RouteHandler = (req: NextRequest) => Promise<NextResponse>;
-const routes = new Map<string, RouteHandler>;
+const routes = new Map<string, RouteHandler>();
 
 /**
  * Function decorator - register handler for a route /login/{handler}
@@ -16,15 +16,20 @@ function route(endpoint: string, handler: RouteHandler): void {
     routes.set(endpoint, handler);
 }
 
-export default function authApiHandler(request: NextRequest, { params }: { params: Record<string, string> }): Promise<NextResponse> {
+export default function authApiHandler(
+    request: NextRequest,
+    { params }: { params: Record<string, string> },
+): Promise<NextResponse> {
     const { handler } = params;
 
     const handlerFunc = routes.get(handler);
 
     if (!handlerFunc) {
-        return Promise.resolve(new NextResponse(null, {
-            status: 404,
-        }));
+        return Promise.resolve(
+            new NextResponse(null, {
+                status: 404,
+            }),
+        );
     }
 
     return handlerFunc(request);

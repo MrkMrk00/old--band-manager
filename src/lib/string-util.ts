@@ -1,4 +1,3 @@
-
 export function ucfirst(str: string) {
     if (str.length < 1) {
         return str;

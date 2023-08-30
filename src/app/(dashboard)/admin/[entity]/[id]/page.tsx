@@ -10,11 +10,11 @@ const UserForm = dynamic(() => import('@/view/form/entity/user'));
 type PageProps = {
     searchParams: {
         back_ref?: string;
-    },
+    };
     params: {
         id: string;
         entity: string;
-    },
+    };
 };
 
 export default async function FormView({ searchParams, params: { entity, id } }: PageProps) {
@@ -43,9 +43,7 @@ export default async function FormView({ searchParams, params: { entity, id } }:
                 <GroupingForm key="groupings" id={id as `${number}` | 'add'} />
             )}
 
-            {entity === 'users' && (
-                <UserForm key="user" id={id as `${number}` | 'add'} />
-            )}
+            {entity === 'users' && <UserForm key="user" id={id as `${number}` | 'add'} />}
         </div>
     );
 }
