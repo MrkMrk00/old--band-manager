@@ -105,7 +105,7 @@ export class FacebookAuth
         returnUrl: string,
     ): Promise<FacebookTokenResponse | FacebookErrorResponse> {
         const resp = await fetcher(
-            urls.getAccessToken(env.FB_APP_ID, env.FB_APP_SECRET, loginCode, returnUrl),
+            urls.getAccessToken(env.FB_APP_ID ?? '', env.FB_APP_SECRET ?? '', loginCode, returnUrl),
             { retries: 2 },
         );
 

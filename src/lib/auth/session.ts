@@ -1,10 +1,12 @@
 import type { NextResponse } from 'next/server';
 import type { JWTPayload } from 'jose';
 import type { ResponseCookie, Session } from '@/lib/auth/utils';
+import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 
 import env from '@/env.mjs';
 import { SignJWT, jwtVerify, decodeJwt } from 'jose';
 import { NextRequest } from 'next/server';
+import { ResponseBuilder, default as createResponseBuilder } from '@/lib/http/response';
 
 const alg = 'HS384';
 const secret = new TextEncoder().encode(env.APP_SECRET);
@@ -156,7 +158,15 @@ export class SessionWriter {
         return this;
     }
 
-    async inject(response: NextResponse): Promise<NextResponse> {
+    async inject(
+        response: NextResponse | ((r: ResponseBuilder) => unknown),
+    ): Promise<NextResponse> {
+        if (typeof response === 'function') {
+            const builder = createResponseBuilder();
+            response(builder);
+            response = builder.get();
+        }
+
         if (this.#data === undefined) {
             return response;
         }
@@ -175,4 +185,23 @@ export class SessionWriter {
 
         return response;
     }
+}
+
+export async function useSession(
+    request: Request | ReadonlyRequestCookies,
+): Promise<Session | null> {
+    let reader: SessionReader;
+
+    if (request instanceof Request) {
+        reader = await SessionReader.fromRequest(request);
+    } else {
+        const token = request.get(COOKIE_SETTINGS.name);
+        if (!token) {
+            return null;
+        }
+
+        reader = await SessionReader.fromToken(token.value);
+    }
+
+    return reader.isValid ? reader.session : null;
 }

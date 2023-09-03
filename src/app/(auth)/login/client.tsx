@@ -28,7 +28,7 @@ function EmailLoginForm(props: FormHTMLAttributes<HTMLFormElement>) {
     );
 }
 
-export function LoginForms() {
+export function LoginForms({ fbLoginEnabled }: { fbLoginEnabled: boolean }) {
     const [formDisplayed, setFormDisplayed] = useState(false);
 
     return (
@@ -36,7 +36,10 @@ export function LoginForms() {
             <div className="md:w-1/3 flex flex-col pt-16 px-16 md:pr-0 gap-6 h-full">
                 <h3 className="text-2xl font-bold">Přihlásit se</h3>
                 <div className="flex flex-col gap-2 2xl:w-1/2 w-full">
-                    <FacebookLoginButton className="border flex flex-row gap-2" />
+                    {fbLoginEnabled && (
+                        <FacebookLoginButton className="border flex flex-row gap-2" />
+                    )}
+
                     <Button
                         className={`border flex flex-row gap-2 items-center${
                             formDisplayed ? ' bg-green-200' : ''

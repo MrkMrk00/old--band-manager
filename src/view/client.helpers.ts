@@ -37,7 +37,7 @@ export function getSessionCookie(): string | null {
     return getCookies().getOrDefault('BAND_MANAGER_AUTH', null);
 }
 
-export async function useSession(): Promise<
+export async function useSessionCookie(): Promise<
     (JWTPayload & { id: number; display_name: string }) | null
 > {
     const sessionCookie = getSessionCookie();

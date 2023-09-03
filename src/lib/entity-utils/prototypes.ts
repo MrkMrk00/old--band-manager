@@ -1,5 +1,6 @@
 import type { Instrument } from '@/model/instruments';
-import { Role, User } from '@/model/user';
+import { PersistentUser, Role, User } from '@/model/user';
+import { ArgonUtil } from '@/lib/auth/crypto';
 
 const instrumentProto = {
     getGroupingIds(): number[] {
@@ -48,6 +49,29 @@ const userProto = {
         }
 
         return true;
+    },
+
+    verifyPassword(plaintextPassword: string): Promise<boolean> {
+        if (!('password' in this)) {
+            return Promise.reject();
+        }
+
+        if (typeof this.password !== 'string' || !this.password || plaintextPassword === '') {
+            return Promise.resolve(false);
+        }
+
+        return ArgonUtil.verify(plaintextPassword, this.password);
+    },
+
+    /**
+     * @throws TypeError if prototype assigned to a non-user object
+     */
+    toPersistentUser(): PersistentUser {
+        if (!('id' in this) || !('display_name' in this)) {
+            throw new TypeError('userProto assigned to a non user object!');
+        }
+
+        return { id: this.id as number, display_name: this.display_name as string };
     },
 };
 

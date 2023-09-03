@@ -11,7 +11,8 @@
         "fmt": "prettier --write ./src",
         "lint": "eslint ./src/**/*.{ts,tsx,mjs}",
         "lint:fix": "eslint ./src/**/*.{ts,tsx,mjs} --fix",
-        "migrate": "node --no-warnings --loader ts-node/esm script/migrate.ts"
+        "migrate": "node --no-warnings --loader ts-node/esm script/migrate.ts",
+        "cs": "pnpm lint:fix && pnpm fmt"
     },
     "dependencies": {
         "@headlessui/react": "^1.7.17",
@@ -21,7 +22,7 @@
         "@trpc/client": "^10.38.1",
         "@trpc/react-query": "^10.38.1",
         "@trpc/server": "^10.38.1",
-        "bcrypt": "^5.1.1",
+        "argon2": "^0.31.1",
         "connection-string": "^4.4.0",
         "jose": "^4.14.4",
         "kysely": "^0.24.2",
