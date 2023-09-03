@@ -5,7 +5,7 @@
 - MySQL ([Planetscale](https://planetscale.com/) - Vitess), [Kysely QB](https://kysely.dev/), [tRPC](https://trpc.io/)
 
 ### Frontend:
-- [React.js](https://react.dev/) (obviously)
+- [React.js](https://react.dev/)
 - [TailwindCSS](https://tailwindcss.com/)
 - [Headless UI](https://tailwindcss.com/)
 
