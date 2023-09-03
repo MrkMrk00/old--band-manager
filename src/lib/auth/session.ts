@@ -164,7 +164,7 @@ export class SessionWriter {
         if (typeof response === 'function') {
             const builder = createResponseBuilder();
             response(builder);
-            response = builder.get();
+            response = builder.build();
         }
 
         if (this.#data === undefined) {

@@ -5,16 +5,7 @@ export class ResponseBuilder {
     public _init: ResponseInit = {
         status: 200,
     };
-
-    #setHeader(key: string, value: string): void {
-        if (!('headers' in this._init)) {
-            this._init.headers = {} as HeadersInit;
-        }
-
-        Object.assign(this._init.headers!, {
-            [key]: value,
-        });
-    }
+    public _headers: Map<string, string> = new Map<string, string>;
 
     body(body: BodyInit): this {
         this._body = body;
@@ -22,8 +13,14 @@ export class ResponseBuilder {
         return this;
     }
 
+    header(key: string, value: string): this {
+        this._headers.set(key, value);
+
+        return this;
+    }
+
     redirect(url: string | URL, status: number = 302): this {
-        this.#setHeader('Location', typeof url === 'string' ? url : url.href);
+        this._headers.set('Location', typeof url === 'string' ? url : url.href);
         this._init.status = status;
 
         return this;
@@ -35,7 +32,7 @@ export class ResponseBuilder {
 
     html(body: string): this {
         this._body = body;
-        this.#setHeader('Content-Type', 'text/html');
+        this._headers.set('Content-Type', 'text/html');
 
         return this;
     }
@@ -58,11 +55,13 @@ export class ResponseBuilder {
         return this;
     }
 
-    get() {
+    build() {
+        this._init.headers = Object.fromEntries(this._headers.entries());
+
         return new NextResponse(this._body, this._init);
     }
 }
 
-export default function response() {
+export default function response(): ResponseBuilder {
     return new ResponseBuilder();
 }

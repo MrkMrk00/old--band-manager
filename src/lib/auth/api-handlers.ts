@@ -27,18 +27,18 @@ export default async function authApiHandler(
     const handlerFunc = routes.get(handler);
 
     if (!handlerFunc) {
-        return Promise.resolve(response().notFound().get());
+        return Promise.resolve(response().notFound().build());
     }
 
     return await handlerFunc(request);
 }
 
-route('form', async function (req) {
-    void (await ensureAdminUser());
+route('form', async function (req: NextRequest): Promise<NextResponse> {
+    await ensureAdminUser();
 
     const user = await new DatabaseAuthHandler().accept(req);
     if (!user) {
-        return response().badRequest().get();
+        return response().badRequest().build();
     }
 
     return await new SessionWriter()
@@ -55,7 +55,7 @@ route('fb-success', async function (req: NextRequest) {
     if ('error' in facebookUser) {
         return response()
             .html(`<pre>Nepodařilo se přihlásit.<br />${facebookUser.error?.message}</pre>`)
-            .get();
+            .build();
     }
 
     const persistentUser = await handleFacebookAuth(facebookUser);
@@ -69,13 +69,13 @@ route('fb-success', async function (req: NextRequest) {
                     4,
                 )}</pre>`,
             )
-            .get();
+            .build();
     }
 
     // happy path -> frontend listens to close event
     return await new SessionWriter()
         .setData(persistentUser)
-        .inject(response().html('<script>window.close();</script>').get());
+        .inject(response().html('<script>window.close();</script>').build());
 });
 
 // GET /login/verify
@@ -85,7 +85,7 @@ route('verify', async function (req: NextRequest) {
     if (!reader.isValid) {
         return await new SessionWriter()
             .deleteSession()
-            .inject(response().redirect('/login').get());
+            .inject(response().redirect('/login').build());
     }
 
     const exists = await UsersRepository.selectQb()
@@ -96,13 +96,13 @@ route('verify', async function (req: NextRequest) {
     if (!exists || exists.count < 1) {
         return await new SessionWriter()
             .deleteSession()
-            .inject(response().redirect('/login').get());
+            .inject(response().redirect('/login').build());
     }
 
     const next = new URL(req.url).searchParams.get('next');
     const resp = response()
         .redirect(next ? decodeURIComponent(next) : '/')
-        .get();
+        .build();
 
     return await new SessionWriter().setData(reader.session).inject(resp);
 });
@@ -111,5 +111,5 @@ route('verify', async function (req: NextRequest) {
 export async function handleLogout(): Promise<NextResponse> {
     return await new SessionWriter()
         .deleteSession()
-        .inject(response().redirectPost('/login').get());
+        .inject(response().redirectPost('/login').build());
 }
