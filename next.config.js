@@ -5,7 +5,6 @@ const nextConfig = {
     async headers() {
         const secureHeaders = [
             { key: 'X-FRAME-OPTIONS', value: 'SAMEORIGIN' },
-            { key: 'Content-Security-Policy', value: "default-src 'self'; img-src https://*; child-src 'none'" },
             { key: 'X-Content-Type-Options', value: 'nosniff' },
         ];
 
@@ -13,6 +12,11 @@ const nextConfig = {
             secureHeaders.push({
                 key: 'Strict-Transport-Security',
                 value: 'max-age=63072000; includeSubdomains; preload',
+            });
+
+            secureHeaders.push({
+                key: 'Content-Security-Policy',
+                value: "default-src 'self'; img-src https://*; child-src 'none'",
             });
         }
 

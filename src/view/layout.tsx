@@ -1,6 +1,6 @@
 import type {
     AnchorHTMLAttributes,
-    ComponentPropsWithRef,
+    ComponentPropsWithRef, HTMLAttributes,
     InputHTMLAttributes,
     ReactNode,
 } from 'react';
@@ -104,4 +104,15 @@ export function LoadingSpinner({ size, className, color }: SpinnerProps) {
 
 export function If({ condition, children }: { condition: boolean; children: ReactNode }) {
     return <>{condition && children}</>;
+}
+
+export function OverlayText({ className, children, ...rest }: HTMLAttributes<HTMLSpanElement>) {
+    return (
+        <span
+            className={twMerge('absolute top-0 left-0 w-full h-full inline-flex justify-start items-center px-4', className)}
+            {...rest}
+        >
+            { children }
+        </span>
+    );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import type { ComponentPropsWithRef, ReactNode } from 'react';
-import { Link } from '@/view/layout';
+import { Link, OverlayText } from '@/view/layout';
 import { twMerge } from 'tailwind-merge';
 import { FaMusic, FaPeopleGroup, FaUser } from 'react-icons/fa6';
 import { FaHome } from 'react-icons/fa';
@@ -28,13 +28,7 @@ function SettingsButton(props: ButtonProps) {
     );
 }
 
-SettingsButton.Icon = function ({ children }: { children?: ReactNode }) {
-    return (
-        <span className="absolute w-full h-full inline-flex justify-start items-center px-4">
-            {children}
-        </span>
-    );
-};
+SettingsButton.Icon = OverlayText;
 
 SettingsButton.Title = function ({ children }: { children?: ReactNode }) {
     return <span className="w-full inline-flex justify-center items-center">{children}</span>;

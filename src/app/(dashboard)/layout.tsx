@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import Navbar from './Navbar';
+import Navbar from '@/view/components/DashboardNavbar';
 import { Toaster } from 'react-hot-toast';
 import { COOKIE_SETTINGS, SessionReader } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import { useUser } from '@/lib/hooks';
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
     const reader = await SessionReader.fromToken(cookies().get(COOKIE_SETTINGS.name)?.value);
@@ -17,9 +18,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         redirect('/login/verify');
     }
 
+    const user = await useUser();
+
     return (
         <>
-            <Navbar user={reader.payload} />
+            <Navbar user={user} />
             {children}
             <Toaster />
         </>
