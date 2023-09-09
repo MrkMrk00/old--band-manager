@@ -67,20 +67,12 @@ async function handleRedirectionFacebookAuth(req: NextRequest): Promise<NextResp
     if (persistentUser instanceof Error) {
         return response()
             .redirect('/login')
-            .errStr(
-                `Registration failed: ${JSON.stringify(
-                    persistentUser.message,
-                    null,
-                    4,
-                )}`,
-            )
+            .errStr(`Registration failed: ${JSON.stringify(persistentUser.message, null, 4)}`)
             .build();
     }
 
     // happy path -> frontend listens to close event
-    return await new SessionWriter()
-        .setData(persistentUser)
-        .inject(r => r.redirect('/'));
+    return await new SessionWriter().setData(persistentUser).inject(r => r.redirect('/'));
 }
 
 route('fb-success', async function (req: NextRequest) {

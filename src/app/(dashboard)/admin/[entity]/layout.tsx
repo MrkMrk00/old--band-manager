@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 };
 
 function EntityListAndDetailLayout({ children }: { children: ReactNode }) {
-    return <>{ children }</>;
+    return <>{children}</>;
 }
 
 export default EntityListAndDetailLayout;

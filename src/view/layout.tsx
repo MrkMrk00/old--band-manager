@@ -1,6 +1,7 @@
 import type {
     AnchorHTMLAttributes,
-    ComponentPropsWithRef, HTMLAttributes,
+    ComponentPropsWithRef,
+    HTMLAttributes,
     InputHTMLAttributes,
     ReactNode,
 } from 'react';
@@ -109,10 +110,13 @@ export function If({ condition, children }: { condition: boolean; children: Reac
 export function OverlayText({ className, children, ...rest }: HTMLAttributes<HTMLSpanElement>) {
     return (
         <span
-            className={twMerge('absolute top-0 left-0 w-full h-full inline-flex justify-start items-center px-4', className)}
+            className={twMerge(
+                'absolute top-0 left-0 w-full h-full inline-flex justify-start items-center px-4',
+                className,
+            )}
             {...rest}
         >
-            { children }
+            {children}
         </span>
     );
 }

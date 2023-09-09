@@ -6,7 +6,7 @@ import fs from 'node:fs';
  * @param shortOpt {string|undefined}
  * @returns {boolean}
  */
-export function hasBoolOpt(longOpt, shortOpt = undefined) {
+function hasBoolOpt(longOpt, shortOpt = undefined) {
     longOpt = longOpt.replaceAll('-', '').toLowerCase();
 
     if (!shortOpt) {

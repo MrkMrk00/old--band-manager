@@ -38,7 +38,9 @@ export function LoginForms({ fbLoginEnabled }: { fbLoginEnabled: boolean }) {
         <div className="flex md:flex-row flex-col w-full">
             <div className="md:w-1/3 flex flex-col pt-16 px-16 md:pr-0 gap-6 h-full">
                 {search.getAll('err_str').map((err, index) => (
-                    <span key={index} className="text-red-500">{ err }</span>
+                    <span key={index} className="text-red-500">
+                        {err}
+                    </span>
                 ))}
 
                 <h3 className="text-2xl font-bold">Přihlásit se</h3>

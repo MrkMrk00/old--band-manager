@@ -8,9 +8,7 @@ export async function useUser() {
         return null;
     }
 
-    const user = await UsersRepository
-        .findById(reader.payload.id)
-        .executeTakeFirst();
+    const user = await UsersRepository.findById(reader.payload.id).executeTakeFirst();
 
     return user ?? null;
 }

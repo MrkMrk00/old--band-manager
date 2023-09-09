@@ -1,7 +1,11 @@
-function ensureValidNumber(inputValue: string) {
+function ensureValidNumber(inputValue: string, optional: boolean = false) {
     const cast = +inputValue;
 
     if (inputValue === '' || isNaN(cast)) {
+        if (optional) {
+            return undefined;
+        }
+
         throw new Error('Invalid number');
     }
 
@@ -11,12 +15,14 @@ function ensureValidNumber(inputValue: string) {
 class Yoinker extends Map<string | number, string | number | Array<string | number>> {
     private static arrayMatcher = /^(\w+)\[([0-9]*)]$/;
 
-    handleType(input: HTMLInputElement): string | number {
+    handleType(input: HTMLInputElement): string | number | undefined {
         switch (input.dataset.yType || 'string') {
-            case 'int':
-                return Math.floor(ensureValidNumber(input.value));
+            case 'int': {
+                const num = ensureValidNumber(input.value, !!input.dataset.yOptional);
+                return typeof num === 'undefined' ? num : Math.floor(num);
+            }
             case 'number':
-                return ensureValidNumber(input.value);
+                return ensureValidNumber(input.value, !!input.dataset.yOptional);
             case 'string':
                 return input.value;
             default:
@@ -28,8 +34,10 @@ class Yoinker extends Map<string | number, string | number | Array<string | numb
         if (!input.name) {
             return;
         }
-
-        return this.set(input.name, this.handleType(input));
+        const value = this.handleType(input);
+        if (typeof value !== 'undefined') {
+            return this.set(input.name, value);
+        }
     }
 
     handleArray(inputs: NodeListOf<HTMLInputElement>): void {
@@ -46,6 +54,10 @@ class Yoinker extends Map<string | number, string | number | Array<string | numb
 
             const array = this.get(arrayName) as (string | number)[];
             const value = this.handleType(input);
+
+            if (typeof value === 'undefined') {
+                continue;
+            }
 
             if (index) {
                 array[+index] = value;

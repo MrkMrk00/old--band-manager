@@ -1,5 +1,6 @@
 import type { Generated } from 'kysely';
 import type { Insertable, Selectable, Updateable } from 'kysely';
+import type { CustomData } from '@/database';
 
 export type SongDatabase = {
     id: Generated<number>;
@@ -10,7 +11,7 @@ export type SongDatabase = {
     arranger: string | null;
 
     link: string | null;
-    custom_data: Record<string, string | number | object>;
+    custom_data: CustomData;
 
     created_by: number;
     created_at: Generated<string>;
@@ -29,7 +30,7 @@ export type SheetDatabase = {
     link: string | null;
     format: string | null;
     description: string | null;
-    custom_data: Record<string, string | number | object>;
+    custom_data: CustomData;
 
     created_by: number;
     created_at: Generated<string>;

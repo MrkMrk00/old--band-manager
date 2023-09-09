@@ -78,7 +78,10 @@ export default function MenuTemplate({ children }: { children?: ReactNode }) {
                         <SettingsButton.Title>Sekce</SettingsButton.Title>
                     </SettingsButton>
 
-                    <SettingsButton href="/admin/users" active={pathname.startsWith('/admin/users')}>
+                    <SettingsButton
+                        href="/admin/users"
+                        active={pathname.startsWith('/admin/users')}
+                    >
                         <SettingsButton.Icon>
                             <FaUser />
                         </SettingsButton.Icon>

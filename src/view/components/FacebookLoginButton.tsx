@@ -9,7 +9,9 @@ import { ButtonHTMLAttributes } from 'react';
 import { isMobile } from '@/view/client.helpers';
 
 const authDialogUrl = (appKey: string, returnUrl: string, state?: string) =>
-    `https://www.facebook.com/v17.0/dialog/oauth?client_id=${appKey}&redirect_uri=${returnUrl}${state ? '&state=' + state : '' }`;
+    `https://www.facebook.com/v17.0/dialog/oauth?client_id=${appKey}&redirect_uri=${returnUrl}${
+        state ? '&state=' + state : ''
+    }`;
 
 function handleClick(onClose: (ev: Event) => void) {
     const appKey = env.NEXT_PUBLIC_FB_APP_ID!;

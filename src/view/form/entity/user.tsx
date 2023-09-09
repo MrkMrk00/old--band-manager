@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, If, Input, LoadingSpinner } from '@/view/layout';
-import { Modal } from '@/view/layout-stateful';
+import { ConfirmModal } from '@/view/layout-stateful';
 import Image from 'next/image';
 import fbLogo from '@/assets/fb_logo_250.png';
 import { FormEvent, ReactNode, useRef, useState } from 'react';
@@ -65,7 +65,7 @@ export default function UserDetailsForm() {
             className="flex flex-col gap-4 w-full rounded-xl border shadow h-[250px]"
             onSubmit={handleFormSubmit}
         >
-            <Modal
+            <ConfirmModal
                 title="Opravdu?"
                 isOpen={showModal}
                 onClose={handleCloseModal}
@@ -75,7 +75,7 @@ export default function UserDetailsForm() {
                 ]}
             >
                 Opravdu chceš měnit svoje osobní údaje?
-            </Modal>
+            </ConfirmModal>
 
             <h3 className="font-bold text-xl border-b px-4 p-2 rounded-t-xl bg-slate-200">O mně</h3>
             <div className="flex flex-col gap-4 w-full">

@@ -66,7 +66,8 @@ export class ResponseBuilder {
 
     build() {
         if (this._redirectUrl) {
-            const params = this._redirectUrlParams.size > 0 ? `?${this._redirectUrlParams.toString()}` : '';
+            const params =
+                this._redirectUrlParams.size > 0 ? `?${this._redirectUrlParams.toString()}` : '';
 
             this.header('Location', this._redirectUrl + params);
         }

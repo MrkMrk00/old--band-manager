@@ -1,11 +1,15 @@
-import type { NewInstrumentGrouping, UpdatableGrouping } from '@/model/instrument_groupings';
+import type {
+    InstrumentGrouping,
+    NewInstrumentGrouping,
+    UpdatableGrouping,
+} from '@/model/instrument_groupings';
 import { Authenticated, Router } from '@/lib/trcp/server';
 import { InstrumentsRepository, query, UsersRepository } from '@/lib/repositories';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { type Pageable, Pager } from '@/lib/pager';
 import { sql } from 'kysely';
-import { countAll, inIntArray } from '@/lib/specs';
+import { countAll } from '@/lib/specs';
 
 const fetchAll = Authenticated.input(Pager.input).query(async function ({ input }) {
     const { perPage, page } = input;
@@ -129,11 +133,16 @@ const one = Authenticated.input(z.number().int().min(0)).query(async function ({
 
     const user = await UsersRepository.findById(res?.created_by).executeTakeFirst();
 
-    const groupings = await query()
-        .selectFrom('instrument_groupings')
-        .selectAll()
-        .$call(inIntArray('id', res.groupings))
-        .execute();
+    let groupings: InstrumentGrouping[];
+    if (res.groupings.length > 0) {
+        groupings = await query()
+            .selectFrom('instrument_groupings')
+            .selectAll()
+            .where('id', 'in', res.groupings)
+            .execute();
+    } else {
+        groupings = [];
+    }
 
     return {
         ...res,
@@ -153,11 +162,15 @@ const grouping_fetchAll = Authenticated.input(
         })
         .merge(Pager.input),
 ).query(async function ({ input }) {
-    const allCount = await query()
+    let countQb = query()
         .selectFrom('instrument_groupings')
-        .select(sql<number>`COUNT(*)`.as('count'))
-        .$call(inIntArray('id', input.ids))
-        .executeTakeFirst();
+        .select(sql<number>`COUNT(*)`.as('count'));
+
+    if (input.ids) {
+        countQb = countQb.where('id', 'in', input.ids);
+    }
+
+    let allCount = (await countQb.executeTakeFirst())?.count;
 
     if (typeof allCount === 'undefined') {
         return {
@@ -180,7 +193,7 @@ const grouping_fetchAll = Authenticated.input(
         ])
         .orderBy('instrument_groupings.name');
 
-    const result = Pager.handleQuery(objectsQb, allCount.count, input.perPage, input.page);
+    const result = Pager.handleQuery(objectsQb, allCount, input.perPage, input.page);
 
     const objects = await result.queryBuilder.execute();
 

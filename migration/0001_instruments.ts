@@ -16,6 +16,7 @@ export async function up(db: Kysely<any>) {
         .addColumn('id', 'integer', col => col.unsigned().primaryKey().autoIncrement())
         .addColumn('name', 'varchar(255)', col => col.unique().notNull())
         .addColumn('created_by', 'integer', col => col.unsigned().notNull())
+        .addColumn('custom_data', 'json')
         .$call(timestamps);
 
     await instruments.execute();

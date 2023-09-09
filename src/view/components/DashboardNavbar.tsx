@@ -40,9 +40,9 @@ function MobileMenu({ user }: NavbarProps) {
                         <Menu.Item>
                             {() => (
                                 <div className="flex flex-row justify-end h-16">
-                                <span className="flex flex-col justify-center items-center h-full w-20 border-l-2 border-b">
-                                    <FaX size="2rem" className="text-red-500" />
-                                </span>
+                                    <span className="flex flex-col justify-center items-center h-full w-20 border-l-2">
+                                        <FaX size="2rem" className="text-red-500" />
+                                    </span>
                                 </div>
                             )}
                         </Menu.Item>
@@ -53,26 +53,29 @@ function MobileMenu({ user }: NavbarProps) {
                                     className="relative w-full text-center py-4 border-y"
                                 >
                                     Domů
-                                    <OverlayText className="justify-end"><FaArrowRight /></OverlayText>
+                                    <OverlayText className="justify-end">
+                                        <FaArrowRight />
+                                    </OverlayText>
                                 </Link>
                             )}
                         </Menu.Item>
-
                     </div>
 
                     <div className="flex flex-col justify-end w-full h-full">
                         {user?.roles.some(r => r === 'ADMIN' || r === 'SUPER_ADMIN') && (
                             <Menu.Item>
                                 {() => (
-                                <Link
-                                    href="/admin"
-                                    className="relative w-full text-center py-4 border-t underline decoration-red-500"
-                                    title="Vidí pouze administrátor"
-                                >
-                                    Nastavení aplikace
-                                    <OverlayText className="justify-end"><FaArrowRight /></OverlayText>
-                                </Link>
-                            )}
+                                    <Link
+                                        href="/admin"
+                                        className="relative w-full text-center py-4 border-t underline decoration-red-500"
+                                        title="Vidí pouze administrátor"
+                                    >
+                                        Nastavení aplikace
+                                        <OverlayText className="justify-end">
+                                            <FaArrowRight />
+                                        </OverlayText>
+                                    </Link>
+                                )}
                             </Menu.Item>
                         )}
 
@@ -85,10 +88,10 @@ function MobileMenu({ user }: NavbarProps) {
                                     <span className="flex justify-center items-center">
                                         <FaCircleUser size="1.5em" />
                                     </span>
-                                    <span>
-                                        { user?.display_name }
-                                    </span>
-                                    <OverlayText className="justify-end"><FaArrowRight /></OverlayText>
+                                    <span>{user?.display_name}</span>
+                                    <OverlayText className="justify-end">
+                                        <FaArrowRight />
+                                    </OverlayText>
                                 </Link>
                             )}
                         </Menu.Item>
@@ -120,11 +123,8 @@ function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string
 }
 
 function isMobile(): boolean {
-    const is = window.innerWidth <= 768;
-    console.log(is);
-    return is;
+    return window.innerWidth <= 768;
 }
-
 
 export default function Navbar({ user }: NavbarProps) {
     const [display, setDisplay] = useState<'mobile' | 'wide'>('wide');
@@ -132,7 +132,7 @@ export default function Navbar({ user }: NavbarProps) {
     useEffect(() => {
         const listener = function () {
             setDisplay(isMobile() ? 'mobile' : 'wide');
-        }
+        };
 
         // initialize state
         listener();
@@ -146,7 +146,11 @@ export default function Navbar({ user }: NavbarProps) {
         <>
             <nav className="flex flex-row justify-between shadow sticky h-16 shrink-0 z-10 overflow-x-clip">
                 <div className="flex flex-col justify-center px-4 max-w-[40%]">
-                    <h1 className="font-bold text-xl"><a href="/" className="hover:underline">BigBand ZUŠ Vrchlabí</a></h1>
+                    <h1 className="font-bold text-xl">
+                        <a href="/" className="hover:underline">
+                            BigBand ZUŠ Vrchlabí
+                        </a>
+                    </h1>
                 </div>
 
                 <If condition={display === 'mobile'}>

@@ -1,8 +1,16 @@
-// @ts-ignore
-import { hasBoolOpt } from './createMigration.mjs';
-
 function importArgon() {
+    // @ts-ignore
     return import('../src/lib/auth/crypto.ts');
+}
+
+function hasBoolOpt(longOpt: string, shortOpt: string|undefined = undefined) {
+    longOpt = longOpt.replaceAll('-', '').toLowerCase();
+
+    if (!shortOpt) {
+        shortOpt = longOpt.at(0);
+    }
+
+    return process.argv.some(o => o === `--${longOpt}` || o === `-${shortOpt}`);
 }
 
 function getOptOpt() {

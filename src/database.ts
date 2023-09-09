@@ -8,6 +8,8 @@ import type { InstrumentDatabase } from '@/model/instruments';
 import type { InstrumentGroupingDatabase } from '@/model/instrument_groupings';
 import type { SheetDatabase, SongDatabase } from '@/model/songs';
 
+export type CustomData = Record<string, string | number | null> | null;
+
 export interface Database {
     users: UserDatabase;
     instruments: InstrumentDatabase;

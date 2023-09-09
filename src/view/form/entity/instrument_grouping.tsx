@@ -4,9 +4,9 @@ import { useRouter } from 'next/navigation';
 import { type FormEvent, useState } from 'react';
 import trpc from '@/lib/trcp/client';
 import { Button, Input, LoadingSpinner } from '@/view/layout';
-import { Modal } from '@/view/layout-stateful';
+import { ConfirmModal } from '@/view/layout-stateful';
 import { FaTrash } from 'react-icons/fa6';
-import { type FormProps, FormRow } from '@/view/form/components';
+import { type FormProps, FormRow } from '@/view/form/shared-components.tsx';
 
 export type { FormProps };
 
@@ -69,7 +69,7 @@ export default function GroupingForm({ id }: FormProps) {
                     onSubmit={handleSubmit}
                     className="flex flex-col w-full rounded-xl border shadow"
                 >
-                    <Modal
+                    <ConfirmModal
                         title="Ještě si to rozmysli"
                         isOpen={modalIsOpen}
                         onClose={handleDelete}
@@ -79,7 +79,7 @@ export default function GroupingForm({ id }: FormProps) {
                         ]}
                     >
                         Tímto krokem smažeš celou sekci a možná ti pak někde bude chybět :(
-                    </Modal>
+                    </ConfirmModal>
 
                     <input type="hidden" name="id" value={data?.id} />
 

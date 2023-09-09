@@ -35,7 +35,11 @@ export default function Pager(props: PagerProps) {
     return (
         <div
             {...divProps}
-            className={twMerge('flex flex-row rounded-xl items-center bg-white', isMobile() ? 'w-full justify-center' : '', className)}
+            className={twMerge(
+                'flex flex-row rounded-xl items-center bg-white',
+                isMobile() ? 'w-full justify-center' : '',
+                className,
+            )}
         >
             <PagerButton
                 disabled={curPage === 1}
@@ -50,7 +54,8 @@ export default function Pager(props: PagerProps) {
                 {curPage > 1 ? <FaLeftLong /> : <span className="w-[1em] h-[1em]"></span>}
             </PagerButton>
             <div className="px-4 py-2 h-full w-full text-center border-y bg-inherit whitespace-nowrap">
-                <span className="font-bold">{curPage} </span><small>z {maxPage}</small>
+                <span className="font-bold">{curPage} </span>
+                <small>z {maxPage}</small>
             </div>
             <PagerButton
                 className="rounded-r-xl bg-inherit"
