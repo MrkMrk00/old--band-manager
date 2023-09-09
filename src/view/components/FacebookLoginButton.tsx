@@ -6,14 +6,22 @@ import fbLogo from '@/assets/fb_logo_250.png';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/view/layout';
 import { ButtonHTMLAttributes } from 'react';
+import { isMobile } from '@/view/client.helpers';
 
-const authDialogUrl = (appKey: string, returnUrl: string) =>
-    `https://www.facebook.com/v16.0/dialog/oauth?client_id=${appKey}&redirect_uri=${returnUrl}`;
+const authDialogUrl = (appKey: string, returnUrl: string, state?: string) =>
+    `https://www.facebook.com/v17.0/dialog/oauth?client_id=${appKey}&redirect_uri=${returnUrl}${state ? '&state=' + state : '' }`;
 
-function openFacebookDialog(onClose: (ev: Event) => void) {
-    const appKey = env.NEXT_PUBLIC_FB_APP_ID;
+function handleClick(onClose: (ev: Event) => void) {
+    const appKey = env.NEXT_PUBLIC_FB_APP_ID!;
     const redirectUrl = `${location.protocol}//${location.host}/login/fb-success`;
-    const url = authDialogUrl(appKey, redirectUrl);
+    const mobile = isMobile();
+
+    const url = authDialogUrl(appKey, redirectUrl, mobile ? 'redirect' : undefined);
+
+    if (isMobile()) {
+        location.replace(url);
+        return;
+    }
 
     const newWindow = window.open(
         url,
@@ -35,7 +43,7 @@ export default function FacebookLoginButton(props: ButtonHTMLAttributes<HTMLButt
     }
 
     return (
-        <Button {...props} onClick={() => openFacebookDialog(handleRedirect)}>
+        <Button {...props} onClick={() => handleClick(handleRedirect)}>
             <Image src={fbLogo} alt="Facebook logo" height={36} width={36} />
             <span className="inline-flex items-center">Přihlásit se přes Facebook</span>
         </Button>

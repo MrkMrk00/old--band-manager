@@ -27,7 +27,7 @@ export const COOKIE_SETTINGS: Omit<ResponseCookie, 'value'> = {
     path: '/',
     secure: env.NODE_ENV === 'production',
     maxAge: expirationHours * 60 * 60,
-    sameSite: 'strict',
+    sameSite: 'lax',
 } as const;
 
 const UnreadableToken = null;

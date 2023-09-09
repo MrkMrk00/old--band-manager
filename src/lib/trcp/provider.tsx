@@ -5,7 +5,6 @@ import trpc from '@/lib/trcp/client';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { getSessionCookie } from '@/view/client.helpers';
 import env from '@/env.mjs';
 
 type TRPCProps = {
@@ -26,17 +25,9 @@ export function TRPCProvider(props: TRPCProps) {
     const [trpcClient] = useState(() => {
         return trpc.createClient({
             links: [
-                loggerLink({ enabled: () => true }),
+                loggerLink({ enabled: () => env.NEXT_PUBLIC_ENV === 'development' }),
                 httpBatchLink({
                     url,
-                    headers: () => {
-                        const sessionCookie = getSessionCookie();
-                        if (sessionCookie) {
-                            return { 'X-TOKEN': sessionCookie };
-                        }
-
-                        return {};
-                    },
                 }),
             ],
         });
@@ -46,7 +37,7 @@ export function TRPCProvider(props: TRPCProps) {
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
                 {children}
-                <ReactQueryDevtools />
+                { env.NEXT_PUBLIC_ENV === 'development' && <ReactQueryDevtools /> }
             </QueryClientProvider>
         </trpc.Provider>
     );

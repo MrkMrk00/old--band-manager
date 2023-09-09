@@ -1,7 +1,5 @@
 'use client';
 
-import { type JWTPayload, decodeJwt } from 'jose';
-
 export class MapWithDefaults<TKey, TValue> extends Map<TKey, TValue> {
     getOrDefault(key: TKey, defaultValue: TValue | null | undefined = null) {
         const value = this.get(key);
@@ -33,21 +31,6 @@ export function getCookies(): MapWithDefaults<string, string> {
     return allCookies;
 }
 
-export function getSessionCookie(): string | null {
-    return getCookies().getOrDefault('BAND_MANAGER_AUTH', null);
-}
-
-export async function useSessionCookie(): Promise<
-    (JWTPayload & { id: number; display_name: string }) | null
-> {
-    const sessionCookie = getSessionCookie();
-    if (!sessionCookie) {
-        return null;
-    }
-
-    return decodeJwt(sessionCookie) as JWTPayload & { id: number; display_name: string };
-}
-
 export function parseRoundedClassName(className: string | undefined): null | string[] {
     if (!className) {
         return null;
@@ -63,4 +46,12 @@ export function parseRoundedClassName(className: string | undefined): null | str
 
 export function withSecondModifier(cls: string[], modifier: string, joiner: string = '-'): string {
     return [cls[0], modifier, ...cls.slice(1)].join(joiner);
+}
+
+export function isMobile(): boolean {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+
+    return window.innerWidth <= 768;
 }

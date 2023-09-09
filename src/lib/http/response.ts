@@ -7,6 +7,9 @@ export class ResponseBuilder {
     };
     public _headers: Map<string, string> = new Map<string, string>();
 
+    public _redirectUrl: string | undefined;
+    public _redirectUrlParams: URLSearchParams = new URLSearchParams();
+
     body(body: BodyInit): this {
         this._body = body;
 
@@ -20,7 +23,7 @@ export class ResponseBuilder {
     }
 
     redirect(url: string | URL, status: number = 302): this {
-        this._headers.set('Location', typeof url === 'string' ? url : url.href);
+        this._redirectUrl = typeof url === 'string' ? url : url.href;
         this._init.status = status;
 
         return this;
@@ -55,7 +58,19 @@ export class ResponseBuilder {
         return this;
     }
 
+    errStr(error: string): this {
+        this._redirectUrlParams.append('err_str', error);
+
+        return this;
+    }
+
     build() {
+        if (this._redirectUrl) {
+            const params = this._redirectUrlParams.size > 0 ? `?${this._redirectUrlParams.toString()}` : '';
+
+            this.header('Location', this._redirectUrl + params);
+        }
+
         this._init.headers = Object.fromEntries(this._headers.entries());
 
         return new NextResponse(this._body, this._init);

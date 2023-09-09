@@ -17,6 +17,7 @@
     "incremental": true,
     "sourceMap": true,
     "experimentalDecorators": true,
+    "allowImportingTsExtensions": true,
     "plugins": [
       {
         "name": "next"

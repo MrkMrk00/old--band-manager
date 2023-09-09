@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import Navbar from '@/view/components/DashboardNavbar';
-import { Toaster } from 'react-hot-toast';
 import { COOKIE_SETTINGS, SessionReader } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
@@ -24,7 +23,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <>
             <Navbar user={user} />
             {children}
-            <Toaster />
         </>
     );
 }

@@ -1,12 +1,8 @@
-import argon, { argon2id, type Options } from 'argon2';
-import env from '@/env.mjs';
-
-const appSecret = Buffer.from(new TextEncoder().encode(env.APP_SECRET));
+import argon, { type Options } from 'argon2';
 
 const argonOptions = {
-    type: argon2id,
-    secret: appSecret,
     raw: false,
+    type: argon.argon2id,
 } satisfies Options;
 
 export const ArgonUtil = {

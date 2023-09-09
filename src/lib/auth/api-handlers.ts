@@ -38,7 +38,10 @@ route('form', async function (req: NextRequest): Promise<NextResponse> {
 
     const user = await new DatabaseAuthHandler().accept(req);
     if (!user) {
-        return response().badRequest().build();
+        const url = new URL('/login', req.url);
+        url.searchParams.append('err_str', 'Špatné přihlašovací údaje.');
+
+        return response().redirect(url).build();
     }
 
     return await new SessionWriter()
@@ -46,7 +49,46 @@ route('form', async function (req: NextRequest): Promise<NextResponse> {
         .inject(r => r.redirectPost('/'));
 });
 
+async function handleRedirectionFacebookAuth(req: NextRequest): Promise<NextResponse> {
+    const url = new URL(req.url);
+
+    const loginResolver = new FacebookAuth(url.href.replace(url.search, ''));
+    const facebookUser = await loginResolver.accept(req);
+
+    if ('error' in facebookUser) {
+        return response()
+            .redirect('/login')
+            .errStr(`Nepodařilo se přihlásit. ${facebookUser.error?.message}`)
+            .build();
+    }
+
+    const persistentUser = await handleFacebookAuth(facebookUser);
+
+    if (persistentUser instanceof Error) {
+        return response()
+            .redirect('/login')
+            .errStr(
+                `Registration failed: ${JSON.stringify(
+                    persistentUser.message,
+                    null,
+                    4,
+                )}`,
+            )
+            .build();
+    }
+
+    // happy path -> frontend listens to close event
+    return await new SessionWriter()
+        .setData(persistentUser)
+        .inject(r => r.redirect('/'));
+}
+
 route('fb-success', async function (req: NextRequest) {
+    const state = req.nextUrl.searchParams.get('state');
+    if (state && state === 'redirect') {
+        return await handleRedirectionFacebookAuth(req);
+    }
+
     const url = new URL(req.url);
 
     const loginResolver = new FacebookAuth(url.href.replace(url.search, ''));

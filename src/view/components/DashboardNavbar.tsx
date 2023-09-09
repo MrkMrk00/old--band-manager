@@ -16,8 +16,8 @@ type NavbarProps = {
 function MobileMenu({ user }: NavbarProps) {
     return (
         <Menu as="div" className="flex justify-center items-center h-full">
-            <Menu.Button className="flex flex-col justify-center items-center h-full w-20 bg-green-400">
-                <FaBars size="3.5em" />
+            <Menu.Button className="flex flex-col justify-center items-center h-full w-20 border-l-2">
+                <FaBars size="2em" />
             </Menu.Button>
 
             <Transition
@@ -40,8 +40,8 @@ function MobileMenu({ user }: NavbarProps) {
                         <Menu.Item>
                             {() => (
                                 <div className="flex flex-row justify-end h-16">
-                                <span className="flex flex-col justify-center items-center h-full w-20 bg-red-500">
-                                    <FaX size="3rem" className="text-white" />
+                                <span className="flex flex-col justify-center items-center h-full w-20 border-l-2 border-b">
+                                    <FaX size="2rem" className="text-red-500" />
                                 </span>
                                 </div>
                             )}
@@ -146,7 +146,7 @@ export default function Navbar({ user }: NavbarProps) {
         <>
             <nav className="flex flex-row justify-between shadow sticky h-16 shrink-0 z-10 overflow-x-clip">
                 <div className="flex flex-col justify-center px-4 max-w-[40%]">
-                    <h1 className="font-bold text-xl">BigBand ZUŠ Vrchlabí</h1>
+                    <h1 className="font-bold text-xl"><a href="/" className="hover:underline">BigBand ZUŠ Vrchlabí</a></h1>
                 </div>
 
                 <If condition={display === 'mobile'}>
