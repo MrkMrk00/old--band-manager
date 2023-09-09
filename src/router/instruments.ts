@@ -5,30 +5,47 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { type Pageable, Pager } from '@/lib/pager';
 import { sql } from 'kysely';
-import { inIntArray } from '@/lib/specs';
-import { EntityRouterDef } from '@/lib/trcp/router';
+import { countAll, inIntArray } from '@/lib/specs';
 
 const fetchAll = Authenticated.input(Pager.input).query(async function ({ input }) {
-    let allCount = (
-        await InstrumentsRepository.selectQb()
-            .select(sql<number>`COUNT(*)`.as('count'))
-            .executeTakeFirst()
-    )?.count;
+    const { perPage, page } = input;
+    const allCount = await countAll('instruments');
+    const { maxPage, offset } = Pager.query(allCount, perPage, page);
 
-    if (!allCount) {
-        allCount = 0;
+    const pagedInstruments = await query()
+        .selectFrom('instruments')
+        .selectAll()
+        .limit(perPage)
+        .offset(offset)
+        .execute();
+
+    const allGroupings = await query().selectFrom('instrument_groupings').selectAll().execute();
+
+    const groupingsById = new Map<number, (typeof allGroupings)[0]>();
+    for (const grouping of allGroupings) {
+        groupingsById.set(grouping.id, grouping);
     }
 
-    const { maxPage, offset } = Pager.query(allCount, input.perPage, input.page);
+    type ResultInstrumentType = Omit<(typeof pagedInstruments)[0], 'groupings'> & {
+        groupings: (typeof allGroupings)[0][];
+    };
 
-    const result = await InstrumentsRepository.all(offset, input.perPage)
-        .orderBy('instruments.name', 'asc')
-        .execute();
+    const instruments = new Array<ResultInstrumentType>(pagedInstruments.length);
+
+    let at = 0;
+    for (let instrument of pagedInstruments) {
+        instruments[at] = {
+            ...instrument,
+            groupings: instrument.groupings.map(id => groupingsById.get(id)!),
+        };
+
+        at++;
+    }
 
     return {
         maxPage,
-        payload: result,
-    } satisfies Pageable<(typeof result)[0]>;
+        payload: instruments,
+    } satisfies Pageable<(typeof instruments)[0]>;
 });
 
 const upsert = Authenticated.input(
@@ -152,19 +169,6 @@ const grouping_fetchAll = Authenticated.input(
 
     let objectsQb = query()
         .selectFrom('instrument_groupings')
-        .leftJoin(
-            eb => {
-                return eb
-                    .selectFrom('instruments_instrument_groupings')
-                    .select([
-                        sql<number>`COUNT(*)`.as('instrument_count'),
-                        'id_instrument_grouping',
-                    ])
-                    .groupBy('id_instrument_grouping')
-                    .as('counts');
-            },
-            on => on.onRef('counts.id_instrument_grouping', '=', 'instrument_groupings.id'),
-        )
         .leftJoin('users', j => j.onRef('instrument_groupings.created_by', '=', 'users.id'))
         .select([
             'instrument_groupings.id',
@@ -279,4 +283,4 @@ export default Router({
     one,
 
     groupings: groupingsRouter,
-} satisfies EntityRouterDef);
+});

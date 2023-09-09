@@ -1,14 +1,13 @@
 import { AsyncAuthResponse, AuthHandler } from '@/lib/auth/utils';
-import { asUser, UsersRepository } from '@/lib/repositories';
+import { UsersRepository } from '@/lib/repositories';
 import env from '@/env.mjs';
 import { ArgonUtil } from '@/lib/auth/crypto';
 import { type InsertResult, sql } from 'kysely';
 import Logger from '@/lib/logger';
+import { User } from '@/model/user';
 
-type FullUser = ReturnType<typeof asUser>;
-
-export default class DatabaseAuthHandler implements AuthHandler<string, FullUser, undefined> {
-    async accept(request: Request): AsyncAuthResponse<FullUser, undefined> {
+export default class DatabaseAuthHandler implements AuthHandler<string, User, undefined> {
+    async accept(request: Request): AsyncAuthResponse<User, undefined> {
         let formdata;
 
         try {
@@ -25,7 +24,7 @@ export default class DatabaseAuthHandler implements AuthHandler<string, FullUser
             .where('email', '=', email)
             .executeTakeFirst();
 
-        const user = userObj ? asUser(userObj) : null;
+        const user = userObj ? new User(userObj) : null;
 
         if (!user || !(await user.verifyPassword(password))) {
             return undefined;
@@ -34,7 +33,7 @@ export default class DatabaseAuthHandler implements AuthHandler<string, FullUser
         return user;
     }
 
-    async getUserInfo(identifier: string): AsyncAuthResponse<FullUser, undefined> {
+    async getUserInfo(identifier: string): AsyncAuthResponse<User, undefined> {
         const userObj = await UsersRepository.one()
             .where('email', '=', identifier)
             .executeTakeFirst();
@@ -42,7 +41,7 @@ export default class DatabaseAuthHandler implements AuthHandler<string, FullUser
             return undefined;
         }
 
-        return asUser(userObj);
+        return new User(userObj);
     }
 
     async verifyUser(identifier: string): Promise<boolean> {

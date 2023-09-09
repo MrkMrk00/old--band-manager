@@ -45,51 +45,38 @@ function renderGroupings(groupings: InstrumentGrouping[]): ReactNode {
 
 export function useInstrumentsList(perPage: number = 20): HookReturn {
     const { page, setPage } = usePager();
-    const { data, refetch, remove, error, isLoading } = trpc.instruments.fetchAll.useQuery({
-        page,
-        perPage,
-    });
-
-    const { data: allGroupings } = trpc.instruments.groupings.fetchAll.useQuery({
-        perPage: Number.MAX_SAFE_INTEGER,
-    });
+    const q = trpc.instruments.fetchAll.useQuery({ page, perPage });
 
     const objects = useMemo(() => {
-        if (!data || data.payload.length === 0) {
+        if (!q.data || q.data.payload.length === 0) {
             return [];
         }
 
-        const objects = new Array(data.payload.length);
+        const objects = new Array(q.data.payload.length);
         let at = 0;
-        for (let obj of data.payload) {
+        for (let obj of q.data.payload) {
             const { id, name, subname, created_at, groupings } = obj;
-            const includeGroupings = allGroupings?.payload.filter(({ id }) =>
-                groupings.includes(id),
-            );
 
             objects[at] = {
                 id,
                 name: `${name}${subname ? ' ' + subname : ''}`,
                 created_at: new Date(created_at).toLocaleString('cs'),
                 icon: ':)',
-                groupings: includeGroupings ? renderGroupings(includeGroupings) : '',
+                groupings: renderGroupings(groupings),
             };
 
             at++;
         }
 
         return objects;
-    }, [data, allGroupings]);
+    }, [q.data]);
 
     return {
+        ...q,
         page,
         setPage,
-        maxPage: data?.maxPage ?? 0,
-        refetch,
-        remove,
-        error,
+        maxPage: q.data?.maxPage ?? 0,
         objects,
-        isLoading,
     } satisfies HookReturn;
 }
 
@@ -136,7 +123,10 @@ export function useInstrumentGroupingsList(perPage: number = 20): HookReturn {
 
 export function useUsersList(perPage: number = 20): HookReturn {
     const { page, setPage } = usePager();
-    const { data, error, refetch, isLoading, remove } = trpc.users.fetchAll.useQuery({ page });
+    const { data, error, refetch, isLoading, remove } = trpc.users.fetchAll.useQuery({
+        page,
+        perPage,
+    });
 
     const objects = useMemo(() => {
         if (!data?.payload.length) {
@@ -175,4 +165,38 @@ export function useUsersList(perPage: number = 20): HookReturn {
         error,
         maxPage: data?.maxPage ?? 0,
     } satisfies HookReturn;
+}
+
+export function useSongsList(perPage: number = 20): HookReturn {
+    const { page, setPage } = usePager();
+    const { error, refetch, remove, isLoading, data } = trpc.songs.fetchAll.useQuery({
+        perPage,
+        page,
+    });
+
+    const objects = useMemo(() => {
+        if (!data?.payload) {
+            return [];
+        }
+
+        const objs = new Array(data.payload.length);
+        let at = 0;
+
+        for (const { id, name, number, composer } of data.payload) {
+            objs[at] = { id, name, number, composer };
+        }
+
+        return objs;
+    }, [data]);
+
+    return {
+        page,
+        setPage,
+        error,
+        refetch,
+        remove,
+        isLoading,
+        objects,
+        maxPage: data?.maxPage ?? 0,
+    };
 }

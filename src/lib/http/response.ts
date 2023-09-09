@@ -5,7 +5,7 @@ export class ResponseBuilder {
     public _init: ResponseInit = {
         status: 200,
     };
-    public _headers: Map<string, string> = new Map<string, string>;
+    public _headers: Map<string, string> = new Map<string, string>();
 
     body(body: BodyInit): this {
         this._body = body;

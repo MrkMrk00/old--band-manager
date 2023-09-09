@@ -1,7 +1,8 @@
 import type { TrpcContext } from '@/lib/trcp/context';
 import type { Role } from '@/model/user';
 import { initTRPC, TRPCError } from '@trpc/server';
-import { UsersRepository, asUser } from '@/lib/repositories';
+import { UsersRepository } from '@/lib/repositories';
+import { User } from '@/model/user';
 
 const t = initTRPC.context<TrpcContext>().create();
 
@@ -44,7 +45,7 @@ function createUnauthorizedError(): TRPCError {
 
 function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') {
     return Authenticated.use(async function ({ ctx, next }) {
-        const user = asUser(ctx.user);
+        const user = new User(ctx.user);
 
         if (roles.length < 1) {
             return next();
