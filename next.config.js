@@ -14,10 +14,10 @@ const nextConfig = {
                 value: 'max-age=63072000; includeSubdomains; preload',
             });
 
-            secureHeaders.push({
-                key: 'Content-Security-Policy',
-                value: "default-src 'self'; img-src https://*; child-src 'none'",
-            });
+            // secureHeaders.push({
+            //     key: 'Content-Security-Policy',
+            //     value: "default-src 'self'; img-src https://*; child-src 'none'",
+            // });
         }
 
         return [
