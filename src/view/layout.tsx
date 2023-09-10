@@ -33,7 +33,7 @@ export function Button(props: ButtonHTMLAttributes<HTMLButtonElement>) {
         <button
             className={twMerge(
                 `rounded-2xl shadow-md transition-all
-                py-2 px-4 bg-white hover:brightness-90 _with-ripple-anim`,
+                py-2 px-4 bg-white hover:brightness-90 bm-clickable`,
                 className,
             )}
             {...rest}
@@ -51,7 +51,7 @@ export function Anchor(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
         <a
             className={twMerge(
                 `rounded-2xl shadow-md transition-all
-                py-2 px-4 bg-white hover:brightness-90 _with-ripple-anim`,
+                py-2 px-4 bg-white hover:brightness-90 bm-clickable`,
                 className,
             )}
             {...rest}
@@ -69,7 +69,7 @@ export function Link(props: ComponentPropsWithRef<typeof NextLink>) {
         <NextLink
             className={twMerge(
                 `rounded-2xl shadow-md transition-all
-                py-2 px-4 bg-white hover:brightness-90 _with-ripple-anim`,
+                py-2 px-4 bg-white hover:brightness-90 bm-clickable`,
                 className,
             )}
             {...rest}
@@ -98,7 +98,7 @@ export function LoadingSpinner({ size, className, color }: SpinnerProps) {
                 width: size,
                 borderBottomColor: 'transparent',
             }}
-            className={`_loading-spinner${className ? ' ' + className : ''}`}
+            className={`bm-loading-spinner${className ? ' ' + className : ''}`}
         ></span>
     );
 }

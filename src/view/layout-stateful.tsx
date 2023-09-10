@@ -7,6 +7,8 @@ import { useEffect, useRef } from 'react';
 import type { MouseEvent } from 'react';
 import { twMerge } from 'tailwind-merge';
 
+const RIPPLE_CLASS_NAME = 'bm-ripple';
+
 function createRipple(event: MouseEvent<HTMLElement>) {
     const button = event.currentTarget;
 
@@ -17,9 +19,9 @@ function createRipple(event: MouseEvent<HTMLElement>) {
     circle.style.width = circle.style.height = `${diameter}px`;
     circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
     circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
-    circle.classList.add('ripple');
+    circle.classList.add(RIPPLE_CLASS_NAME);
 
-    const ripple = button.getElementsByClassName('ripple')[0];
+    const ripple = button.getElementsByClassName(RIPPLE_CLASS_NAME)[0];
 
     if (ripple) {
         ripple.remove();
@@ -39,8 +41,8 @@ export function RippleAnimation() {
 
         // @ts-ignore
         parent.addEventListener('click', createRipple);
-        if (!parent.classList.contains('_with-ripple-anim')) {
-            parent.classList.add('_with-ripple-anim');
+        if (!parent.classList.contains('bm-clickable')) {
+            parent.classList.add('bm-clickable');
         }
 
         ref.current.remove();

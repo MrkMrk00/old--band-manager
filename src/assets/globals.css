@@ -10,28 +10,27 @@ body {
     padding: 0;
 }
 
-html.mobile-bottom-always-show {
+html.bm-mobile-bottom-always-show {
     overflow: hidden;
 }
 
-html.mobile-bottom-always-show body {
+html.bm-mobile-bottom-always-show body {
     position: fixed;
     overflow-y: scroll;
     overflow-x: hidden;
 }
 
-/* BEGIN: Ripple animation */
-
-._with-ripple-anim {
+.bm-clickable {
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
 }
 
-span.ripple {
+span.bm-ripple {
     position: absolute;
     border-radius: 50%;
     transform: scale(0);
-    animation: ripple 600ms linear;
+    animation: bm-ripple 600ms linear;
     background-color: rgba(255, 255, 255, 0.7);
     pointer-events: none;
 }
@@ -40,24 +39,22 @@ span.ripple {
     box-sizing: border-box;
 }
 
-@keyframes ripple {
+@keyframes bm-ripple {
     to {
         transform: scale(4);
         opacity: 0;
     }
 }
 
-/* END: Ripple animation */
-
-._loading-spinner {
+.bm-loading-spinner {
     border-bottom-color: transparent;
     border-radius: 50%;
     display: inline-block;
     box-sizing: border-box;
-    animation: _spinner-rotation 1s linear infinite;
+    animation: bm-spinner-rotation 1s linear infinite;
 }
 
-@keyframes _spinner-rotation {
+@keyframes bm-spinner-rotation {
     0% {
         transform: rotate(0deg);
     }

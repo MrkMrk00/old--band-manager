@@ -44,7 +44,7 @@ export default function GroupingForm({ id }: FormProps) {
         router.push('/admin/instruments?t=groupings&refetch=1');
     }
 
-    function handleDelete(num?: number| boolean) {
+    function handleDelete(num?: number | boolean) {
         if (!data) {
             throw new Error('Data by tu měly bejt');
         }

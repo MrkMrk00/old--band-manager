@@ -5,7 +5,13 @@ import React, { Fragment, FC, ReactNode } from 'react';
 import Link from 'next/link';
 import { OverlayText } from '@/view/layout';
 
-function MenuItems({ alwaysShowBottomNav, user }: { alwaysShowBottomNav: boolean, user: UserObject | null }) {
+function MenuItems({
+    alwaysShowBottomNav,
+    user,
+}: {
+    alwaysShowBottomNav: boolean;
+    user: UserObject | null;
+}) {
     return (
         <Transition
             as={Fragment}
@@ -27,18 +33,15 @@ function MenuItems({ alwaysShowBottomNav, user }: { alwaysShowBottomNav: boolean
                     <Menu.Item>
                         {() => (
                             <div className="flex flex-row justify-end h-16">
-                                    <span className="flex flex-col justify-center items-center h-full w-20 border-l-2">
-                                        <FaX size="2em" className="text-red-500" />
-                                    </span>
+                                <span className="flex flex-col justify-center items-center h-full w-20 border-l-2">
+                                    <FaX size="2em" className="text-red-500" />
+                                </span>
                             </div>
                         )}
                     </Menu.Item>
                     <Menu.Item>
                         {() => (
-                            <Link
-                                href="/"
-                                className="relative w-full text-center py-4 border-y"
-                            >
+                            <Link href="/" className="relative w-full text-center py-4 border-y">
                                 Domů
                                 <OverlayText className="justify-end">
                                     <FaArrowRight />
@@ -72,9 +75,9 @@ function MenuItems({ alwaysShowBottomNav, user }: { alwaysShowBottomNav: boolean
                                 href="/me"
                                 className="relative flex flex-row justify-center gap-3 w-full text-center py-4 border-t"
                             >
-                                    <span className="flex justify-center items-center">
-                                        <FaCircleUser size="1.5em" />
-                                    </span>
+                                <span className="flex justify-center items-center">
+                                    <FaCircleUser size="1.5em" />
+                                </span>
                                 <span>{user?.display_name}</span>
                                 <OverlayText className="justify-end">
                                     <FaArrowRight />
@@ -99,11 +102,19 @@ function MenuItems({ alwaysShowBottomNav, user }: { alwaysShowBottomNav: boolean
  *
  *  2) create a webview app
  *
- * To activate add *.mobile-bottom-always-show* to class list of <html>
+ * To activate add *.bm-mobile-bottom-always-show* to class list of <html>
  */
-export default function MobileMenu({ user, navbar }: { user: UserObject | null, navbar: FC<{ children: ReactNode }> }) {
+export default function MobileMenu({
+    user,
+    navbar,
+}: {
+    user: UserObject | null;
+    navbar: FC<{ children: ReactNode }>;
+}) {
     const Navbar = navbar;
-    const alwaysShowBottomNav = !!document.querySelector('html')?.classList.contains('mobile-bottom-always-show');
+    const alwaysShowBottomNav = !!document
+        .querySelector('html')
+        ?.classList.contains('bm-mobile-bottom-always-show');
 
     return (
         <Menu as={Fragment}>
