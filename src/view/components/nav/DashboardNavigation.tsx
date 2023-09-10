@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge';
 import dynamic from 'next/dynamic';
 import { isMobile } from '@/view/client.helpers';
 import { LoadingSpinner } from '@/view/layout';
+import NextLink from 'next/link';
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
     loading: () => <SharedNavbar />,
@@ -30,9 +31,9 @@ function SharedNavbar({ children, className, ...props }: HTMLAttributes<HTMLDivE
         >
             <div className="flex flex-col justify-center px-4 max-w-[40%] min-w-fit">
                 <h1 className="font-bold text-xl">
-                    <a href="/" className="hover:underline">
+                    <NextLink href="/" className="hover:underline">
                         BigBand ZUŠ Vrchlabí
-                    </a>
+                    </NextLink>
                 </h1>
             </div>
 
