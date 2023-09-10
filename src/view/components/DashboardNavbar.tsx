@@ -62,9 +62,7 @@ export default function Navbar({ user }: NavbarProps) {
                     </h1>
                 </div>
 
-                {display === 'mobile' && (
-                    <MobileMenu user={user} />
-                )}
+                {display === 'mobile' && <MobileMenu user={user} />}
 
                 {display === 'wide' && (
                     <>

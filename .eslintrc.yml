@@ -5,7 +5,7 @@ plugins:
     - unused-imports
 
 rules:
-    unused-imports/no-unused-imports: error
+    unused-imports/no-unused-imports: warn
     linebreak-style:
         - error
         - unix

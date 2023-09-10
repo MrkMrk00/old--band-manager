@@ -5,7 +5,7 @@ import React, { Fragment } from 'react';
 import Link from 'next/link';
 import { OverlayText } from '@/view/layout';
 
-export default function MobileMenu({ user }: {user: UserObject | null}) {
+export default function MobileMenu({ user }: { user: UserObject | null }) {
     return (
         <Menu as="div" className="flex justify-center items-center h-full">
             <Menu.Button className="flex flex-col justify-center items-center h-full w-20 border-l-2">

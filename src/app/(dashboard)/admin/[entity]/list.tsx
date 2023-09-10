@@ -38,7 +38,7 @@ export function AdminList({ entity }: ListProps) {
             searchParams: searchParams.toString(),
         });
 
-        redirect('/admin?err_str='+encodeURIComponent(`Neznámá entita: ${entity}!`));
+        redirect('/admin?err_str=' + encodeURIComponent(`Neznámá entita: ${entity}!`));
     }
 
     const [headerMapping, dataHook] = dataProvider;
