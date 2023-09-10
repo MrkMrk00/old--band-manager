@@ -6,10 +6,11 @@ import {
     useInstrumentsList,
     useUsersList,
 } from '@/view/admin/list-hooks';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { redirect, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { If, LoadingSpinner } from '@/view/layout';
 import { ListView, Pager } from '@/view/list';
 import { instrument, instrumentGrouping, user } from '@/view/admin/headerMapping';
+import Logger from '@/lib/logger';
 
 type ListProps = {
     entity: string;
@@ -24,22 +25,31 @@ const dataProviders = {
 export function AdminList({ entity }: ListProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const logger = Logger.fromEnv();
 
     const dataProvider =
         entity in dataProviders ? dataProviders[entity as keyof typeof dataProviders] : null;
+
     if (!dataProvider) {
-        throw new Error('Unknown entity type');
+        logger.notice('AdminList :: Unknown entity type', {
+            entity,
+            pathname,
+            searchParams: searchParams.toString(),
+        });
+
+        redirect('/admin?err_str='+encodeURIComponent(`Neznámá entita: ${entity}!`));
     }
 
     const [headerMapping, dataHook] = dataProvider;
     const { isLoading, page, setPage, maxPage, refetch, error, objects } = dataHook();
 
     if (searchParams.get('refetch')) {
-        void refetch();
+        refetch();
+        router.push(pathname.replace(/(refetch=[^&]+&?)/, ''));
     }
 
     if (error) {
-        console.error(error);
     }
 
     function handleRowClick(ev: RowClickCallbackEvent) {
@@ -62,7 +72,7 @@ export function AdminList({ entity }: ListProps) {
                         headerMapping={headerMapping}
                     />
 
-                    <If condition={maxPage ? maxPage > 1 : false}>
+                    {!!maxPage && maxPage > 1 && (
                         <div className="flex flex-row pt-5">
                             <Pager
                                 maxPage={maxPage!}
@@ -71,7 +81,7 @@ export function AdminList({ entity }: ListProps) {
                                 btnClassName="bg-white"
                             />
                         </div>
-                    </If>
+                    )}
                 </>
             )}
         </>

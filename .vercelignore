@@ -36,4 +36,4 @@ next-env.d.ts
 
 db_data
 .idea
-db_pwd.txt
+.db_pwd.txt

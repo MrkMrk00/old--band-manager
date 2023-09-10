@@ -7,15 +7,35 @@ export const metadata: Metadata = {
     title: 'Nastavení aplikace',
 };
 
-export default function AdminBasePage() {
+type PageProps = {
+    searchParams: {
+        err_str?: string[] | string;
+    },
+};
+
+export default function AdminBasePage({ searchParams }: PageProps) {
+    const errStr = typeof searchParams.err_str === 'string' ? [searchParams.err_str] : searchParams.err_str;
+
     return (
         <div className="w-full flex flex-col gap-2">
             <h2 className="text-xl">Nastavení aplikace</h2>
             <hr />
-            <p>
-                V seznamu <span className="hidden md:inline-block">vlevo</span>
-                <span className="inline-block md:hidden">nahoře</span> vyber, co chceš nastavovat.
-            </p>
+            <div className="flex flex-col-reverse sm:flex-row gap-2 justify-between w-full">
+                <p className="w-full">
+                    V seznamu <span className="hidden md:inline-block">vlevo</span>
+                    <span className="inline-block md:hidden">nahoře</span> vyber, co chceš nastavovat.
+                </p>
+                {errStr && (
+                    <div className="w-full">
+                        <h3 className="font-bold text-red-500 text-xl">Chyby:</h3>
+                        <ul className="pl-4">
+                            {errStr.map(e =>
+                                <li key={e} className="text-red-500">{ e }</li>
+                            )}
+                        </ul>
+                    </div>
+                )}
+            </div>
 
             <div className="mt-5 flex flex-col gap-2 max-w-md">
                 <h3 className="text-lg">Rychlé akce</h3>

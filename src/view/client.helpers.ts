@@ -49,9 +49,5 @@ export function withSecondModifier(cls: string[], modifier: string, joiner: stri
 }
 
 export function isMobile(): boolean {
-    if (typeof window === 'undefined') {
-        return false;
-    }
-
     return window.innerWidth <= 768;
 }

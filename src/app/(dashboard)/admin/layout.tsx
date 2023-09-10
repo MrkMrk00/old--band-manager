@@ -7,6 +7,7 @@ import { FaMusic, FaPeopleGroup, FaUser } from 'react-icons/fa6';
 import { FaHome } from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
 import { isMobile } from '@/view/client.helpers';
+import { useEffect, useState } from 'react';
 
 type ButtonProps = ComponentPropsWithRef<typeof Link> & {
     active?: boolean;
@@ -35,18 +36,34 @@ SettingsButton.Title = function ({ children }: { children?: ReactNode }) {
     return <span className="w-full inline-flex justify-center items-center">{children}</span>;
 };
 
-function shouldDisplayMenu(pathname: string) {
-    const isEntityDetail = pathname.split('/').length >= 4;
+function useShouldDisplayMenu() {
+    const pathname = usePathname();
+    const isDetail = pathname.split('/').length >= 4;
 
-    return !isMobile() || !isEntityDetail;
+    const [should, setShould] = useState(true);
+
+    useEffect(() => {
+        const listener = function () {
+            setShould(!isMobile() || !isDetail);
+        };
+
+        listener();
+
+        window.addEventListener('resize', listener);
+
+        return () => window.removeEventListener('resize', listener);
+    }, [isDetail]);
+
+    return should;
 }
 
 export default function MenuTemplate({ children }: { children?: ReactNode }) {
     const pathname = usePathname();
+    const shouldDisplayMenu = useShouldDisplayMenu();
 
     return (
         <div className="flex md:flex-row flex-col h-full w-full">
-            {shouldDisplayMenu(pathname) && (
+            {shouldDisplayMenu && (
                 <aside className="md:max-w-sm min-w-fit w-full flex flex-col gap-2 bg-slate-100 p-4 shadow">
                     <span className="mx-auto">Sekce nastavení</span>
                     <hr />
