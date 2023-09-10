@@ -30,7 +30,7 @@ export default function UserDetailsForm() {
         setShowModal(true);
     }
 
-    function handleCloseModal(a: number | undefined) {
+    function handleCloseModal(a: number | boolean | undefined) {
         setShowModal(false);
 
         if (a === 1) {

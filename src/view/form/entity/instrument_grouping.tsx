@@ -6,7 +6,7 @@ import trpc from '@/lib/trcp/client';
 import { Button, Input, LoadingSpinner } from '@/view/layout';
 import { ConfirmModal } from '@/view/layout-stateful';
 import { FaTrash } from 'react-icons/fa6';
-import { type FormProps, FormRow } from '@/view/form/shared-components.tsx';
+import { type FormProps, FormRow } from '@/view/form/shared-components';
 
 export type { FormProps };
 
@@ -44,7 +44,7 @@ export default function GroupingForm({ id }: FormProps) {
         router.push('/admin/instruments?t=groupings&refetch=1');
     }
 
-    function handleDelete(num?: number) {
+    function handleDelete(num?: number| boolean) {
         if (!data) {
             throw new Error('Data by tu měly bejt');
         }

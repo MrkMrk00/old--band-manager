@@ -9,7 +9,7 @@
         "build": "next build",
         "start": "next start",
         "fmt": "prettier --write ./src",
-        "lint": "eslint ./src/**/*.{ts,tsx,mjs}",
+        "lint": "eslint ./src/**/*.{ts,tsx,mjs} && tsc --noEmit",
         "lint:fix": "eslint ./src/**/*.{ts,tsx,mjs} --fix",
         "cs": "pnpm lint:fix && pnpm fmt",
         "migrate": "node --no-warnings --loader ts-node/esm script/migrate.ts",

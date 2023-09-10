@@ -103,7 +103,7 @@ export function Modal(props: ModalProps) {
 
 Modal.Title = Dialog.Title;
 
-export type ConfirmModalProps = ModalProps & {
+export type ConfirmModalProps = Omit<ModalProps, 'onClose'> & {
     title: string;
     buttons?: {
         id: number;
@@ -111,12 +111,12 @@ export type ConfirmModalProps = ModalProps & {
         children?: ReactNode | string;
         rightSide?: true | undefined;
     }[];
-    onClose?: (which: number | undefined) => void;
+    onClose?: (which: number | boolean | undefined) => void;
     children?: ReactNode;
 };
 
 export function ConfirmModal(props: ConfirmModalProps) {
-    let { title, isOpen, onClose, children, buttons } = props;
+    const { title, isOpen, onClose, children, buttons } = props;
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
