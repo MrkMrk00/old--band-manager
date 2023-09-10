@@ -1,7 +1,7 @@
 'use client';
 
 import type { UserObject } from '@/model/user';
-import { type AnchorHTMLAttributes, useEffect, useState } from 'react';
+import { type AnchorHTMLAttributes, HTMLAttributes, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { RippleAnimation } from '@/view/layout-stateful';
 import { FaHouse, FaCircleUser } from 'react-icons/fa6';
@@ -14,6 +14,25 @@ const MobileMenu = dynamic(() => import('./MobileMenu'));
 type NavbarProps = {
     user: UserObject | null;
 };
+
+function SharedNavbar({ children, className, ...props }: HTMLAttributes<HTMLDivElement>) {
+    return (
+        <nav {...props} className={twMerge(
+            `flex flex-row justify-between shadow sticky h-16 shrink-0 z-10 overflow-x-clip`,
+            className
+        )}>
+            <div className="flex flex-col justify-center px-4 max-w-[40%] min-w-fit">
+                <h1 className="font-bold text-xl">
+                    <a href="/" className="hover:underline">
+                        BigBand ZUŠ Vrchlabí
+                    </a>
+                </h1>
+            </div>
+
+            { children }
+        </nav>
+    );
+}
 
 function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
     const { className, children, ...other } = props;
@@ -36,7 +55,7 @@ function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string
 }
 
 export default function Navbar({ user }: NavbarProps) {
-    const [display, setDisplay] = useState<'mobile' | 'wide'>('wide');
+    const [display, setDisplay] = useState<'mobile' | 'wide' | 'not-mounted'>('not-mounted');
 
     useEffect(() => {
         const listener = function () {
@@ -53,36 +72,28 @@ export default function Navbar({ user }: NavbarProps) {
 
     return (
         <>
-            <nav className="flex flex-row justify-between shadow sticky h-16 shrink-0 z-10 overflow-x-clip">
-                <div className="flex flex-col justify-center px-4 max-w-[40%] min-w-fit">
-                    <h1 className="font-bold text-xl">
-                        <a href="/" className="hover:underline">
-                            BigBand ZUŠ Vrchlabí
-                        </a>
-                    </h1>
-                </div>
-
-                {display === 'mobile' && <MobileMenu user={user} />}
-
-                {display === 'wide' && (
-                    <>
-                        <div className="flex flex-row w-full">
-                            <NavLink href="/">
-                                <FaHouse size="1.2em" /> Domů
+            {display === 'wide' && (
+                <SharedNavbar>
+                    <div className="flex flex-row w-full">
+                        <NavLink href="/">
+                            <FaHouse size="1.2em" /> Domů
+                        </NavLink>
+                    </div>
+                    {user && (
+                        <div className="flex flex-row justify-end px-4 w-full">
+                            <NavLink href="/admin">Nastavení aplikace</NavLink>
+                            <NavLink href="/me" className="items-center">
+                                <FaCircleUser size="1.2em" />
+                                <span>{user.display_name}</span>
                             </NavLink>
                         </div>
-                        {user && (
-                            <div className="flex flex-row justify-end px-4 w-full">
-                                <NavLink href="/admin">Nastavení aplikace</NavLink>
-                                <NavLink href="/me" className="items-center">
-                                    <FaCircleUser size="1.2em" />
-                                    <span>{user.display_name}</span>
-                                </NavLink>
-                            </div>
-                        )}
-                    </>
-                )}
-            </nav>
+                    )}
+                </SharedNavbar>
+            )}
+
+            {display === 'mobile' && (
+                <MobileMenu user={user} navbar={SharedNavbar} />
+            )}
         </>
     );
 }

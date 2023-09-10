@@ -10,6 +10,16 @@ body {
     padding: 0;
 }
 
+html.mobile-bottom-always-show {
+    overflow: hidden;
+}
+
+html.mobile-bottom-always-show body {
+    position: fixed;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
 /* BEGIN: Ripple animation */
 
 ._with-ripple-anim {
