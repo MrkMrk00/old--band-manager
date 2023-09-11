@@ -10,12 +10,14 @@ export type SessionPayload = Record<SessionKey, SessionValue>;
 export type SessionIOError = {
     error: {
         message: string;
-    },
+    };
 };
 
-export interface Session<T extends SessionPayload = SessionPayload, E extends SessionIOError = SessionIOError, ID = string>
-    extends Map<keyof T, T[keyof T]> {
-
+export interface Session<
+    T extends SessionPayload = SessionPayload,
+    E extends SessionIOError = SessionIOError,
+    ID = string,
+> extends Map<keyof T, T[keyof T]> {
     read(sessionId: ID): Promise<true | E>;
     write(response: Response): Promise<true | E>;
 }

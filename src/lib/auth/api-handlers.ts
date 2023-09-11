@@ -143,8 +143,5 @@ route('verify', async function (req: NextRequest) {
 
 // /logout
 export async function handleLogout(): Promise<NextResponse> {
-    return response()
-        .deleteSession()
-        .redirectPost('/login')
-        .build();
+    return response().deleteSession().redirectPost('/login').build();
 }

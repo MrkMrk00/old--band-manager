@@ -45,12 +45,18 @@ export class JWTSession extends Map<SessionKey, SessionValue> implements Session
         this.#crypto = cryptoOptions;
     }
 
-    static fromRequest(request: NextRequest, cryptoOptions: CryptographyOptions = defaultCryptoOptions): Promise<JWTSession | SessionIOError> {
+    static fromRequest(
+        request: NextRequest,
+        cryptoOptions: CryptographyOptions = defaultCryptoOptions,
+    ): Promise<JWTSession | SessionIOError> {
         const token = request.cookies.get(COOKIE_SETTINGS.name)?.value ?? '';
         return this.fromToken(token, cryptoOptions);
     }
 
-    static async fromToken(token: string | undefined | null, cryptoOptions: CryptographyOptions = defaultCryptoOptions) {
+    static async fromToken(
+        token: string | undefined | null,
+        cryptoOptions: CryptographyOptions = defaultCryptoOptions,
+    ) {
         const instance = new this(cryptoOptions);
         const result = await instance.read(token ?? '');
         if (typeof result === 'boolean') {
@@ -95,7 +101,9 @@ export class JWTSession extends Map<SessionKey, SessionValue> implements Session
 
     async #verifyAndLoad(token: string): Promise<boolean> {
         try {
-            const result = await jwtVerify(token, this.#crypto.secret, { issuer: this.#crypto.issuer });
+            const result = await jwtVerify(token, this.#crypto.secret, {
+                issuer: this.#crypto.issuer,
+            });
             for (const [key, value] of Object.entries(result.payload)) {
                 this.set(key as SessionKey, value as SessionValue);
             }
@@ -163,11 +171,7 @@ class _JWTSession<Payload> {
     }
 
     verify(token: string): Promise<JWTVerifyResult> {
-        return jwtVerify(
-            token,
-            this.#crypto.secret,
-            { issuer: env.DOMAIN },
-        );
+        return jwtVerify(token, this.#crypto.secret, { issuer: env.DOMAIN });
     }
 
     decode(token: string): JWTPayload & Payload {
@@ -226,7 +230,7 @@ export class SessionReader<Payload> {
         let isValid = false;
 
         try {
-            isValid = !!(await appSession.verify(token))
+            isValid = !!(await appSession.verify(token));
         } catch {}
 
         return new SessionReader(appSession, token, isValid);

@@ -13,7 +13,7 @@ export class ResponseBuilder {
 
     public _redirectUrl: string | undefined;
     public _redirectUrlParams: URLSearchParams = new URLSearchParams();
-    public _cookies: (ResponseCookie | { name: string, value: typeof DeleteCookie })[] = [];
+    public _cookies: (ResponseCookie | { name: string; value: typeof DeleteCookie })[] = [];
 
     body(body: BodyInit): this {
         this._body = body;
