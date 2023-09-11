@@ -1,7 +1,7 @@
 import { LoginForms } from './client';
 import env from '@/env.mjs';
 import { redirect } from 'next/navigation';
-import { useSession } from '@/lib/auth/session';
+import { getSessionRSC } from '@/lib/auth/session';
 import { cookies } from 'next/headers';
 
 export const metadata = {
@@ -10,12 +10,11 @@ export const metadata = {
 };
 
 export default async function LoginPage() {
-    const user = await useSession(cookies());
-    if (user) {
+    const session = await getSessionRSC(cookies());
+
+    if (!('error' in session) && typeof session.userId !== 'undefined') {
         redirect('/');
     }
 
-    const fbLoginEnabled = !!env.FB_APP_SECRET;
-
-    return <LoginForms fbLoginEnabled={fbLoginEnabled} />;
+    return <LoginForms fbLoginEnabled={!!env.FB_APP_SECRET} />;
 }

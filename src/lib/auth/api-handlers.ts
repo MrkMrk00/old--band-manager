@@ -41,7 +41,7 @@ route('form', async function (req: NextRequest): Promise<NextResponse> {
         const url = new URL('/login', req.url);
         url.searchParams.append('err_str', 'Špatné přihlašovací údaje.');
 
-        return response().redirect(url).build();
+        return response().redirectPost(url).build();
     }
 
     return await new SessionWriter()
@@ -143,7 +143,8 @@ route('verify', async function (req: NextRequest) {
 
 // /logout
 export async function handleLogout(): Promise<NextResponse> {
-    return await new SessionWriter()
+    return response()
         .deleteSession()
-        .inject(response().redirectPost('/login').build());
+        .redirectPost('/login')
+        .build();
 }

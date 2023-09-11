@@ -1,4 +1,8 @@
 import { NextResponse } from 'next/server';
+import type { ResponseCookie } from '@/lib/auth/contracts';
+import { COOKIE_SETTINGS } from '@/lib/auth/session';
+
+const DeleteCookie = Symbol('deleteCookie');
 
 export class ResponseBuilder {
     public _body: BodyInit | undefined = undefined;
@@ -9,6 +13,7 @@ export class ResponseBuilder {
 
     public _redirectUrl: string | undefined;
     public _redirectUrlParams: URLSearchParams = new URLSearchParams();
+    public _cookies: (ResponseCookie | { name: string, value: typeof DeleteCookie })[] = [];
 
     body(body: BodyInit): this {
         this._body = body;
@@ -64,6 +69,24 @@ export class ResponseBuilder {
         return this;
     }
 
+    pushCookie(cookie: ResponseCookie): this {
+        this._cookies.push(cookie);
+
+        return this;
+    }
+
+    deleteCookie(name: string): this {
+        this._cookies.push({ name, value: DeleteCookie });
+
+        return this;
+    }
+
+    deleteSession(): this {
+        this.deleteCookie(COOKIE_SETTINGS.name);
+
+        return this;
+    }
+
     build() {
         if (this._redirectUrl) {
             const params =
@@ -74,7 +97,17 @@ export class ResponseBuilder {
 
         this._init.headers = Object.fromEntries(this._headers.entries());
 
-        return new NextResponse(this._body, this._init);
+        const response = new NextResponse(this._body, this._init);
+        for (const cookie of this._cookies) {
+            if (cookie.value === DeleteCookie) {
+                response.cookies.delete(cookie.name);
+                continue;
+            }
+
+            response.cookies.set(cookie);
+        }
+
+        return response;
     }
 }
 

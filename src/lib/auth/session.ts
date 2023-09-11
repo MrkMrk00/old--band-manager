@@ -1,43 +1,215 @@
-import type { NextResponse } from 'next/server';
-import type { JWTPayload } from 'jose';
-import type { ResponseCookie, Session } from '@/lib/auth/utils';
-import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import { NextResponse } from 'next/server';
+import type { JWTHeaderParameters, JWTPayload, JWTVerifyResult } from 'jose';
+import type { AppSession, ResponseCookie } from '@/lib/auth/contracts';
+import type { Session, SessionIOError } from '@/lib/auth/contracts';
 
 import env from '@/env.mjs';
 import { SignJWT, jwtVerify, decodeJwt } from 'jose';
 import { NextRequest } from 'next/server';
 import { ResponseBuilder, default as createResponseBuilder } from '@/lib/http/response';
+import { PersistentUser } from '@/model/user';
+import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 
-const alg = 'HS384';
-const secret = new TextEncoder().encode(env.APP_SECRET);
-const expirationHours = 72;
+export type CryptographyOptions = {
+    algo: JWTHeaderParameters['alg'];
+    expiration: `${number}${'d' | 'h' | 'm'}`;
+    secret: Uint8Array;
+    issuer: string;
+};
 
-export function signJWT(payload: Record<string, string | number>): Promise<string> {
-    return new SignJWT(payload)
-        .setProtectedHeader({ alg })
-        .setIssuedAt()
-        .setIssuer(env.DOMAIN)
-        .setExpirationTime(`${expirationHours}h`)
-        .sign(secret);
+const defaultCryptoOptions: CryptographyOptions = {
+    algo: 'HS384',
+    secret: new TextEncoder().encode(env.APP_SECRET),
+    expiration: '72h',
+    issuer: env.DOMAIN,
+};
+
+type SessionKey = keyof AppSession | keyof RemoveIndex<JWTPayload>;
+type SessionValue = (AppSession & RemoveIndex<JWTPayload>)[SessionKey];
+
+type JWTAppSession = AppSession & RemoveIndex<JWTPayload>;
+
+export function getSessionRSC(cookies: ReadonlyRequestCookies) {
+    return JWTSession.fromToken(cookies.get(COOKIE_SETTINGS.name)?.value);
 }
 
+export function getSessionApi(request: NextRequest) {
+    return JWTSession.fromRequest(request);
+}
+
+export class JWTSession extends Map<SessionKey, SessionValue> implements Session<JWTAppSession> {
+    readonly #crypto: CryptographyOptions;
+
+    constructor(cryptoOptions: CryptographyOptions = defaultCryptoOptions) {
+        super();
+        this.#crypto = cryptoOptions;
+    }
+
+    static fromRequest(request: NextRequest, cryptoOptions: CryptographyOptions = defaultCryptoOptions): Promise<JWTSession | SessionIOError> {
+        const token = request.cookies.get(COOKIE_SETTINGS.name)?.value ?? '';
+        return this.fromToken(token, cryptoOptions);
+    }
+
+    static async fromToken(token: string | undefined | null, cryptoOptions: CryptographyOptions = defaultCryptoOptions) {
+        const instance = new this(cryptoOptions);
+        const result = await instance.read(token ?? '');
+        if (typeof result === 'boolean') {
+            return instance;
+        }
+
+        return result;
+    }
+
+    async read(token: string): Promise<true | SessionIOError> {
+        const isValid = await this.#verifyAndLoad(token);
+        if (!isValid) {
+            return {
+                error: {
+                    message: 'Invalid token.',
+                },
+            };
+        }
+
+        return true;
+    }
+
+    async write(response: Response): Promise<true | SessionIOError> {
+        if (!(response instanceof NextResponse)) {
+            response = new NextResponse(null, response);
+        }
+        try {
+            (response as NextResponse).cookies.set({
+                ...COOKIE_SETTINGS,
+                value: await this.#sign(Object.fromEntries(this.entries()) as JWTAppSession),
+            });
+        } catch (e: unknown) {
+            return {
+                error: {
+                    message: String(e),
+                },
+            };
+        }
+
+        return true;
+    }
+
+    async #verifyAndLoad(token: string): Promise<boolean> {
+        try {
+            const result = await jwtVerify(token, this.#crypto.secret, { issuer: this.#crypto.issuer });
+            for (const [key, value] of Object.entries(result.payload)) {
+                this.set(key as SessionKey, value as SessionValue);
+            }
+
+            return true;
+        } catch (ignore: unknown) {
+            return false;
+        }
+    }
+
+    #sign(payload: JWTAppSession): Promise<string> {
+        return new SignJWT(payload)
+            .setProtectedHeader({ alg: this.#crypto.algo })
+            .setIssuedAt()
+            .setIssuer(env.DOMAIN)
+            .setExpirationTime(this.#crypto.expiration)
+            .sign(this.#crypto.secret);
+    }
+
+    get userId(): number | undefined {
+        return this.get('id') as number;
+    }
+
+    set userId(id: number | undefined) {
+        this.set('id', id);
+    }
+
+    get displayName(): string | undefined {
+        return this.get('display_name') as string;
+    }
+
+    set displayName(name: string | undefined) {
+        this.set('display_name', name);
+    }
+
+    get issuedAt(): number | undefined {
+        return this.get('iat') as number;
+    }
+}
+
+/** @deprecated */
+class _JWTSession<Payload> {
+    #crypto: CryptographyOptions;
+
+    constructor(cryptoOptions: CryptographyOptions) {
+        this.#crypto = cryptoOptions;
+    }
+
+    static withDefaults<T>(): _JWTSession<T> {
+        // @ts-ignore
+        return new this({
+            algo: 'HS384',
+            secret: new TextEncoder().encode(env.APP_SECRET),
+            expiration: '72h',
+        });
+    }
+
+    sign(payload: Record<string, string | number>): Promise<string> {
+        return new SignJWT(payload)
+            .setProtectedHeader({ alg: this.#crypto.algo })
+            .setIssuedAt()
+            .setIssuer(env.DOMAIN)
+            .setExpirationTime(this.#crypto.expiration)
+            .sign(this.#crypto.secret);
+    }
+
+    verify(token: string): Promise<JWTVerifyResult> {
+        return jwtVerify(
+            token,
+            this.#crypto.secret,
+            { issuer: env.DOMAIN },
+        );
+    }
+
+    decode(token: string): JWTPayload & Payload {
+        return decodeJwt(token) as JWTPayload & Payload;
+    }
+
+    get expiration() {
+        return this.#crypto.expiration;
+    }
+
+    get secret() {
+        return this.#crypto.secret;
+    }
+
+    get algo() {
+        return this.#crypto.algo;
+    }
+}
+
+export const appSession = _JWTSession.withDefaults<PersistentUser>();
+
 export const COOKIE_SETTINGS: Omit<ResponseCookie, 'value'> = {
-    name: 'BAND_MANAGER_AUTH',
-    httpOnly: false, // tRPC has to have access
+    name: 'BMSESSID',
+    httpOnly: false, // tRPC has to access
     path: '/',
     secure: env.NODE_ENV === 'production',
-    maxAge: expirationHours * 60 * 60,
+    maxAge: +appSession.expiration.replace(/\D/, '') * 60 * 60,
     sameSite: 'lax',
 } as const;
 
 const UnreadableToken = null;
 
-export class SessionReader {
+/** @deprecated use getSession{RSC|Api} */
+export class SessionReader<Payload> {
+    sessionStrategy: _JWTSession<Payload>;
+
     #valid: boolean = false;
     #rawToken: string;
-    #payload: (JWTPayload & Session) | typeof UnreadableToken | undefined = undefined;
+    #payload: (JWTPayload & Payload) | typeof UnreadableToken | undefined = undefined;
 
-    private constructor(token: string, isValid: boolean) {
+    private constructor(sessionStrategy: _JWTSession<Payload>, token: string, isValid: boolean) {
+        this.sessionStrategy = sessionStrategy;
         this.#rawToken = token;
         this.#valid = isValid;
     }
@@ -48,16 +220,16 @@ export class SessionReader {
 
     static async fromToken(token?: string) {
         if (!token) {
-            return new SessionReader('', false);
+            return new SessionReader(appSession, '', false);
         }
 
         let isValid = false;
 
         try {
-            isValid = !!(await jwtVerify(token, secret, { issuer: env.DOMAIN }));
+            isValid = !!(await appSession.verify(token))
         } catch {}
 
-        return new SessionReader(token, isValid);
+        return new SessionReader(appSession, token, isValid);
     }
 
     static async fromRequest(request: Request) {
@@ -75,7 +247,7 @@ export class SessionReader {
             throw new InvalidTokenError();
         }
 
-        return this.#getPayload()!.id;
+        return this.#getPayload()!.id as number;
     }
 
     get displayName(): string {
@@ -83,7 +255,7 @@ export class SessionReader {
             throw new InvalidTokenError();
         }
 
-        return this.#getPayload()!.display_name;
+        return this.#getPayload()!.display_name as string;
     }
 
     get session() {
@@ -92,12 +264,12 @@ export class SessionReader {
         }
 
         return {
-            id: this.#getPayload()!.id,
-            display_name: this.#getPayload()!.display_name,
+            id: this.userId,
+            display_name: this.displayName,
         };
     }
 
-    get payload(): JWTPayload & Session {
+    get payload(): JWTPayload & Payload {
         const payload = this.#getPayload();
 
         if (!payload) {
@@ -107,7 +279,7 @@ export class SessionReader {
         return payload;
     }
 
-    #getPayload(): (JWTPayload & Session) | typeof UnreadableToken {
+    #getPayload(): (JWTPayload & Payload) | typeof UnreadableToken {
         if (!this.#valid) {
             return UnreadableToken;
         }
@@ -117,7 +289,7 @@ export class SessionReader {
         }
 
         try {
-            this.#payload = decodeJwt(this.#rawToken) as JWTPayload & Session;
+            this.#payload = this.sessionStrategy.decode(this.#rawToken);
         } catch {
             this.#valid = false;
 
@@ -132,8 +304,9 @@ class InvalidTokenError extends Error {}
 
 const DeleteSession = null;
 
+/** @deprecated use getSession{RSC|Api} */
 export class SessionWriter {
-    #data: Session | typeof DeleteSession | undefined = undefined;
+    #data: AppSession | typeof DeleteSession | undefined = undefined;
 
     static async fromRequest(request: Request): Promise<SessionWriter> {
         const reader = await SessionReader.fromRequest(request);
@@ -152,7 +325,7 @@ export class SessionWriter {
         return this;
     }
 
-    setData(data: Session): SessionWriter {
+    setData(data: AppSession): SessionWriter {
         this.#data = data;
 
         return this;
@@ -180,28 +353,9 @@ export class SessionWriter {
         // @ts-ignore
         response.cookies.set({
             ...COOKIE_SETTINGS,
-            value: await signJWT(this.#data),
+            value: await appSession.sign(this.#data),
         });
 
         return response;
     }
-}
-
-export async function useSession(
-    request: Request | ReadonlyRequestCookies,
-): Promise<Session | null> {
-    let reader: SessionReader;
-
-    if (request instanceof Request) {
-        reader = await SessionReader.fromRequest(request);
-    } else {
-        const token = request.get(COOKIE_SETTINGS.name);
-        if (!token) {
-            return null;
-        }
-
-        reader = await SessionReader.fromToken(token.value);
-    }
-
-    return reader.isValid ? reader.session : null;
 }

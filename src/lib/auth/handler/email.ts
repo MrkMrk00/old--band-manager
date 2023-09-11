@@ -1,4 +1,4 @@
-import { AsyncAuthResponse, AuthHandler } from '@/lib/auth/utils';
+import { AsyncAuthResponse, AuthHandler } from '@/lib/auth/contracts';
 import { UsersRepository } from '@/lib/repositories';
 import env from '@/env.mjs';
 import { ArgonUtil } from '@/lib/auth/crypto';

@@ -2,7 +2,7 @@ import env from '@/env.mjs';
 import fetcher from '@/lib/fetcher';
 import { sql } from 'kysely';
 import { UsersRepository } from '@/lib/repositories';
-import { AsyncAuthResponse, AuthHandler, MethodNotImplementedError } from '@/lib/auth/utils';
+import { AsyncAuthResponse, AuthHandler, MethodNotImplementedError } from '@/lib/auth/contracts';
 
 const urls = {
     getAccessToken: (clientId: string, clientSecret: string, accessCode: string, url: string) =>
