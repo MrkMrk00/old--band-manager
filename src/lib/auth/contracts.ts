@@ -3,15 +3,12 @@ import type {
     ResponseCookie as NextResponseCookie,
 } from 'next/dist/compiled/@edge-runtime/cookies';
 import type { PersistentUser } from '@/model/user';
+import type { NextResponse } from 'next/server';
 
 export type SessionKey = string;
-export type SessionValue = string | number | string[] | { [key: SessionKey]: SessionValue };
+export type SessionValue = string | number | SessionValue[] | { [key: SessionKey]: SessionValue };
 export type SessionPayload = Record<SessionKey, SessionValue>;
-export type SessionIOError = {
-    error: {
-        message: string;
-    };
-};
+export type SessionIOError = AppError;
 
 export interface Session<
     T extends SessionPayload = SessionPayload,
@@ -19,7 +16,8 @@ export interface Session<
     ID = string,
 > extends Map<keyof T, T[keyof T]> {
     read(sessionId: ID): Promise<true | E>;
-    write(response: Response): Promise<true | E>;
+    write(response: NextResponse): Promise<true | E>;
+    cookie(): Promise<ResponseCookie | SessionIOError>;
 }
 
 export type ResponseCookie = NextResponseCookie & Pick<CookieListItem, 'sameSite'>;
@@ -38,3 +36,23 @@ export interface AuthHandler<UID, SuccessPayload, ErrorShape> {
 }
 
 export class MethodNotImplementedError extends Error {}
+
+export type AppError = {
+    error: true;
+    message: string;
+};
+
+export const AppError = {
+    create(message: string): AppError {
+        return {
+            error: true,
+            message,
+        };
+    },
+
+    isError(value: unknown): boolean {
+        return (
+            typeof value === 'object' && value !== null && 'error' in value && 'message' in value
+        );
+    },
+};

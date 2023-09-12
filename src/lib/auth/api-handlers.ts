@@ -1,6 +1,6 @@
 import type { NextRequest, NextResponse } from 'next/server';
-import { FacebookAuth, handleFacebookAuth } from '@/lib/auth/handler/facebook';
-import { SessionReader, SessionWriter } from '@/lib/auth/session';
+import { FacebookAuth, handleRegisterFacebookUser } from '@/lib/auth/handler/facebook';
+import { JWTSession, SessionReader, SessionWriter } from '@/lib/auth/session';
 import { UsersRepository } from '@/lib/repositories';
 import { sql } from 'kysely';
 import DatabaseAuthHandler, { ensureAdminUser } from '@/lib/auth/handler/email';
@@ -50,7 +50,7 @@ route('form', async function (req: NextRequest): Promise<NextResponse> {
 });
 
 async function handleRedirectionFacebookAuth(req: NextRequest): Promise<NextResponse> {
-    const url = new URL(req.url);
+    const url = req.nextUrl;
 
     const loginResolver = new FacebookAuth(url.href.replace(url.search, ''));
     const facebookUser = await loginResolver.accept(req);
@@ -62,17 +62,27 @@ async function handleRedirectionFacebookAuth(req: NextRequest): Promise<NextResp
             .build();
     }
 
-    const persistentUser = await handleFacebookAuth(facebookUser);
+    const persistentUser = await handleRegisterFacebookUser(facebookUser);
 
-    if (persistentUser instanceof Error) {
+    if ('error' in persistentUser) {
         return response()
             .redirect('/login')
-            .errStr(`Registration failed: ${JSON.stringify(persistentUser.message, null, 4)}`)
+            .errStr(
+                `Chyba v registraci uživatele: ${JSON.stringify(persistentUser.message, null, 4)}`,
+            )
             .build();
     }
 
-    // happy path -> frontend listens to close event
-    return await new SessionWriter().setData(persistentUser).inject(r => r.redirect('/'));
+    const session = new JWTSession();
+    session.userId = persistentUser.id;
+    session.displayName = persistentUser.display_name;
+    const cookie = await session.cookie();
+
+    if ('error' in cookie) {
+        return response().redirect('/login').errStr(cookie.message).build();
+    }
+
+    return response().redirect('/').pushCookie(cookie).build();
 }
 
 route('fb-success', async function (req: NextRequest) {
@@ -92,9 +102,9 @@ route('fb-success', async function (req: NextRequest) {
             .build();
     }
 
-    const persistentUser = await handleFacebookAuth(facebookUser);
+    const persistentUser = await handleRegisterFacebookUser(facebookUser);
 
-    if (persistentUser instanceof Error) {
+    if ('error' in persistentUser) {
         return response()
             .html(
                 `<pre>Registration failed: ${JSON.stringify(

@@ -1,8 +1,7 @@
 import { LoginForms } from './client';
 import env from '@/env.mjs';
 import { redirect } from 'next/navigation';
-import { getSessionRSC } from '@/lib/auth/session';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/auth/session';
 
 export const metadata = {
     title: 'Přihlášení',
@@ -10,7 +9,7 @@ export const metadata = {
 };
 
 export default async function LoginPage() {
-    const session = await getSessionRSC(cookies());
+    const session = await getSession();
 
     if (!('error' in session) && typeof session.userId !== 'undefined') {
         redirect('/');

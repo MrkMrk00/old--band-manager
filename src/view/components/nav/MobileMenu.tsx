@@ -30,15 +30,14 @@ function MenuItems({
                 as="aside"
             >
                 <div className="flex flex-col w-full h-full">
-                    <Menu.Item>
+                    <Menu.Item as="button" className="flex flex-row justify-end h-16">
                         {() => (
-                            <div className="flex flex-row justify-end h-16">
-                                <span className="flex flex-col justify-center items-center h-full w-20 border-l-2">
-                                    <FaX size="2em" className="text-red-500" />
-                                </span>
-                            </div>
+                            <span className="flex flex-col justify-center items-center h-full w-20 border-l-2">
+                                <FaX size="2em" className="text-red-500" />
+                            </span>
                         )}
                     </Menu.Item>
+
                     <Menu.Item>
                         {() => (
                             <Link href="/" className="relative w-full text-center py-4 border-y">

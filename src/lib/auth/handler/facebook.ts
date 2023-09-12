@@ -2,14 +2,19 @@ import env from '@/env.mjs';
 import fetcher from '@/lib/fetcher';
 import { sql } from 'kysely';
 import { UsersRepository } from '@/lib/repositories';
-import { AsyncAuthResponse, AuthHandler, MethodNotImplementedError } from '@/lib/auth/contracts';
+import {
+    AppError,
+    AsyncAuthResponse,
+    AuthHandler,
+    MethodNotImplementedError,
+} from '@/lib/auth/contracts';
 
 const urls = {
     getAccessToken: (clientId: string, clientSecret: string, accessCode: string, url: string) =>
-        `https://graph.facebook.com/v16.0/oauth/access_token?client_id=${clientId}&client_secret=${clientSecret}&code=${accessCode}&redirect_uri=${url}`,
+        `https://graph.facebook.com/v${env.FB_VAPI}/oauth/access_token?client_id=${clientId}&client_secret=${clientSecret}&code=${accessCode}&redirect_uri=${url}`,
 
     getUserDetails: (accessToken: string) =>
-        `https://graph.facebook.com/v16.0/me?fields=id,name&access_token=${accessToken}`,
+        `https://graph.facebook.com/v${env.FB_VAPI}/me?fields=id,name&access_token=${accessToken}`,
 } as const;
 
 export type FacebookErrorResponse = {
@@ -31,11 +36,11 @@ export type FacebookUserDetailsResponse = {
     name: string;
 };
 
-export async function handleFacebookAuth(
+export async function handleRegisterFacebookUser(
     facebookUser: FacebookUserDetailsResponse,
-): Promise<Error | { id: number; display_name: string }> {
+): Promise<AppError | { id: number; display_name: string }> {
     if (facebookUser.id === '') {
-        return new Error('wrong id format');
+        return AppError.create('Wrong id format');
     }
 
     let existing = await UsersRepository.selectQb()
@@ -53,7 +58,7 @@ export async function handleFacebookAuth(
             .executeTakeFirst();
 
         if (typeof res.insertId === 'undefined') {
-            return Error(
+            return AppError.create(
                 `Failed to register user ${facebookUser.name} with id ${facebookUser.id}!`,
             );
         }

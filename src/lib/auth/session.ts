@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import type { JWTHeaderParameters, JWTPayload, JWTVerifyResult } from 'jose';
-import type { AppSession, ResponseCookie } from '@/lib/auth/contracts';
-import type { Session, SessionIOError } from '@/lib/auth/contracts';
+import type { Session, AppSession, ResponseCookie, SessionIOError } from '@/lib/auth/contracts';
+import type { PersistentUser } from '@/model/user';
 
 import env from '@/env.mjs';
 import { SignJWT, jwtVerify, decodeJwt } from 'jose';
-import { NextRequest } from 'next/server';
 import { ResponseBuilder, default as createResponseBuilder } from '@/lib/http/response';
-import { PersistentUser } from '@/model/user';
-import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import { cookies } from 'next/headers';
+import Logger from '@/lib/logger';
+import { AppError } from '@/lib/auth/contracts';
 
 export type CryptographyOptions = {
     algo: JWTHeaderParameters['alg'];
@@ -24,25 +24,39 @@ const defaultCryptoOptions: CryptographyOptions = {
     issuer: env.DOMAIN,
 };
 
-type SessionKey = keyof AppSession | keyof RemoveIndex<JWTPayload>;
-type SessionValue = (AppSession & RemoveIndex<JWTPayload>)[SessionKey];
+export const SessionStrategy = {
+    JWT: 'jwt',
+} as const;
+export type SessionStrategy = (typeof SessionStrategy)[keyof typeof SessionStrategy];
+
+type JWTSessionKey = keyof AppSession | keyof RemoveIndex<JWTPayload>;
+type JWTSessionValue = (AppSession & RemoveIndex<JWTPayload>)[JWTSessionKey];
 
 type JWTAppSession = AppSession & RemoveIndex<JWTPayload>;
 
-export function getSessionRSC(cookies: ReadonlyRequestCookies) {
-    return JWTSession.fromToken(cookies.get(COOKIE_SETTINGS.name)?.value);
+export function getSession(strategy?: 'jwt'): Promise<JWTSession | SessionIOError>;
+export function getSession<T extends SessionStrategy | undefined>(strategy?: T) {
+    if (strategy === SessionStrategy.JWT || typeof strategy === 'undefined') {
+        return JWTSession.fromToken(cookies().get(COOKIE_SETTINGS.name)?.value);
+    }
+
+    throw new Error('Unknown strategy');
 }
 
-export function getSessionApi(request: NextRequest) {
-    return JWTSession.fromRequest(request);
-}
-
-export class JWTSession extends Map<SessionKey, SessionValue> implements Session<JWTAppSession> {
+export class JWTSession
+    extends Map<JWTSessionKey, JWTSessionValue>
+    implements Session<JWTAppSession>
+{
     readonly #crypto: CryptographyOptions;
+    readonly #logger: Logger;
 
-    constructor(cryptoOptions: CryptographyOptions = defaultCryptoOptions) {
+    constructor(
+        cryptoOptions: CryptographyOptions = defaultCryptoOptions,
+        logger: Logger = Logger.fromEnv(),
+    ) {
         super();
         this.#crypto = cryptoOptions;
+        this.#logger = logger;
     }
 
     static fromRequest(
@@ -69,31 +83,45 @@ export class JWTSession extends Map<SessionKey, SessionValue> implements Session
     async read(token: string): Promise<true | SessionIOError> {
         const isValid = await this.#verifyAndLoad(token);
         if (!isValid) {
-            return {
-                error: {
-                    message: 'Invalid token.',
-                },
-            };
+            return AppError.create('Invalid token');
         }
 
         return true;
     }
 
-    async write(response: Response): Promise<true | SessionIOError> {
-        if (!(response instanceof NextResponse)) {
-            response = new NextResponse(null, response);
-        }
+    async cookie(): Promise<ResponseCookie | SessionIOError> {
         try {
-            (response as NextResponse).cookies.set({
+            return {
                 ...COOKIE_SETTINGS,
                 value: await this.#sign(Object.fromEntries(this.entries()) as JWTAppSession),
-            });
-        } catch (e: unknown) {
-            return {
-                error: {
-                    message: String(e),
-                },
             };
+        } catch (e: unknown) {
+            const error = AppError.create('Failed to sign session cookie');
+            this.#logger.error(error.message, {
+                error: String(e),
+                unwrittenSession: Object.fromEntries(this.entries()),
+            });
+
+            return error;
+        }
+    }
+
+    async write(response: NextResponse): Promise<true | SessionIOError> {
+        try {
+            const cookie = await this.cookie();
+            if ('error' in cookie) {
+                return cookie;
+            }
+
+            response.cookies.set(cookie);
+        } catch (e: unknown) {
+            const error = AppError.create('Failed to write session cookie!');
+            this.#logger.error(error.message, {
+                error: String(e),
+                unwrittenSession: Object.fromEntries(this.entries()),
+            });
+
+            return error;
         }
 
         return true;
@@ -105,7 +133,7 @@ export class JWTSession extends Map<SessionKey, SessionValue> implements Session
                 issuer: this.#crypto.issuer,
             });
             for (const [key, value] of Object.entries(result.payload)) {
-                this.set(key as SessionKey, value as SessionValue);
+                this.set(key as JWTSessionKey, value as JWTSessionValue);
             }
 
             return true;
@@ -154,11 +182,7 @@ class _JWTSession<Payload> {
 
     static withDefaults<T>(): _JWTSession<T> {
         // @ts-ignore
-        return new this({
-            algo: 'HS384',
-            secret: new TextEncoder().encode(env.APP_SECRET),
-            expiration: '72h',
-        });
+        return new this(defaultCryptoOptions);
     }
 
     sign(payload: Record<string, string | number>): Promise<string> {
@@ -204,7 +228,7 @@ export const COOKIE_SETTINGS: Omit<ResponseCookie, 'value'> = {
 
 const UnreadableToken = null;
 
-/** @deprecated use getSession{RSC|Api} */
+/** @deprecated use getSession */
 export class SessionReader<Payload> {
     sessionStrategy: _JWTSession<Payload>;
 
@@ -308,7 +332,7 @@ class InvalidTokenError extends Error {}
 
 const DeleteSession = null;
 
-/** @deprecated use getSession{RSC|Api} */
+/** @deprecated use getSession */
 export class SessionWriter {
     #data: AppSession | typeof DeleteSession | undefined = undefined;
 
