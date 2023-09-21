@@ -105,7 +105,7 @@ export function Modal(props: ModalProps) {
 
 Modal.Title = Dialog.Title;
 
-export type ConfirmModalProps = Omit<ModalProps, 'onClose'> & {
+export type ConfirmModalProps = Omit<ModalProps, 'onClose' | 'children'> & {
     title: string;
     buttons?: {
         id: number;

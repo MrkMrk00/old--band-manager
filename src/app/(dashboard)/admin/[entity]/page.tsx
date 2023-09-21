@@ -9,7 +9,7 @@ type PageProps = {
 };
 
 import csTranslations from '@/i18n/cs/entity.json';
-import { ucfirst } from '@/lib/string-util';
+import { ucfirst } from '@/lib/util';
 
 function t(key: string): string | null {
     // @ts-ignore
@@ -17,7 +17,8 @@ function t(key: string): string | null {
 }
 
 export default async function EntityListView({ params }: PageProps) {
-    const { entity } = params;
+    let { entity } = params;
+    entity = entity.replace('-', '_');
 
     return (
         <div className="flex flex-col w-full items-center">

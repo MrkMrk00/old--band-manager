@@ -24,6 +24,9 @@ class Yoinker extends Map<string | number, string | number | Array<string | numb
             case 'number':
                 return ensureValidNumber(input.value, !!input.dataset.yOptional);
             case 'string':
+                if (!!input.dataset.yOptional && !input.value) {
+                    return undefined;
+                }
                 return input.value;
             default:
                 throw new Error('Invalid type');

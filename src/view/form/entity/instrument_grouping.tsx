@@ -6,7 +6,8 @@ import trpc from '@/lib/trcp/client';
 import { Button, Input, LoadingSpinner } from '@/view/layout';
 import { ConfirmModal } from '@/view/layout-stateful';
 import { FaTrash } from 'react-icons/fa6';
-import { type FormProps, FormRow } from '@/view/form/shared-components';
+import { type FormProps, FormRow } from '@/view/form/shared';
+import { admin } from '@/lib/route-register';
 
 export type { FormProps };
 
@@ -32,8 +33,9 @@ export default function GroupingForm({ id }: FormProps) {
         upsertMut.mutate(formData);
     }
 
-    if (upsertMut.isSuccess && typeof upsertMut.data === 'number') {
-        router.push(`/admin/instruments/${upsertMut.data}?t=groupings`); // Ende Schluss
+    const newId = typeof upsertMut.data === 'number' ? upsertMut.data : null;
+    if (upsertMut.isSuccess && newId) {
+        router.push(admin().show('instrument_groupings', newId).build());
     }
 
     if (upsertMut.isSuccess && data) {
@@ -41,7 +43,7 @@ export default function GroupingForm({ id }: FormProps) {
     }
 
     if (deleteMut.isSuccess) {
-        router.push('/admin/instruments?t=groupings&refetch=1');
+        router.push(admin().list('instrument_groupings').build());
     }
 
     function handleDelete(num?: number | boolean) {

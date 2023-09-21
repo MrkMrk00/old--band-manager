@@ -14,6 +14,7 @@ export interface Database {
     users: UserDatabase;
     instruments: InstrumentDatabase;
     instrument_groupings: InstrumentGroupingDatabase;
+    instruments_groupings_relations: { id_instrument: number; id_grouping: number };
 
     songs: SongDatabase;
     sheets: SheetDatabase;

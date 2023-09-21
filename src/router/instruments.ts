@@ -1,46 +1,40 @@
-import type {
-    InstrumentGrouping,
-    NewInstrumentGrouping,
-    UpdatableGrouping,
-} from '@/model/instrument_groupings';
-import { Authenticated, Router } from '@/lib/trcp/server';
-import { InstrumentsRepository, query, UsersRepository } from '@/lib/repositories';
+import type { NewInstrumentGrouping, UpdatableGrouping } from '@/model/instrument_groupings';
+import {AdminAuthorized, Authenticated, Router} from '@/lib/trcp/server';
+import getRepositoryFor, { query } from '@/lib/repositories';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { type Pageable, Pager } from '@/lib/pager';
 import { sql } from 'kysely';
 import { countAll } from '@/lib/specs';
+import Logger from '@/lib/logger';
 
 const fetchAll = Authenticated.input(Pager.input).query(async function ({ input }) {
     const { perPage, page } = input;
     const allCount = await countAll('instruments');
     const { maxPage, offset } = Pager.query(allCount, perPage, page);
 
-    const pagedInstruments = await query()
-        .selectFrom('instruments')
-        .selectAll()
-        .limit(perPage)
-        .offset(offset)
+    const instruments = getRepositoryFor('instruments');
+
+    const pagedInstruments = await instruments.selectAll().limit(perPage).offset(offset).execute();
+
+    const relatedGroupings = await instruments
+        .getRelatedGroupings(pagedInstruments.map(i => i.id))
         .execute();
 
-    const allGroupings = await query().selectFrom('instrument_groupings').selectAll().execute();
-
-    const groupingsById = new Map<number, (typeof allGroupings)[0]>();
-    for (const grouping of allGroupings) {
-        groupingsById.set(grouping.id, grouping);
-    }
-
     type ResultInstrumentType = Omit<(typeof pagedInstruments)[0], 'groupings'> & {
-        groupings: (typeof allGroupings)[0][];
+        groupings: (typeof relatedGroupings)[0][];
     };
 
-    const instruments = new Array<ResultInstrumentType>(pagedInstruments.length);
+    const objects = new Array<ResultInstrumentType>(pagedInstruments.length);
 
     let at = 0;
     for (let instrument of pagedInstruments) {
-        instruments[at] = {
+        const groupings = relatedGroupings.filter(
+            grouping => grouping.id_instrument === instrument.id,
+        );
+        objects[at] = {
             ...instrument,
-            groupings: instrument.groupings.map(id => groupingsById.get(id)!),
+            groupings,
         };
 
         at++;
@@ -48,72 +42,75 @@ const fetchAll = Authenticated.input(Pager.input).query(async function ({ input 
 
     return {
         maxPage,
-        payload: instruments,
-    } satisfies Pageable<(typeof instruments)[0]>;
+        payload: objects,
+    } satisfies Pageable<(typeof objects)[0]>;
 });
 
-const upsert = Authenticated.input(
-    z.object({
-        id: z.number().int().min(0).optional(),
-        name: z.string().min(1).max(512),
-        subname: z
-            .string()
-            .max(512)
-            .optional()
-            .transform(s => (!s ? undefined : s)),
-        icon: z
-            .string()
-            .optional()
-            .transform(s => (!s || !z.string().url().parse(s) ? undefined : s)),
-        groupings: z.array(z.number().int().min(0)).optional(),
-    }),
-).mutation(async ({ ctx, input }) => {
-    if (typeof input.id === 'undefined') {
-        const qb = InstrumentsRepository.insertQb().values({
-            name: input.name,
-            subname: input.subname,
-            icon: input.icon,
-            created_by: ctx.user.id,
-            groupings: sql`'[]'`,
-        });
-
-        const result = await qb.executeTakeFirst();
-
-        return Number(result.insertId);
-    }
-
-    const result = await InstrumentsRepository.updateQb({ id: input.id })
-        .set({
-            name: input.name,
-            subname: input.subname,
-            icon: input.icon,
-            groupings: input.groupings ? sql`${JSON.stringify(input.groupings)}` : sql`'[]'`,
-        })
-        .executeTakeFirst();
-
-    if (Number(result.numUpdatedRows) > 1) {
-        throw new TRPCError({
-            message: 'Kurva, zas to updatuje jinak než má',
-            code: 'INTERNAL_SERVER_ERROR',
-        });
-    }
-
-    return true;
+const instrumentIsUpsertable = z.object({
+    id: z.number().int().min(0).optional(),
+    name: z.string().max(511),
+    subname: z.string().max(511).optional(),
+    icon: z.string().url().optional(),
+    groupings: z.array(z.number().int()).optional(),
 });
 
-const deleteOne = Authenticated.input(z.number().int()).mutation(async ({ input }) => {
-    const result = await InstrumentsRepository.delete(input).execute();
+const upsert = AdminAuthorized.input(instrumentIsUpsertable).mutation(async ({ input, ctx }) => {
+    const instruments = getRepositoryFor('instruments');
 
-    if (result.length !== 1) {
+    const upsertResult = await instruments.upsert({ ...input, created_by: ctx.user.id });
+    if (upsertResult instanceof z.ZodError) {
+        const { message, cause } = upsertResult;
+
         throw new TRPCError({
-            message: 'Nevim',
             code: 'BAD_REQUEST',
+            message,
+            cause,
         });
     }
 
-    if (Number(result[0].numDeletedRows) > 1) {
+    const rowNum =
+        'insertId' in upsertResult
+            ? upsertResult.numInsertedOrUpdatedRows
+            : upsertResult.numUpdatedRows;
+    if (typeof rowNum === 'undefined' || Number(rowNum) !== 1) {
         throw new TRPCError({
-            message: 'Kurva, moc toho mažeš',
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'No rows updated!',
+        });
+    }
+
+    let id: number;
+    if ('insertId' in upsertResult) {
+        id = Number(upsertResult.insertId);
+    } else {
+        if (typeof input.id === 'undefined') {
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: 'No ID to return found',
+            });
+        }
+
+        id = input.id;
+    }
+
+    return id;
+});
+
+const deleteOne = AdminAuthorized.input(z.number().int().min(0)).mutation(async ({ input }) => {
+    const instruments = getRepositoryFor('instruments');
+
+    const result = await instruments.deleteQb(input).executeTakeFirst();
+
+    if (Number(result.numDeletedRows) > 1) {
+        const logger = Logger.fromEnv();
+
+        logger.error('InstrumentsTRPCRouter.deleteOne :: HODNĚ ŠPATNÝ, MAŽE SE TOHO MOC', {
+            id: input,
+            numDeletedRows: Number(result.numDeletedRows),
+        });
+
+        throw new TRPCError({
+            message: 'HODNĚ ŠPATNÝ, MAŽE SE TOHO MOC',
             code: 'INTERNAL_SERVER_ERROR',
         });
     }
@@ -122,32 +119,28 @@ const deleteOne = Authenticated.input(z.number().int()).mutation(async ({ input 
 });
 
 const one = Authenticated.input(z.number().int().min(0)).query(async function ({ input }) {
-    let res = await InstrumentsRepository.findById(input).executeTakeFirst();
+    const instruments = getRepositoryFor('instruments');
 
-    if (!res) {
+    const instrument = await instruments
+        .selectQb()
+        .selectAll('i')
+        .leftJoin('users as u', j => j.onRef('u.id', '=', 'i.created_by'))
+        .select('u.display_name as user')
+        .where('i.id', '=', input)
+        .executeTakeFirst();
+
+    if (!instrument) {
         throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Tenhle nástroj neexistuje.',
         });
     }
 
-    const user = await UsersRepository.findById(res?.created_by).executeTakeFirst();
-
-    let groupings: InstrumentGrouping[];
-    if (res.groupings.length > 0) {
-        groupings = await query()
-            .selectFrom('instrument_groupings')
-            .selectAll()
-            .where('id', 'in', res.groupings)
-            .execute();
-    } else {
-        groupings = [];
-    }
+    const groupings = await instruments.getRelatedGroupings(instrument.id).execute();
 
     return {
-        ...res,
-        user: user,
-        groupings: groupings,
+        ...instrument,
+        groupings,
     };
 });
 
@@ -182,15 +175,9 @@ const grouping_fetchAll = Authenticated.input(
 
     let objectsQb = query()
         .selectFrom('instrument_groupings')
+        .selectAll()
         .leftJoin('users', j => j.onRef('instrument_groupings.created_by', '=', 'users.id'))
-        .select([
-            'instrument_groupings.id',
-            'instrument_groupings.name',
-            'instrument_groupings.created_by',
-            'instrument_groupings.created_at',
-            'instrument_groupings.updated_at',
-            'users.display_name as admin_name',
-        ])
+        .select('users.display_name as admin_name')
         .orderBy('instrument_groupings.name');
 
     const result = Pager.handleQuery(objectsQb, allCount, input.perPage, input.page);
@@ -244,7 +231,7 @@ async function updateGrouping(id: number, grouping: UpdatableGrouping) {
     return true;
 }
 
-const grouping_upsert = Authenticated.input(
+const grouping_upsert = AdminAuthorized.input(
     z.object({
         id: z.number().int().min(0).optional(),
         name: z.string().min(1).max(255),
@@ -260,7 +247,7 @@ const grouping_upsert = Authenticated.input(
     });
 });
 
-const grouping_delete = Authenticated.input(z.number().int().min(0)).mutation(async function ({
+const grouping_delete = AdminAuthorized.input(z.number().int().min(0)).mutation(async function ({
     input,
 }) {
     const res = await query()

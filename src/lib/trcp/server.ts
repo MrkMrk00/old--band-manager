@@ -1,8 +1,7 @@
 import type { TrpcContext } from '@/lib/trcp/context';
 import type { Role } from '@/model/user';
 import { initTRPC, TRPCError } from '@trpc/server';
-import { UsersRepository } from '@/lib/repositories';
-import { User } from '@/model/user';
+import getRepositoryFor from '@/lib/repositories';
 
 const t = initTRPC.context<TrpcContext>().create();
 
@@ -10,29 +9,17 @@ export const Router = t.router;
 export const Middleware = t.middleware;
 export const Public = t.procedure;
 
-const userAuthMiddleware = Middleware(async function ({ ctx, next }) {
+export const Authenticated = Public.use(function ({ ctx, next }) {
     if (!ctx.user) {
         throw new TRPCError({
-            code: 'FORBIDDEN',
-            cause: 'Wrong token supplied in X-TOKEN header.',
-        });
-    }
-
-    const user = await UsersRepository.findById(ctx.user.id).executeTakeFirst();
-
-    if (!user) {
-        throw new TRPCError({
-            code: 'FORBIDDEN',
-            cause: `User ${ctx.user.id} does not exist.`,
+            code: 'UNAUTHORIZED',
         });
     }
 
     return next({
-        ctx: { user },
+        ctx,
     });
 });
-
-export const Authenticated = Public.use(userAuthMiddleware);
 
 const roleMiddlewareCache: Map<string, typeof Authenticated> = new Map();
 
@@ -45,15 +32,21 @@ function createUnauthorizedError(): TRPCError {
 
 function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') {
     return Authenticated.use(async function ({ ctx, next }) {
-        const user = new User(ctx.user);
+        const userRolesResult = await getRepositoryFor('users')
+            .selectQb()
+            .select('users.roles')
+            .where('users.id', '=', ctx.user.id)
+            .executeTakeFirst();
 
-        if (roles.length < 1) {
+        if (!userRolesResult || userRolesResult.roles.length < 1) {
             return next();
         }
 
+        const userRoles = userRolesResult.roles;
+
         switch (query) {
             case 'all': {
-                if (user.hasAllRoles(roles)) {
+                if (roles.every(r => userRoles.includes(r))) {
                     return next();
                 }
 
@@ -61,10 +54,8 @@ function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') 
             }
 
             case 'any': {
-                for (const role of roles) {
-                    if (user.hasRole(role)) {
-                        return next();
-                    }
+                if (roles.some(r => userRoles.includes(r))) {
+                    return next();
                 }
 
                 throw createUnauthorizedError();

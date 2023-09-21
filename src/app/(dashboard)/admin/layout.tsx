@@ -86,8 +86,8 @@ export default function MenuTemplate({ children }: { children?: ReactNode }) {
                     </SettingsButton>
 
                     <SettingsButton
-                        href="/admin/instrument_groupings"
-                        active={pathname.startsWith('/admin/instrument_groupings')}
+                        href="/admin/instrument-groupings"
+                        active={pathname.startsWith('/admin/instrument-groupings')}
                     >
                         <SettingsButton.Icon>
                             <FaPeopleGroup />

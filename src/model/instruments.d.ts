@@ -1,4 +1,4 @@
-import type { Generated, Insertable, Selectable, Updateable } from 'kysely';
+import type { Generated } from 'kysely';
 
 export type InstrumentDatabase = {
     id: Generated<number>;
@@ -6,12 +6,7 @@ export type InstrumentDatabase = {
     subname?: string;
     created_by: number;
     icon?: string;
-    groupings: number[];
 
     created_at: Generated<string>;
     updated_at: Generated<string>;
 };
-
-export type Instrument = Selectable<InstrumentDatabase>;
-export type NewInstrument = Insertable<InstrumentDatabase>;
-export type UpdatableInstrument = Updateable<InstrumentDatabase>;

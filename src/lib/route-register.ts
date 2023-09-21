@@ -73,7 +73,7 @@ export class AdminRouteBuilder {
             throw new Error('Entity was not set');
         }
 
-        let url = `/admin/${this.#entity}/`;
+        let url = `/admin/${this.#entity.replace('_', '-')}/`;
         switch (this.#action) {
             case 'list':
                 break;

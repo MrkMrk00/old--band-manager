@@ -1,32 +1,47 @@
-import db, { type Database } from '@/database';
-import type { InsertQueryBuilder, InsertResult } from 'kysely';
+import type { Database } from '@/database';
+import type { InsertQueryBuilder, InsertResult, Kysely } from 'kysely';
 
-export class Repository<T extends keyof Database> {
+function createAlias(tableName: string) {
+    return tableName
+        .split('_')
+        .map(part => part.at(0)?.toLowerCase() ?? '')
+        .join();
+}
+
+export class Repository<T extends keyof Database, TAlias extends string = T> {
     readonly tableName: T;
+    readonly database: Kysely<Database>;
+    readonly tableAlias: TAlias;
 
-    constructor(dbName: T) {
-        this.tableName = dbName;
+    constructor(database: Kysely<Database>, tableName: T, tableAlias?: TAlias) {
+        this.database = database;
+        this.tableName = tableName;
+        this.tableAlias = tableAlias ?? (tableName as unknown as TAlias);
     }
 
     selectQb() {
-        return db.selectFrom(this.tableName);
+        return this.database.selectFrom(`${this.tableName} as ${this.tableAlias}`);
+    }
+
+    selectAll() {
+        return this.selectQb().selectAll();
     }
 
     insertQb(): InsertQueryBuilder<Database, T, InsertResult> {
-        return db.insertInto(this.tableName);
+        return this.database.insertInto(this.tableName);
     }
 
     updateQb(where?: number | PartialResultEntity<T>) {
-        let qb = db.updateTable(this.tableName);
+        let qb = this.database.updateTable(`${this.tableName} as ${this.tableAlias}`);
 
         if (where) {
             if (typeof where === 'number') {
                 // @ts-ignore
-                qb = qb.where(`${this.tableName}.id`, '=', where);
+                qb = qb.where(`${this.tableAlias}.id`, '=', where);
             } else {
                 for (const [key, val] of Object.entries(where)) {
                     // @ts-ignore
-                    qb = qb.where(`${this.tableName}.${key}`, '=', val);
+                    qb = qb.where(`${this.tableAlias}.${key}`, '=', val);
                 }
             }
         }
@@ -34,17 +49,17 @@ export class Repository<T extends keyof Database> {
         return qb;
     }
 
-    delete(where?: number | PartialResultEntity<T>) {
-        let qb = db.deleteFrom(this.tableName);
+    deleteQb(where?: number | PartialResultEntity<T>) {
+        let qb = this.database.deleteFrom(`${this.tableName} as ${this.tableAlias}`);
 
         if (where) {
             if (typeof where === 'number') {
                 // @ts-ignore
-                qb = qb.where(`${this.tableName}.id`, '=', where);
+                qb = qb.where(`${this.tableAlias}.id`, '=', where);
             } else {
                 for (const [key, val] of Object.entries(where)) {
                     // @ts-ignore
-                    qb = qb.where(`${this.tableName}.${key}`, '=', val);
+                    qb = qb.where(`${this.tableAlias}.${key}`, '=', val);
                 }
             }
         }
@@ -53,12 +68,10 @@ export class Repository<T extends keyof Database> {
     }
 
     findById(id: number) {
-        return (
-            this.selectQb()
-                .selectAll()
-                // @ts-ignore
-                .where(`${this.tableName}.id`, '=', id)
-        );
+        return this.selectQb()
+            .selectAll()
+            // @ts-ignore
+            .where(`${this.tableAlias}.id`, '=', id);
     }
 
     all(offset: number = 0, limit: number = 20) {

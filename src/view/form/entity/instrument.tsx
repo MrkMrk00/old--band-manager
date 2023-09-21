@@ -1,29 +1,87 @@
 'use client';
 
-import { type FormEvent, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import trpc from '@/lib/trcp/client';
 import { Button, Input, LoadingSpinner } from '@/view/layout';
 import { ConfirmModal } from '@/view/layout-stateful';
 import { FaPlus, FaTrash, FaX } from 'react-icons/fa6';
-import { type FormProps, FormRow } from '@/view/form/shared-components';
+import { extractErrors, type FormProps, FormRow } from '@/view/form/shared';
 import yoink from '@/view/form/yoink';
 import { useConfirmModal } from '@/view/form/modals';
 import toast from 'react-hot-toast';
-import InstrumentGroupingPicker from '@/view/form/components/InstrumentGroupingPicker';
+import {
+    InstrumentGroupingPicker,
+    useGroupingPicker,
+} from '@/view/form/components/InstrumentGroupingPicker';
+import { admin } from '@/lib/route-register';
+import { InstrumentGrouping } from '@/model/instrument_groupings';
+import { twMerge } from 'tailwind-merge';
 
 type GroupingProps = {
     id: number;
 
     backgroundColor: `#${string}`;
     text: string;
+    className?: string;
 };
 
-function Grouping({ id, text, backgroundColor }: GroupingProps) {
+function useInstrument(id: `${number}` | 'add') {
+    const router = useRouter();
+    const fetchQuery = id === 'add' ? null : trpc.instruments.one.useQuery(+id);
+    const upsertMut = trpc.instruments.upsert.useMutation();
+    const deleteMut = trpc.instruments.delete.useMutation();
+
+    function registerForm(form: HTMLFormElement | null) {
+        if (!form) {
+            return;
+        }
+
+        const upsert = upsertMut.mutate;
+
+        form.addEventListener('submit', function (ev) {
+            ev.preventDefault();
+
+            upsert(yoink(this) as Parameters<typeof upsert>[0]);
+        });
+    }
+
+    for (const error of extractErrors(true, fetchQuery, upsertMut, deleteMut)) {
+        toast.error(error);
+    }
+
+    // was removed successfully
+    if (deleteMut.isSuccess) {
+        router.push(admin().list('instruments').addSearchParam('refetch', '1').build());
+    }
+
+    // was inserted
+    if (upsertMut.isSuccess && !fetchQuery) {
+        const newId = upsertMut.data;
+        router.push(admin().show('instruments', newId).addSearchParam('refetch', '1').build());
+    }
+
+    function triggerDelete() {
+        const instrument = fetchQuery?.data;
+
+        if (instrument) {
+            deleteMut.mutate(instrument.id);
+        }
+    }
+
+    return {
+        remove: triggerDelete,
+        instrument: fetchQuery?.data,
+        isLoading: fetchQuery?.isLoading,
+        formRef: registerForm,
+    };
+}
+
+function Grouping({ id, text, backgroundColor, className }: GroupingProps) {
     const ref = useRef<HTMLDivElement>(null);
 
     return (
-        <div className="flex flex-col gap-2" ref={ref}>
+        <div className={twMerge('flex flex-col gap-2 items-center', className)} ref={ref}>
             <div
                 className="inline-flex justify-center items-center rounded-3xl h-[2.3em] w-[2.3em] text-center shadow"
                 style={{ backgroundColor }}
@@ -44,89 +102,24 @@ function Grouping({ id, text, backgroundColor }: GroupingProps) {
     );
 }
 
-function useInstrument(id: `${number}` | 'add') {
-    const fetchQuery = id === 'add' ? null : trpc.instruments.one.useQuery(+id);
-    const upsertMut = trpc.instruments.upsert.useMutation();
-    const deleteMut = trpc.instruments.delete.useMutation();
-
-    const errors = [];
-    if (fetchQuery?.error) {
-        errors.push(fetchQuery.error);
-    }
-
-    if (upsertMut.error) {
-        errors.push(upsertMut.error);
-    }
-
-    if (deleteMut.error) {
-        errors.push(deleteMut.error);
-    }
-
-    return {
-        remove: deleteMut.mutate,
-        wasRemoved: deleteMut.isSuccess,
-
-        instrument: fetchQuery?.data,
-        isLoading: fetchQuery?.isLoading,
-        fetchError: fetchQuery?.error,
-        refetch: fetchQuery?.refetch,
-
-        upsert: upsertMut.mutate,
-        wasUpserted: upsertMut.isSuccess,
-        newId: upsertMut.data,
-
-        errors,
-    };
-}
-
 export default function InstrumentForm({ id }: FormProps) {
-    const router = useRouter();
-    const {
-        newId,
-        wasUpserted,
-        instrument,
-        refetch,
-        isLoading,
-        upsert,
-        remove,
-        wasRemoved,
-        errors,
-    } = useInstrument(id);
+    const { instrument, isLoading, remove, formRef } = useInstrument(id);
 
-    const [pickGroupings, setPickGroupings] = useState(false);
+    const [groupings, setGroupings] = useState<InstrumentGrouping[]>([]);
+    useEffect(() => {
+        if (instrument) {
+            setGroupings(instrument.groupings);
+        }
+    }, [instrument]);
 
     const { props: deleteModalProps, open: confirmDelete } = useConfirmModal({
         innerText: 'Opravdu chceš tento nástroj smazat? Možná ti pak bude někde chybět.',
-        onConfirm: () => {
-            if (instrument?.id) {
-                remove(instrument.id);
-            }
-        },
+        onConfirm: remove,
     });
 
-    function handleSubmit(ev: FormEvent<HTMLFormElement>) {
-        ev.preventDefault();
-
-        upsert(yoink(ev.currentTarget) as Parameters<typeof upsert>[0]);
-    }
-
-    if (wasUpserted) {
-        if (instrument && refetch) {
-            void refetch();
-        } else {
-            router.push(`/admin/instruments/${newId}`);
-        }
-    }
-
-    if (wasRemoved) {
-        router.push('/admin/instruments');
-    }
-
-    if (errors) {
-        for (const { message } of errors) {
-            toast.error(message);
-        }
-    }
+    const { open: openPicker, props: pickerProps } = useGroupingPicker(newGrouping =>
+        setGroupings([...groupings, newGrouping]),
+    );
 
     return (
         <>
@@ -137,10 +130,7 @@ export default function InstrumentForm({ id }: FormProps) {
             )}
 
             {(!isLoading || id === 'add') && (
-                <form
-                    onSubmit={handleSubmit}
-                    className="flex flex-col w-full rounded-xl border shadow"
-                >
+                <form ref={formRef} className="flex flex-col w-full rounded-xl border shadow">
                     <ConfirmModal {...deleteModalProps} />
 
                     <Input
@@ -181,6 +171,7 @@ export default function InstrumentForm({ id }: FormProps) {
                                 name="subname"
                                 defaultValue={instrument?.subname}
                                 placeholder="4"
+                                data-y-optional
                             />
                         </div>
                     </FormRow>
@@ -194,20 +185,26 @@ export default function InstrumentForm({ id }: FormProps) {
                                 name="icon"
                                 defaultValue={instrument?.icon}
                                 placeholder="https://instrument-icons.com/trombone.png"
+                                data-y-optional
                             />
                         </div>
                     </FormRow>
 
                     <FormRow className="px-4 py-2 border-b border-b-gray-200">
                         <label>Sekce</label>
-                        <div className="flex flex-row justify-between w-2/3 items-center">
-                            <div className="px-2 py-4">
-                                {instrument?.groupings.map(function ({ id, name }) {
+                        <div className="flex flex-row justify-evenly w-2/3 items-center">
+                            <div className="px-2 py-4 flex flex-row gap-2 flex-wrap w-[90%]">
+                                {groupings.map(function ({ id, name, custom_data }) {
                                     return (
                                         <Grouping
+                                            className="w-1/6"
                                             key={id}
                                             id={id}
-                                            backgroundColor={'#ABCD00'}
+                                            backgroundColor={
+                                                custom_data && 'color' in custom_data
+                                                    ? (custom_data.color as `#${string}`)
+                                                    : '#FFFFFF'
+                                            }
                                             text={name}
                                         />
                                     );
@@ -215,16 +212,12 @@ export default function InstrumentForm({ id }: FormProps) {
                             </div>
                             <Button
                                 type="button"
-                                onClick={() => setPickGroupings(prev => !prev)}
+                                onClick={openPicker}
                                 className="text-gray-500 px-2 bg-white cursor-pointer shadow-none"
                             >
                                 <FaPlus size="1.3em" />
                             </Button>
-                            <InstrumentGroupingPicker
-                                isOpen={pickGroupings}
-                                onClose={() => setPickGroupings(false)}
-                                onAdd={() => {}}
-                            />
+                            <InstrumentGroupingPicker {...pickerProps} />
                         </div>
                     </FormRow>
 

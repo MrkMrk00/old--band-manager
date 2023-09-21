@@ -1,4 +1,4 @@
-import { ucfirst } from '@/lib/string-util';
+import { ucfirst } from '@/lib/util';
 
 export const LogLevel = {
     INFO: 0,

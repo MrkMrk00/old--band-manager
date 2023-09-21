@@ -21,7 +21,8 @@ export async function up(db: Kysely<any>) {
     const relations = db.schema.createTable('instruments_groupings_relations')
         .addColumn('id_instrument', 'integer', col => col.unsigned().notNull())
         .addColumn('id_grouping', 'integer', col => col.unsigned().notNull())
-        .$call(timestamps);
+        .addPrimaryKeyConstraint('pk_instruments_grouping_relations', ['id_instrument', 'id_grouping']);
+
 
     await instruments.execute();
     await groupings.execute();

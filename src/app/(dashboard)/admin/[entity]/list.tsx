@@ -11,6 +11,8 @@ import { If, LoadingSpinner } from '@/view/layout';
 import { ListView, Pager } from '@/view/list';
 import { instrument, instrumentGrouping, user } from '@/view/admin/headerMapping';
 import Logger from '@/lib/logger';
+import {admin} from "@/lib/route-register";
+import {Database} from "@/database";
 
 type ListProps = {
     entity: string;
@@ -53,7 +55,7 @@ export function AdminList({ entity }: ListProps) {
     }
 
     function handleRowClick(ev: RowClickCallbackEvent) {
-        router.push(`/admin/${entity}/${ev.currentTarget.dataset.objectId}`);
+        router.push(admin().show(entity as keyof Database, ev.currentTarget.dataset.objectId).build());
     }
 
     return (
