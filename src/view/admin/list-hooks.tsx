@@ -153,7 +153,7 @@ export function useUsersList(perPage: number = 20): HookReturn {
                     </div>
                 ),
                 created_at: formatDate(created_at),
-                roles: roles.join(', '),
+                roles: roles?.join(', ') ?? '',
             };
         }
 
