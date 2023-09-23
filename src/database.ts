@@ -24,7 +24,7 @@ let dialect: Dialect;
 
 if (env.NODE_ENV === 'production') {
     const url = new URL(env.DB_CONN);
-    url.searchParams.set('rejectUnauthorized', 'true');
+    url.searchParams.set('ssl', '{"rejectUnauthorized":true}');
 
     dialect = new PlanetScaleDialect({
         url: url.href,
