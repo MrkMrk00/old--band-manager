@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="cs">
+        <html lang="cs" className="bm-mobile-bottom-always-show">
             <body className={`${font.className} flex flex-col`}>
                 <TRPCProvider>{children}</TRPCProvider>
                 <Toaster position="bottom-center" />

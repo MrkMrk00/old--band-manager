@@ -2,7 +2,6 @@ import Link from 'next/link';
 import type { AnchorHTMLAttributes, FC, ReactNode } from 'react';
 import { FaCircleUser, FaHouse } from 'react-icons/fa6';
 import { twMerge } from 'tailwind-merge';
-import { createRipple } from '@/view/layout-stateful';
 import type { UserObject } from '@/model/user';
 
 function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
@@ -17,7 +16,6 @@ function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string
                 transition-colors ease-in-out`,
                 className,
             )}
-            onClick={createRipple}
             {...other}
         >
             {children}
