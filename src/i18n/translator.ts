@@ -20,7 +20,11 @@ export default async function translate(
     const cacheKey: `${Language}-${Section}` = `${lang}-${section}`;
     let dictionary = dictionaryCache.get(cacheKey);
     if (!dictionary) {
-        dictionary = JSON.parse(await readFile(`${process.cwd()}/src/i18n/${lang}/${section}.json`, { encoding: 'utf-8' }));
+        dictionary = JSON.parse(
+            await readFile(`${process.cwd()}/src/i18n/${lang}/${section}.json`, {
+                encoding: 'utf-8',
+            }),
+        );
         dictionaryCache.set(cacheKey, dictionary!);
     }
 

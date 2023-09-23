@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import type { SelectQueryBuilder } from 'kysely';
+import { z } from 'zod';
 
 export type Pageable<T> = {
     maxPage: number;

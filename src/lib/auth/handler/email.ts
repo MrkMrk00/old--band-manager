@@ -1,9 +1,9 @@
-import { AsyncAuthResponse, AuthHandler } from '@/lib/auth/contracts';
-import { UsersRepository } from '@/lib/repositories';
-import env from '@/env.mjs';
-import { ArgonUtil } from '@/lib/auth/crypto';
 import { type InsertResult, sql } from 'kysely';
+import env from '@/env.mjs';
+import { AsyncAuthResponse, AuthHandler } from '@/lib/auth/contracts';
+import { ArgonUtil } from '@/lib/auth/crypto';
 import Logger from '@/lib/logger';
+import { UsersRepository } from '@/lib/repositories';
 import { User } from '@/model/user';
 
 export default class DatabaseAuthHandler implements AuthHandler<string, User, undefined> {

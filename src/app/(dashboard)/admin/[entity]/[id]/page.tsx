@@ -1,9 +1,9 @@
-import { redirect } from 'next/navigation';
-import { Link } from '@/view/layout';
-import { FaArrowLeftLong } from 'react-icons/fa6';
 import dynamic from 'next/dynamic';
-import {admin} from "@/lib/route-register";
-import {Database} from "@/database";
+import { redirect } from 'next/navigation';
+import { FaArrowLeftLong } from 'react-icons/fa6';
+import { Database } from '@/database';
+import { admin } from '@/lib/route-register';
+import { Link } from '@/view/layout';
 
 const InstrumentForm = dynamic(() => import('@/view/form/entity/instrument'));
 const GroupingForm = dynamic(() => import('@/view/form/entity/instrument_grouping'));
@@ -22,7 +22,11 @@ type PageProps = {
 export default async function FormView({ searchParams, params: { entity, id } }: PageProps) {
     entity = entity.replace('-', '_');
 
-    const backUrl = searchParams.back_ref ?? admin().list(entity as keyof Database).build();
+    const backUrl =
+        searchParams.back_ref ??
+        admin()
+            .list(entity as keyof Database)
+            .build();
 
     if ((id === '' || isNaN(+id)) && id !== 'add') {
         redirect(backUrl);

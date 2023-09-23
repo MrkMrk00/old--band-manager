@@ -2,8 +2,8 @@ import type {
     CookieListItem,
     ResponseCookie as NextResponseCookie,
 } from 'next/dist/compiled/@edge-runtime/cookies';
-import type { PersistentUser } from '@/model/user';
 import type { NextResponse } from 'next/server';
+import type { PersistentUser } from '@/model/user';
 
 export type SessionKey = string;
 export type SessionValue = string | number | SessionValue[] | { [key: SessionKey]: SessionValue };

@@ -1,10 +1,9 @@
 import type { Kysely } from 'kysely';
 import type { Database } from '@/database';
-
-import { Repository } from '@/lib/entity-utils/Repository';
 import db from '@/database';
-import InstrumentsRepositoryClass from '@/lib/repository/InstrumentsRepository';
+import { Repository } from '@/lib/entity-utils/Repository';
 import Logger from '@/lib/logger';
+import InstrumentsRepositoryClass from '@/lib/repository/InstrumentsRepository';
 
 const logger = Logger.fromEnv();
 

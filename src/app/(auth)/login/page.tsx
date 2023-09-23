@@ -1,6 +1,6 @@
 import { LoginForms } from './client';
-import env from '@/env.mjs';
 import { redirect } from 'next/navigation';
+import env from '@/env.mjs';
 import { getSession } from '@/lib/auth/session';
 
 export const metadata = {

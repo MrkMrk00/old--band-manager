@@ -1,13 +1,13 @@
 'use client';
 
-import type { ComponentPropsWithRef, ReactNode } from 'react';
-import { Link, OverlayText } from '@/view/layout';
-import { twMerge } from 'tailwind-merge';
-import { FaMusic, FaPeopleGroup, FaUser } from 'react-icons/fa6';
-import { FaHome } from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
-import { isMobile } from '@/view/client.helpers';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { useEffect, useState } from 'react';
+import { FaHome } from 'react-icons/fa';
+import { FaMusic, FaPeopleGroup, FaUser } from 'react-icons/fa6';
+import { twMerge } from 'tailwind-merge';
+import { isMobile } from '@/view/client.helpers';
+import { Link, OverlayText } from '@/view/layout';
 
 type ButtonProps = ComponentPropsWithRef<typeof Link> & {
     active?: boolean;

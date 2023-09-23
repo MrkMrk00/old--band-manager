@@ -1,13 +1,13 @@
-import env from '@/env.mjs';
-import fetcher from '@/lib/fetcher';
 import { sql } from 'kysely';
-import { UsersRepository } from '@/lib/repositories';
+import env from '@/env.mjs';
 import {
     AppError,
     AsyncAuthResponse,
     AuthHandler,
     MethodNotImplementedError,
 } from '@/lib/auth/contracts';
+import fetcher from '@/lib/fetcher';
+import { UsersRepository } from '@/lib/repositories';
 
 const urls = {
     getAccessToken: (clientId: string, clientSecret: string, accessCode: string, url: string) =>

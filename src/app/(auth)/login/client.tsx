@@ -1,12 +1,11 @@
 'use client';
 
-import FacebookLoginButton from '@/view/components/FacebookLoginButton';
 import Image from 'next/image';
-import bigBandLogo from '@/assets/bigbandlogo.png';
-import { FormHTMLAttributes, useEffect, useState } from 'react';
-import { Button, Input } from '@/view/layout';
 import { useSearchParams } from 'next/navigation';
-import toast from 'react-hot-toast';
+import { FormHTMLAttributes, useEffect, useState } from 'react';
+import FacebookLoginButton from '@/view/components/FacebookLoginButton';
+import { Button, Input } from '@/view/layout';
+import bigBandLogo from '@/assets/bigbandlogo.png';
 
 function EmailLoginForm(props: FormHTMLAttributes<HTMLFormElement>) {
     return (

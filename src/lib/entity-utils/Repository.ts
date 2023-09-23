@@ -1,5 +1,5 @@
-import type { Database } from '@/database';
 import type { InsertQueryBuilder, InsertResult, Kysely } from 'kysely';
+import type { Database } from '@/database';
 
 function createAlias(tableName: string) {
     return tableName
@@ -68,10 +68,12 @@ export class Repository<T extends keyof Database, TAlias extends string = T> {
     }
 
     findById(id: number) {
-        return this.selectQb()
-            .selectAll()
-            // @ts-ignore
-            .where(`${this.tableAlias}.id`, '=', id);
+        return (
+            this.selectQb()
+                .selectAll()
+                // @ts-ignore
+                .where(`${this.tableAlias}.id`, '=', id)
+        );
     }
 
     all(offset: number = 0, limit: number = 20) {

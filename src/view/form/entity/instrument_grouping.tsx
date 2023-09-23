@@ -2,12 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useState } from 'react';
+import { FaTrash } from 'react-icons/fa6';
+import { admin } from '@/lib/route-register';
 import trpc from '@/lib/trcp/client';
+import { type FormProps, FormRow } from '@/view/form/shared';
 import { Button, Input, LoadingSpinner } from '@/view/layout';
 import { ConfirmModal } from '@/view/layout-stateful';
-import { FaTrash } from 'react-icons/fa6';
-import { type FormProps, FormRow } from '@/view/form/shared';
-import { admin } from '@/lib/route-register';
 
 export type { FormProps };
 

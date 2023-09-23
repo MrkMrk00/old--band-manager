@@ -1,15 +1,14 @@
-import { FaPlus } from 'react-icons/fa6';
-import { Link } from '@/view/layout';
 import { AdminList } from './list';
+import { FaPlus } from 'react-icons/fa6';
+import { ucfirst } from '@/lib/util';
+import { Link } from '@/view/layout';
+import csTranslations from '@/i18n/cs/entity.json';
 
 type PageProps = {
     params: {
         entity: string;
     };
 };
-
-import csTranslations from '@/i18n/cs/entity.json';
-import { ucfirst } from '@/lib/util';
 
 function t(key: string): string | null {
     // @ts-ignore

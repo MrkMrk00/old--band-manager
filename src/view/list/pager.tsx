@@ -1,8 +1,8 @@
 'use client';
 
 import type { AllHTMLAttributes, ButtonHTMLAttributes } from 'react';
-import { twMerge } from 'tailwind-merge';
 import { FaLeftLong, FaRightLong } from 'react-icons/fa6';
+import { twMerge } from 'tailwind-merge';
 import { isMobile } from '@/view/client.helpers';
 
 export type PagerProps = OmitKeys<AllHTMLAttributes<HTMLDivElement>, 'children'> & {

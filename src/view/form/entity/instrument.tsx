@@ -1,22 +1,22 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import trpc from '@/lib/trcp/client';
-import { Button, Input, LoadingSpinner } from '@/view/layout';
-import { ConfirmModal } from '@/view/layout-stateful';
-import { FaPlus, FaTrash, FaX } from 'react-icons/fa6';
-import { extractErrors, type FormProps, FormRow } from '@/view/form/shared';
-import yoink from '@/view/form/yoink';
-import { useConfirmModal } from '@/view/form/modals';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { FaPlus, FaTrash, FaX } from 'react-icons/fa6';
+import { twMerge } from 'tailwind-merge';
+import { admin } from '@/lib/route-register';
+import trpc from '@/lib/trcp/client';
 import {
     InstrumentGroupingPicker,
     useGroupingPicker,
 } from '@/view/form/components/InstrumentGroupingPicker';
-import { admin } from '@/lib/route-register';
+import { useConfirmModal } from '@/view/form/modals';
+import { type FormProps, FormRow, extractErrors } from '@/view/form/shared';
+import yoink from '@/view/form/yoink';
+import { Button, Input, LoadingSpinner } from '@/view/layout';
+import { ConfirmModal } from '@/view/layout-stateful';
 import { InstrumentGrouping } from '@/model/instrument_groupings';
-import { twMerge } from 'tailwind-merge';
 
 type GroupingProps = {
     id: number;

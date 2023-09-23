@@ -1,10 +1,10 @@
+import { sql } from 'kysely';
 import type { NextRequest, NextResponse } from 'next/server';
+import DatabaseAuthHandler, { ensureAdminUser } from '@/lib/auth/handler/email';
 import { FacebookAuth, handleRegisterFacebookUser } from '@/lib/auth/handler/facebook';
 import { JWTSession, SessionReader, SessionWriter } from '@/lib/auth/session';
-import { UsersRepository } from '@/lib/repositories';
-import { sql } from 'kysely';
-import DatabaseAuthHandler, { ensureAdminUser } from '@/lib/auth/handler/email';
 import response from '@/lib/http/response';
+import { UsersRepository } from '@/lib/repositories';
 
 type RouteHandler = (req: NextRequest) => Promise<NextResponse>;
 const routes = new Map<string, RouteHandler>();

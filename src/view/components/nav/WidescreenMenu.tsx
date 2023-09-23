@@ -1,9 +1,9 @@
-import type { UserObject } from '@/model/user';
+import Link from 'next/link';
 import type { AnchorHTMLAttributes, FC, ReactNode } from 'react';
 import { FaCircleUser, FaHouse } from 'react-icons/fa6';
-import Link from 'next/link';
 import { twMerge } from 'tailwind-merge';
 import { RippleAnimation } from '@/view/layout-stateful';
+import type { UserObject } from '@/model/user';
 
 function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
     const { className, children, ...other } = props;

@@ -1,18 +1,18 @@
 'use client';
 
-import type { RowClickCallbackEvent } from '@/view/list/list-generic';
+import { redirect, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Database } from '@/database';
+import Logger from '@/lib/logger';
+import { admin } from '@/lib/route-register';
+import { instrument, instrumentGrouping, user } from '@/view/admin/headerMapping';
 import {
     useInstrumentGroupingsList,
     useInstrumentsList,
     useUsersList,
 } from '@/view/admin/list-hooks';
-import { redirect, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { If, LoadingSpinner } from '@/view/layout';
 import { ListView, Pager } from '@/view/list';
-import { instrument, instrumentGrouping, user } from '@/view/admin/headerMapping';
-import Logger from '@/lib/logger';
-import {admin} from "@/lib/route-register";
-import {Database} from "@/database";
+import type { RowClickCallbackEvent } from '@/view/list/list-generic';
 
 type ListProps = {
     entity: string;
@@ -55,7 +55,11 @@ export function AdminList({ entity }: ListProps) {
     }
 
     function handleRowClick(ev: RowClickCallbackEvent) {
-        router.push(admin().show(entity as keyof Database, ev.currentTarget.dataset.objectId).build());
+        router.push(
+            admin()
+                .show(entity as keyof Database, ev.currentTarget.dataset.objectId)
+                .build(),
+        );
     }
 
     return (

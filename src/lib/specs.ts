@@ -1,7 +1,7 @@
 import type { SelectQueryBuilder, SimpleReferenceExpression } from 'kysely';
+import { sql } from 'kysely';
 import type { Database } from '@/database';
 import { query } from '@/lib/repositories';
-import { sql } from 'kysely';
 
 export function inIntArray<
     Table extends keyof Database,

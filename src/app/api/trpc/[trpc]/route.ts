@@ -1,7 +1,7 @@
-import type { NextRequest } from 'next/server';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import router from '@/lib/trcp/router';
+import type { NextRequest } from 'next/server';
 import { createContext } from '@/lib/trcp/context';
+import router from '@/lib/trcp/router';
 
 function allHandler(req: NextRequest) {
     const endpoint = '/api/trpc';

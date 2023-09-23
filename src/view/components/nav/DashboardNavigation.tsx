@@ -1,12 +1,12 @@
 'use client';
 
-import type { UserObject } from '@/model/user';
+import dynamic from 'next/dynamic';
+import NextLink from 'next/link';
 import { type HTMLAttributes, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import dynamic from 'next/dynamic';
 import { isMobile } from '@/view/client.helpers';
 import { LoadingSpinner } from '@/view/layout';
-import NextLink from 'next/link';
+import type { UserObject } from '@/model/user';
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
     loading: () => <SharedNavbar />,

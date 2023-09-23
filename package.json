@@ -10,7 +10,7 @@
         "start": "next start",
         "fmt": "prettier --write ./src",
         "lint": "eslint ./src/**/*.{ts,tsx,mjs} && tsc --noEmit",
-        "lint:fix": "eslint ./src/**/*.{ts,tsx,mjs} --fix",
+        "lint:fix": "eslint --fix ./src/**/*.{ts,tsx,mjs}",
         "cs": "pnpm lint:fix && pnpm fmt",
         "migrate": "node --no-warnings --loader ts-node/esm script/migrate.ts",
         "create-migration": "node ./script/createMigration.mjs",
@@ -41,6 +41,7 @@
         "zod": "^3.22.2"
     },
     "devDependencies": {
+        "@trivago/prettier-plugin-sort-imports": "^4.2.0",
         "@types/node": "20.1.0",
         "@types/react": "18.2.6",
         "@types/react-dom": "18.2.4",

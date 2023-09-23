@@ -1,9 +1,9 @@
-import trpc from '@/lib/trcp/client';
-import { type ReactNode, useMemo, useState } from 'react';
-import { InstrumentGrouping } from '@/model/instrument_groupings';
-import { FaAt, FaFacebook } from 'react-icons/fa6';
 import type { TRPCClientErrorLike } from '@trpc/client';
+import { type ReactNode, useMemo, useState } from 'react';
+import { FaAt, FaFacebook } from 'react-icons/fa6';
+import trpc from '@/lib/trcp/client';
 import type { ObjectType } from '@/view/list/types';
+import { InstrumentGrouping } from '@/model/instrument_groupings';
 
 export type HookReturn = {
     page: number;

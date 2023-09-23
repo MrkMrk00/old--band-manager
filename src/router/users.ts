@@ -1,9 +1,9 @@
-import { Authenticated, Router } from '@/lib/trcp/server';
-import { UsersRepository } from '@/lib/repositories';
 import { TRPCError } from '@trpc/server';
+import { sql } from 'kysely';
 import { z } from 'zod';
 import { Pageable, Pager } from '@/lib/pager';
-import { sql } from 'kysely';
+import { UsersRepository } from '@/lib/repositories';
+import { Authenticated, Router } from '@/lib/trcp/server';
 
 const update = Authenticated.input(z.object({ display_name: z.string().min(5).max(512) })).mutation(
     async ({ ctx: { user }, input }) => {

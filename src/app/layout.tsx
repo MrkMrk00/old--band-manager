@@ -1,8 +1,8 @@
-import '@/assets/globals.css';
-import { Inter } from 'next/font/google';
-import { TRPCProvider } from '@/lib/trcp/provider';
-import { Toaster } from 'react-hot-toast';
 import { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { Toaster } from 'react-hot-toast';
+import { TRPCProvider } from '@/lib/trcp/provider';
+import '@/assets/globals.css';
 
 const font = Inter({ subsets: ['latin-ext'] });
 

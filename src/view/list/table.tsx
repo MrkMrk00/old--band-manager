@@ -3,8 +3,8 @@
 import type { MouseEvent, TableHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { parseRoundedClassName, withSecondModifier } from '@/view/client.helpers';
-import type { HeaderMapping, ObjectType } from '@/view/list/types';
 import Pager from '@/view/list/pager';
+import type { HeaderMapping, ObjectType } from '@/view/list/types';
 
 /** @deprecated */
 export type OnRowClickCallback<T extends ObjectType> = (ev: {

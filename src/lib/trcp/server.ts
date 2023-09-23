@@ -1,7 +1,7 @@
+import { TRPCError, initTRPC } from '@trpc/server';
+import getRepositoryFor from '@/lib/repositories';
 import type { TrpcContext } from '@/lib/trcp/context';
 import type { Role } from '@/model/user';
-import { initTRPC, TRPCError } from '@trpc/server';
-import getRepositoryFor from '@/lib/repositories';
 
 const t = initTRPC.context<TrpcContext>().create();
 

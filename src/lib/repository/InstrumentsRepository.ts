@@ -1,13 +1,12 @@
-import type { InstrumentDatabase } from '@/model/instruments';
-import type { Insertable, InsertResult, Kysely, Updateable } from 'kysely';
-import t, { TranslateOpt } from '@/i18n/translator';
-
-import { Repository } from '@/lib/entity-utils/Repository';
+import type { InsertResult, Insertable, Kysely, Updateable } from 'kysely';
+import { UpdateResult, sql } from 'kysely';
 import { Database } from '@/database';
-import { ucfirst } from '@/lib/util';
-import Logger from '@/lib/logger';
-import {sql, UpdateResult} from 'kysely';
+import { Repository } from '@/lib/entity-utils/Repository';
 import { InstrumentsValidator } from '@/lib/entity-utils/validators';
+import Logger from '@/lib/logger';
+import { ucfirst } from '@/lib/util';
+import t, { TranslateOpt } from '@/i18n/translator';
+import type { InstrumentDatabase } from '@/model/instruments';
 
 async function tEntity(key: string, ...opts: (TranslateOpt | undefined)[]) {
     return ucfirst((await t('cs', 'entity', key, ...opts))?.toString() ?? '');
@@ -30,7 +29,10 @@ export default class InstrumentsRepository extends Repository<'instruments', 'i'
     }
 
     updateOne(instrumentId: number, instrument: Omit<Updateable<InstrumentDatabase>, 'id'>) {
-        return this.updateQb().set(instrument).where('i.id', '=', instrumentId).executeTakeFirstOrThrow();
+        return this.updateQb()
+            .set(instrument)
+            .where('i.id', '=', instrumentId)
+            .executeTakeFirstOrThrow();
     }
 
     async upsert({ id, groupings, ...instrument }: UpsertableInstrument) {
@@ -148,7 +150,7 @@ export default class InstrumentsRepository extends Repository<'instruments', 'i'
         if (typeof instrumentId === 'number') {
             qb = qb.where('igr.id_instrument', '=', instrumentId);
         } else if (instrumentId.length < 1) {
-            qb = qb.where(sql`(1 = 0)`)
+            qb = qb.where(sql`(1 = 0)`);
         } else {
             qb = qb.where('igr.id_instrument', 'in', instrumentId);
         }

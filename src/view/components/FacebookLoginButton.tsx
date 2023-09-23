@@ -1,12 +1,12 @@
 'use client';
 
-import env from '@/env.mjs';
 import Image from 'next/image';
-import fbLogo from '@/assets/fb_logo_250.png';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/view/layout';
 import { ButtonHTMLAttributes } from 'react';
+import env from '@/env.mjs';
 import { isMobile } from '@/view/client.helpers';
+import { Button } from '@/view/layout';
+import fbLogo from '@/assets/fb_logo_250.png';
 
 const authDialogUrl = (appKey: string, returnUrl: string, state?: string) =>
     `https://www.facebook.com/v${

@@ -1,3 +1,4 @@
+import NextLink from 'next/link';
 import type {
     AnchorHTMLAttributes,
     ComponentPropsWithRef,
@@ -5,10 +6,9 @@ import type {
     InputHTMLAttributes,
     ReactNode,
 } from 'react';
-import { twMerge } from 'tailwind-merge';
 import { ButtonHTMLAttributes } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { RippleAnimation } from '@/view/layout-stateful';
-import NextLink from 'next/link';
 
 export { RippleAnimation };
 

@@ -2,11 +2,10 @@ import env from './env.mjs';
 import { ConnectionString } from 'connection-string';
 import { Kysely, MysqlDialect } from 'kysely';
 import { createPool } from 'mysql2';
-
-import type { UserDatabase } from '@/model/user';
-import type { InstrumentDatabase } from '@/model/instruments';
 import type { InstrumentGroupingDatabase } from '@/model/instrument_groupings';
+import type { InstrumentDatabase } from '@/model/instruments';
 import type { SheetDatabase, SongDatabase } from '@/model/songs';
+import type { UserDatabase } from '@/model/user';
 
 export type CustomData = Record<string, string | number | null> | null;
 

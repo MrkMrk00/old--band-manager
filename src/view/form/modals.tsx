@@ -1,5 +1,5 @@
-import type { ConfirmModalProps } from '@/view/layout-stateful';
 import { useState } from 'react';
+import type { ConfirmModalProps } from '@/view/layout-stateful';
 
 export type ConfirmModalHookOpts = {
     onConfirm?: () => unknown;

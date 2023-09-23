@@ -1,7 +1,7 @@
 import { Router } from '@/lib/trcp/server';
 import InstrumentsRouter from '@/router/instruments';
-import UsersRouter from '@/router/users';
 import SongsRouter from '@/router/songs';
+import UsersRouter from '@/router/users';
 
 const entityRouters = {
     instruments: InstrumentsRouter,

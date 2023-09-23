@@ -1,4 +1,4 @@
-import type { Generated, Selectable, SelectType } from 'kysely';
+import type { Generated, SelectType, Selectable } from 'kysely';
 import { ArgonUtil } from '@/lib/auth/crypto';
 
 export type SystemRole = 'SUPER_ADMIN' | 'ADMIN';
