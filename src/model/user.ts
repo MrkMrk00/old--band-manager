@@ -10,7 +10,7 @@ export interface UserDatabase {
     email?: string;
     password?: string;
     fb_id?: number;
-    roles: Role[];
+    roles: Role[] | null;
 
     created_at: Generated<string>;
     updated_at: Generated<string>;
@@ -27,10 +27,14 @@ export class User {
     constructor(public _object: UserObject) {}
 
     hasRole(role: Role): boolean {
-        return this.roles.includes(role);
+        return !!this.roles?.includes(role);
     }
 
     hasAllRoles(roles: Role[]): boolean {
+        if (!this.roles) {
+            return false;
+        }
+
         if (roles.length < 1) {
             return true;
         }

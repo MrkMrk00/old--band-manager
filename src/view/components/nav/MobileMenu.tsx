@@ -51,7 +51,7 @@ function MenuItems({
                 </div>
 
                 <div className="flex flex-col justify-end w-full h-full">
-                    {user?.roles.some(r => r === 'ADMIN' || r === 'SUPER_ADMIN') && (
+                    {user?.roles?.some(r => r === 'ADMIN' || r === 'SUPER_ADMIN') && (
                         <Menu.Item>
                             {() => (
                                 <Link

@@ -39,7 +39,7 @@ function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') 
             .where('users.id', '=', ctx.user.id)
             .executeTakeFirst();
 
-        if (!userRolesResult || userRolesResult.roles.length < 1) {
+        if (!userRolesResult?.roles || userRolesResult.roles.length < 1) {
             return next();
         }
 
