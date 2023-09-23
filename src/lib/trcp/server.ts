@@ -1,4 +1,3 @@
-import { createServerSideHelpers } from '@trpc/react-query/server';
 import { TRPCError, initTRPC } from '@trpc/server';
 import getRepositoryFor from '@/lib/repositories';
 import type { TrpcContext } from '@/lib/trcp/context';

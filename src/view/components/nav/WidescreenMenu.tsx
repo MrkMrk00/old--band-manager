@@ -28,7 +28,7 @@ export default function WidescreenMenu({
     user,
 }: {
     navbar: FC<{ children: ReactNode }>;
-    user: UserObject | null;
+    user?: UserObject;
 }) {
     const SharedNavbar = navbar;
 

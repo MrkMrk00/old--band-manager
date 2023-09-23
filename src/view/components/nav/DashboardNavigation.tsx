@@ -6,7 +6,7 @@ import { type HTMLAttributes, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { isMobile } from '@/view/client.helpers';
 import { LoadingSpinner } from '@/view/layout';
-import type { UserObject } from '@/model/user';
+import trpc from '@/lib/trcp/client';
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
     loading: () => <SharedNavbar />,
@@ -16,9 +16,6 @@ const WidescreenMenu = dynamic(() => import('./WidescreenMenu'), {
     loading: () => <SharedNavbar />,
 });
 
-type NavbarProps = {
-    user: UserObject | null;
-};
 
 function SharedNavbar({ children, className, ...props }: HTMLAttributes<HTMLDivElement>) {
     return (
@@ -42,7 +39,8 @@ function SharedNavbar({ children, className, ...props }: HTMLAttributes<HTMLDivE
     );
 }
 
-export default function Navigation({ user }: NavbarProps) {
+export default function Navigation() {
+    const { data: user} = trpc.users.me.useQuery();
     const [display, setDisplay] = useState<'mobile' | 'wide' | 'not-mounted'>('not-mounted');
 
     useEffect(() => {

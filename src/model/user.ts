@@ -7,9 +7,9 @@ export type Role = SystemRole;
 export interface UserDatabase {
     id: Generated<number>;
     display_name: string;
-    email?: string;
-    password?: string;
-    fb_id?: number;
+    email: string | null;
+    password: string | null;
+    fb_id: number | null;
     roles: Role[] | null;
 
     created_at: Generated<string>;

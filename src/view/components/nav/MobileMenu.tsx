@@ -10,7 +10,7 @@ function MenuItems({
     user,
 }: {
     alwaysShowBottomNav: boolean;
-    user: UserObject | null;
+    user?: UserObject;
 }) {
     return (
         <Transition
@@ -107,7 +107,7 @@ export default function MobileMenu({
     user,
     navbar,
 }: {
-    user: UserObject | null;
+    user?: UserObject;
     navbar: FC<{ children: ReactNode }>;
 }) {
     const Navbar = navbar;

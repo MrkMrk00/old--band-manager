@@ -20,7 +20,7 @@ export function TRPCProvider(props: TRPCProps) {
                 queries: {
                     staleTime: 10000,
                     refetchInterval: false,
-                    refetchOnReconnect: false,
+                    refetchOnReconnect: true,
                     refetchOnWindowFocus: false,
                 },
             },
