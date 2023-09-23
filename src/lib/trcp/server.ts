@@ -46,7 +46,6 @@ function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') 
             userRoles = userRolesResult.roles;
         }
 
-
         switch (query) {
             case 'all': {
                 if (roles.every(r => userRoles.includes(r))) {

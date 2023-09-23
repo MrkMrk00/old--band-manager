@@ -1,6 +1,7 @@
 import env from './env.mjs';
 import { ConnectionString } from 'connection-string';
-import { Kysely, MysqlDialect } from 'kysely';
+import { Dialect, Kysely, MysqlDialect } from 'kysely';
+import { PlanetScaleDialect } from 'kysely-planetscale';
 import { createPool } from 'mysql2';
 import type { InstrumentGroupingDatabase } from '@/model/instrument_groupings';
 import type { InstrumentDatabase } from '@/model/instruments';
@@ -19,22 +20,36 @@ export interface Database {
     sheets: SheetDatabase;
 }
 
-const connection = new ConnectionString(env.DB_CONN);
-if (!connection.path || connection.path.length !== 1) {
-    throw Error(`${__filename}: No database name supplied!`);
+let dialect: Dialect;
+
+if (env.NODE_ENV === 'production') {
+    dialect = new PlanetScaleDialect({
+        url: env.DB_CONN,
+        fetch,
+        useSharedConnection: true,
+    });
+} else {
+    const connection = new ConnectionString(env.DB_CONN);
+    if (!connection.path || connection.path.length !== 1) {
+        throw Error(`${__filename}: No database name supplied!`);
+    }
+
+    const pool = createPool({
+        host: connection.hostname,
+        port: connection.port ?? 3306,
+        user: connection.user,
+        password: connection.password,
+        database: connection.path[0],
+        ssl: { rejectUnauthorized: false },
+    });
+
+    dialect = new MysqlDialect({
+        pool,
+    });
 }
 
-const pool = createPool({
-    host: connection.hostname,
-    port: connection.port ?? 3306,
-    user: connection.user,
-    password: connection.password,
-    database: connection.path[0],
-    ssl: { rejectUnauthorized: env.NODE_ENV === 'production' },
-});
-
 const db = new Kysely<Database>({
-    dialect: new MysqlDialect({ pool }),
+    dialect,
     log: env.NODE_ENV === 'production' ? ['error'] : ['query', 'error'],
 });
 

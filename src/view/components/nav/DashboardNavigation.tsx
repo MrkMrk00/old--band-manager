@@ -4,9 +4,9 @@ import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { type HTMLAttributes, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import trpc from '@/lib/trcp/client';
 import { isMobile } from '@/view/client.helpers';
 import { LoadingSpinner } from '@/view/layout';
-import trpc from '@/lib/trcp/client';
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
     loading: () => <SharedNavbar />,
@@ -15,7 +15,6 @@ const MobileMenu = dynamic(() => import('./MobileMenu'), {
 const WidescreenMenu = dynamic(() => import('./WidescreenMenu'), {
     loading: () => <SharedNavbar />,
 });
-
 
 function SharedNavbar({ children, className, ...props }: HTMLAttributes<HTMLDivElement>) {
     return (
@@ -40,7 +39,7 @@ function SharedNavbar({ children, className, ...props }: HTMLAttributes<HTMLDivE
 }
 
 export default function Navigation() {
-    const { data: user} = trpc.users.me.useQuery();
+    const { data: user } = trpc.users.me.useQuery();
     const [display, setDisplay] = useState<'mobile' | 'wide' | 'not-mounted'>('not-mounted');
 
     useEffect(() => {
