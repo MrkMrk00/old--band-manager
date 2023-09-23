@@ -1,15 +1,12 @@
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, ReactNode } from 'react';
-import { useEffect, useRef } from 'react';
+import { Fragment, MouseEventHandler, ReactNode } from 'react';
 import type { MouseEvent } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Button } from '@/view/layout';
 
-const RIPPLE_CLASS_NAME = 'bm-ripple';
-
-function createRipple(event: MouseEvent<HTMLElement>) {
+export function createRipple(event: MouseEvent<HTMLElement>) {
     const button = event.currentTarget;
 
     const circle = document.createElement('span');
@@ -19,9 +16,9 @@ function createRipple(event: MouseEvent<HTMLElement>) {
     circle.style.width = circle.style.height = `${diameter}px`;
     circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
     circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
-    circle.classList.add(RIPPLE_CLASS_NAME);
+    circle.classList.add('bm-ripple');
 
-    const ripple = button.getElementsByClassName(RIPPLE_CLASS_NAME)[0];
+    const ripple = button.getElementsByClassName('bm-ripple')[0];
 
     if (ripple) {
         ripple.remove();
@@ -30,25 +27,11 @@ function createRipple(event: MouseEvent<HTMLElement>) {
     button.appendChild(circle);
 }
 
-export function RippleAnimation() {
-    const ref = useRef<HTMLSpanElement>(null);
-
-    useEffect(() => {
-        if (!ref.current?.parentElement) {
-            return;
-        }
-        const parent = ref.current.parentElement;
-
-        // @ts-ignore
-        parent.addEventListener('click', createRipple);
-        if (!parent.classList.contains('bm-clickable')) {
-            parent.classList.add('bm-clickable');
-        }
-
-        ref.current.remove();
-    });
-
-    return <span ref={ref} />;
+export function wrapRippleOnClick(onClick?: MouseEventHandler) {
+    return function (ev: MouseEvent<HTMLElement>) {
+        onClick && onClick(ev);
+        createRipple(ev);
+    };
 }
 
 export type ModalProps = {

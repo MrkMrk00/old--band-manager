@@ -1,8 +1,8 @@
 import { readFile } from 'node:fs/promises';
-import { TemplateString } from '@/lib/util';
+import { TemplateString, ucfirst } from '@/lib/util';
 
 export type Language = 'cs';
-export type Section = 'entity';
+export type Section = 'entity' | 'errors';
 
 export type TranslateOpt = string | number;
 
@@ -28,12 +28,40 @@ export default async function translate(
         dictionaryCache.set(cacheKey, dictionary!);
     }
 
-    const result =
-        dictionary && key in dictionary ? new TemplateString(dictionary[key]) : undefined;
-
-    if (result && args.length > 0) {
-        return result.format(...(args.filter(Boolean) as TranslateOpt[]));
+    const result = dictionary && key in dictionary ? dictionary[key] : undefined;
+    let resStr: string = '';
+    if (result && typeof result === 'object') {
+        if (args.includes('f') && 'f' in result && typeof result.f === 'string') {
+            resStr = result['f'];
+            args = args.splice(args.indexOf('f'));
+        } else if (args.includes('n') && 'n' in result && typeof result.n === 'string') {
+            resStr = result['n'];
+            args = args.splice(args.indexOf('n'));
+        } else {
+            const res = result['m'];
+            resStr = typeof res === 'string' ? res : '';
+            args = args.splice(args.indexOf('m'));
+        }
     }
 
-    return result;
+    const hasUcfirst = args.indexOf('ucfirst');
+    if (hasUcfirst !== -1) {
+        resStr = ucfirst(resStr);
+        args = args.splice(args.indexOf('ucfirst'));
+    }
+
+    for (const appendable of args.filter(a => typeof a === 'string' && a.startsWith('a:'))) {
+        const appendWith = (appendable as string).split(':')[1];
+        resStr += appendWith;
+    }
+
+    args = args.filter(a => typeof a !== 'string' || !a.startsWith('a:'));
+
+    if (resStr && args.length > 0) {
+        return new TemplateString(resStr)
+            .format(...(args.filter(Boolean) as TranslateOpt[]))
+            .toString();
+    }
+
+    return resStr;
 }

@@ -1,12 +1,11 @@
+import groupingsRouter from './instrument-groupings';
 import { TRPCError } from '@trpc/server';
-import { sql } from 'kysely';
 import { z } from 'zod';
 import Logger from '@/lib/logger';
 import { type Pageable, Pager } from '@/lib/pager';
-import getRepositoryFor, { query } from '@/lib/repositories';
+import getRepositoryFor from '@/lib/repositories';
 import { countAll } from '@/lib/specs';
 import { AdminAuthorized, Authenticated, Router } from '@/lib/trcp/server';
-import type { NewInstrumentGrouping, UpdatableGrouping } from '@/model/instrument_groupings';
 
 const fetchAll = Authenticated.input(Pager.input).query(async function ({ input }) {
     const { perPage, page } = input;
@@ -143,138 +142,6 @@ const one = Authenticated.input(z.number().int().min(0)).query(async function ({
         groupings,
     };
 });
-
-// ================================================================================================
-// =====================================Instrument Groupings=======================================
-// ================================================================================================
-
-const grouping_fetchAll = Authenticated.input(
-    z
-        .object({
-            ids: z.array(z.number()).optional(),
-        })
-        .merge(Pager.input),
-).query(async function ({ input }) {
-    let countQb = query()
-        .selectFrom('instrument_groupings')
-        .select(sql<number>`COUNT(*)`.as('count'));
-
-    if (input.ids) {
-        countQb = countQb.where('id', 'in', input.ids);
-    }
-
-    let allCount = (await countQb.executeTakeFirst())?.count;
-
-    if (typeof allCount === 'undefined') {
-        return {
-            maxPage: 0,
-            page: 1,
-            payload: [],
-        };
-    }
-
-    let objectsQb = query()
-        .selectFrom('instrument_groupings')
-        .selectAll()
-        .leftJoin('users', j => j.onRef('instrument_groupings.created_by', '=', 'users.id'))
-        .select('users.display_name as admin_name')
-        .orderBy('instrument_groupings.name');
-
-    const result = Pager.handleQuery(objectsQb, allCount, input.perPage, input.page);
-
-    const objects = await result.queryBuilder.execute();
-
-    return {
-        maxPage: result.maxPage,
-        payload: objects,
-    } satisfies Pageable<(typeof objects)[0]>;
-});
-
-const grouping_one = Authenticated.input(z.number().int().min(0)).query(async function ({ input }) {
-    return await query()
-        .selectFrom('instrument_groupings')
-        .selectAll()
-        .where('id', '=', input)
-        .executeTakeFirstOrThrow();
-});
-
-async function insertGrouping(grouping: NewInstrumentGrouping) {
-    const insertRes = await query()
-        .insertInto('instrument_groupings')
-        .values(grouping)
-        .executeTakeFirst();
-
-    if (Number(insertRes.numInsertedOrUpdatedRows) === 1) {
-        return Number(insertRes.insertId);
-    }
-
-    throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Hupsík dupsík, něco se posralo. Nevložil se novej instrument_grouping.',
-    });
-}
-
-async function updateGrouping(id: number, grouping: UpdatableGrouping) {
-    const res = await query()
-        .updateTable('instrument_groupings')
-        .where('id', '=', id)
-        .set(grouping)
-        .executeTakeFirst();
-
-    if (Number(res.numUpdatedRows) > 1) {
-        throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'Je to v piči, updatuje se toho víc, než by mělo.',
-        });
-    }
-
-    return true;
-}
-
-const grouping_upsert = AdminAuthorized.input(
-    z.object({
-        id: z.number().int().min(0).optional(),
-        name: z.string().min(1).max(255),
-    }),
-).mutation(async function ({ input, ctx }) {
-    if (typeof input.id !== 'undefined') {
-        return await updateGrouping(input.id, { name: input.name });
-    }
-
-    return await insertGrouping({
-        ...input,
-        created_by: ctx.user.id,
-    });
-});
-
-const grouping_delete = AdminAuthorized.input(z.number().int().min(0)).mutation(async function ({
-    input,
-}) {
-    const res = await query()
-        .deleteFrom('instrument_groupings')
-        .where('id', '=', input)
-        .executeTakeFirst();
-
-    if (Number(res.numDeletedRows) > 1) {
-        throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'Piče, maže ti to toho víc, než by mělo!',
-        });
-    }
-
-    return true;
-});
-
-const groupingsRouter = Router({
-    fetchAll: grouping_fetchAll,
-    one: grouping_one,
-    upsert: grouping_upsert,
-    delete: grouping_delete,
-});
-
-// ================================================================================================
-// ==========================================Root router===========================================
-// ================================================================================================
 
 export default Router({
     fetchAll,

@@ -1,3 +1,5 @@
+'use client';
+
 import NextLink from 'next/link';
 import type {
     AnchorHTMLAttributes,
@@ -8,9 +10,7 @@ import type {
 } from 'react';
 import { ButtonHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { RippleAnimation } from '@/view/layout-stateful';
-
-export { RippleAnimation };
+import { wrapRippleOnClick } from '@/view/layout-stateful';
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
     const { className, ...other } = props;
@@ -27,7 +27,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
 }
 
 export function Button(props: ButtonHTMLAttributes<HTMLButtonElement>) {
-    const { children, className, ...rest } = props;
+    const { children, className, onClick, ...rest } = props;
 
     return (
         <button
@@ -36,16 +36,16 @@ export function Button(props: ButtonHTMLAttributes<HTMLButtonElement>) {
                 py-2 px-4 bg-white hover:brightness-90 bm-clickable`,
                 className,
             )}
+            onClick={wrapRippleOnClick(onClick)}
             {...rest}
         >
             {children}
-            <RippleAnimation />
         </button>
     );
 }
 
 export function Anchor(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
-    const { className, children, ...rest } = props;
+    const { className, children, onClick, ...rest } = props;
 
     return (
         <a
@@ -54,16 +54,16 @@ export function Anchor(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
                 py-2 px-4 bg-white hover:brightness-90 bm-clickable`,
                 className,
             )}
+            onClick={wrapRippleOnClick(onClick)}
             {...rest}
         >
             {children}
-            <RippleAnimation />
         </a>
     );
 }
 
 export function Link(props: ComponentPropsWithRef<typeof NextLink>) {
-    const { className, children, ...rest } = props;
+    const { className, children, onClick, ...rest } = props;
 
     return (
         <NextLink
@@ -72,10 +72,10 @@ export function Link(props: ComponentPropsWithRef<typeof NextLink>) {
                 py-2 px-4 bg-white hover:brightness-90 bm-clickable`,
                 className,
             )}
+            onClick={wrapRippleOnClick(onClick)}
             {...rest}
         >
             {children}
-            <RippleAnimation />
         </NextLink>
     );
 }

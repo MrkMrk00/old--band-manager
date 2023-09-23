@@ -1,5 +1,4 @@
 import { TRPCClientErrorLike } from '@trpc/client';
-import { UseTRPCQueryOptions } from '@trpc/react-query/shared';
 import { useRouter } from 'next/navigation';
 import { AllHTMLAttributes, ReactNode } from 'react';
 import toast from 'react-hot-toast';
@@ -14,7 +13,7 @@ export function FormRow({ children, className, ...rest }: FormRowProps) {
         <div
             {...rest}
             className={twMerge(
-                'flex flex-row w-full justify-between items-center gap-3',
+                'flex flex-row w-full justify-between items-center gap-3 py-4',
                 className,
             )}
         >

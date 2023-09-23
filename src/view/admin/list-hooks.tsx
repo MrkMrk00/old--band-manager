@@ -1,4 +1,5 @@
 import type { TRPCClientErrorLike } from '@trpc/client';
+import dayjs from 'dayjs';
 import { type ReactNode, useMemo, useState } from 'react';
 import { FaAt, FaFacebook } from 'react-icons/fa6';
 import trpc from '@/lib/trcp/client';
@@ -19,6 +20,10 @@ export type HookReturn = {
     objects: ObjectType[];
 };
 
+function formatDate(date: string) {
+    return <small>{dayjs(date).format('d.M.YY H:m')}</small>;
+}
+
 function usePager() {
     const [page, setPage] = useState(1);
 
@@ -30,7 +35,7 @@ function usePager() {
 
 function renderGroupings(groupings: InstrumentGrouping[]): ReactNode {
     return (
-        <div className="flex flex-row">
+        <div className="flex flex-row gap-1 overflow-hidden">
             {groupings.map(g => (
                 <small
                     className="rounded-2xl h-[1em] bg-yellow-300 p-2 inline-flex justify-center items-center"
@@ -60,7 +65,7 @@ export function useInstrumentsList(perPage: number = 20): HookReturn {
             objects[at] = {
                 id,
                 name: `${name}${subname ? ' ' + subname : ''}`,
-                created_at: new Date(created_at).toLocaleString('cs'),
+                created_at: formatDate(created_at),
                 icon: ':)',
                 groupings: renderGroupings(groupings),
             };
@@ -99,7 +104,7 @@ export function useInstrumentGroupingsList(perPage: number = 20): HookReturn {
             mapped[at] = {
                 id,
                 name,
-                created_at: new Date(created_at).toLocaleString('cs'),
+                created_at: formatDate(created_at),
                 admin_name: !admin_name ? '' : admin_name.split(' ')[0],
             };
 
@@ -147,7 +152,7 @@ export function useUsersList(perPage: number = 20): HookReturn {
                         {email && <FaAt title="E-mail" size="1.5em" />}
                     </div>
                 ),
-                created_at: new Date(created_at).toLocaleDateString('cs'),
+                created_at: formatDate(created_at),
                 roles: roles.join(', '),
             };
         }

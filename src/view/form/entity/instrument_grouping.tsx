@@ -2,61 +2,66 @@
 
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useState } from 'react';
+import toast from 'react-hot-toast';
 import { FaTrash } from 'react-icons/fa6';
 import { admin } from '@/lib/route-register';
 import trpc from '@/lib/trcp/client';
-import { type FormProps, FormRow } from '@/view/form/shared';
+import EntityFormSaveButton from '@/view/form/components/EntityFormSaveButton';
+import { useConfirmModal } from '@/view/form/modals';
+import { type FormProps, FormRow, extractErrors } from '@/view/form/shared';
+import yoink from '@/view/form/yoink';
 import { Button, Input, LoadingSpinner } from '@/view/layout';
 import { ConfirmModal } from '@/view/layout-stateful';
 
-export type { FormProps };
+function useInstrumentGrouping(id: `${number}` | 'add') {
+    const { one, upsert, delete: remove } = trpc.instruments.groupings;
+    const utils = trpc.useContext();
+    const invalidate = () => utils.instruments.groupings.fetchAll.invalidate();
+    const router = useRouter();
+
+    const fetchQuery = id === 'add' ? null : one.useQuery(+id);
+    const upsertMut = upsert.useMutation({
+        onSuccess: id => {
+            invalidate();
+
+            if (!fetchQuery) {
+                router.push(admin().show('instrument_groupings', id).build());
+            }
+        },
+    });
+    const deleteMut = remove.useMutation({
+        onSuccess: () => {
+            invalidate();
+            router.push(admin().list('instrument_groupings').build());
+        },
+    });
+
+    for (const error of extractErrors(true, fetchQuery, upsertMut, deleteMut)) {
+        toast.error(error);
+    }
+
+    return {
+        remove: () => fetchQuery?.data && deleteMut.mutate(fetchQuery.data.id),
+        onSubmit: (ev: FormEvent<HTMLFormElement>) => {
+            ev.preventDefault();
+
+            const data = yoink(ev.currentTarget);
+            console.log(data);
+
+            upsertMut.mutate(data as unknown as Parameters<typeof upsertMut.mutate>[0]);
+        },
+        grouping: fetchQuery?.data,
+        isLoading: fetchQuery?.isLoading,
+        isSaving: upsertMut.isLoading,
+    };
+}
 
 export default function GroupingForm({ id }: FormProps) {
-    const router = useRouter();
-    const [modalIsOpen, setModalOpen] = useState(false);
-
-    const { data, isLoading, refetch } = trpc.instruments.groupings.one.useQuery(+id);
-    const upsertMut = trpc.instruments.groupings.upsert.useMutation();
-    const deleteMut = trpc.instruments.groupings.delete.useMutation();
-
-    function handleSubmit(ev: FormEvent<HTMLFormElement>) {
-        ev.preventDefault();
-        const formData: any = Object.fromEntries(new FormData(ev.currentTarget));
-
-        if (formData['id']) {
-            formData['id'] = +formData['id'];
-        } else {
-            delete formData['id'];
-        }
-
-        // @ts-ignore
-        upsertMut.mutate(formData);
-    }
-
-    const newId = typeof upsertMut.data === 'number' ? upsertMut.data : null;
-    if (upsertMut.isSuccess && newId) {
-        router.push(admin().show('instrument_groupings', newId).build());
-    }
-
-    if (upsertMut.isSuccess && data) {
-        void refetch();
-    }
-
-    if (deleteMut.isSuccess) {
-        router.push(admin().list('instrument_groupings').build());
-    }
-
-    function handleDelete(num?: number | boolean) {
-        if (!data) {
-            throw new Error('Data by tu měly bejt');
-        }
-
-        if (num === 1) {
-            deleteMut.mutate(data.id);
-        }
-
-        setModalOpen(false);
-    }
+    const { isLoading, grouping, isSaving, onSubmit, remove } = useInstrumentGrouping(id);
+    const { props: confirmModalProps, open: openConfirmModal } = useConfirmModal({
+        innerText: 'Tímto krokem smažeš celou sekci a možná ti pak někde bude chybět :(',
+        onConfirm: remove,
+    });
 
     return (
         <>
@@ -67,27 +72,22 @@ export default function GroupingForm({ id }: FormProps) {
             )}
 
             {(!isLoading || id === 'add') && (
-                <form
-                    onSubmit={handleSubmit}
-                    className="flex flex-col w-full rounded-xl border shadow"
-                >
-                    <ConfirmModal
-                        title="Ještě si to rozmysli"
-                        isOpen={modalIsOpen}
-                        onClose={handleDelete}
-                        buttons={[
-                            { id: 0, children: 'Tak ne, no', rightSide: true },
-                            { id: 1, className: 'bg-red-500', children: 'Trust me bro' },
-                        ]}
-                    >
-                        Tímto krokem smažeš celou sekci a možná ti pak někde bude chybět :(
-                    </ConfirmModal>
+                <form onSubmit={onSubmit} className="flex flex-col w-full rounded-xl border shadow">
+                    <ConfirmModal {...confirmModalProps} />
 
-                    <input type="hidden" name="id" value={data?.id} />
+                    <input
+                        type="hidden"
+                        name="id"
+                        value={grouping?.id}
+                        data-y-type="int"
+                        data-y-optional
+                    />
 
                     <FormRow className="px-4 py-2 bg-slate-100 rounded-t-xl border-b">
                         <h3 className="font-bold text-2xl">
-                            {!data ? 'Přidej novou nástrojovou sekci' : `Sekce ${data.name}`}
+                            {!grouping
+                                ? 'Přidej novou nástrojovou sekci'
+                                : `Sekce ${grouping.name}`}
                         </h3>
                     </FormRow>
 
@@ -99,25 +99,20 @@ export default function GroupingForm({ id }: FormProps) {
                             <Input
                                 id="GroupingForm__name"
                                 name="name"
-                                defaultValue={data?.name}
+                                defaultValue={grouping?.name}
                                 placeholder="Žestě"
                             />
-                            <small className="h-[1.2em] text-red-500">
-                                {upsertMut.error?.message}
-                            </small>
                         </div>
                     </FormRow>
 
                     <FormRow className="p-4 justify-between">
-                        <Button className="bg-green-300" type="submit">
-                            Uložit
-                        </Button>
+                        <EntityFormSaveButton isSaving={isSaving} />
 
-                        {data && (
+                        {grouping && (
                             <Button
                                 className="bg-red-500 inline-flex items-center"
                                 type="button"
-                                onClick={() => setModalOpen(true)}
+                                onClick={openConfirmModal}
                             >
                                 <FaTrash />
                                 &emsp;Smazat

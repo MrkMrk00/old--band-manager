@@ -77,10 +77,12 @@ export class Repository<T extends keyof Database, TAlias extends string = T> {
     }
 
     all(offset: number = 0, limit: number = 20) {
-        return this.selectQb().limit(limit).offset(offset).selectAll();
+        // @ts-ignore
+        return this.selectQb().limit(limit).offset(offset).selectAll(this.tableAlias);
     }
 
     one() {
-        return this.selectQb().limit(1).selectAll();
+        // @ts-ignore
+        return this.selectQb().limit(1).selectAll(this.tableAlias);
     }
 }

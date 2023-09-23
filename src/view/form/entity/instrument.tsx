@@ -1,12 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { type FormEvent, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaPlus, FaTrash, FaX } from 'react-icons/fa6';
 import { twMerge } from 'tailwind-merge';
 import { admin } from '@/lib/route-register';
 import trpc from '@/lib/trcp/client';
+import EntityFormSaveButton from '@/view/form/components/EntityFormSaveButton';
 import {
     InstrumentGroupingPicker,
     useGroupingPicker,
@@ -18,47 +19,38 @@ import { Button, Input, LoadingSpinner } from '@/view/layout';
 import { ConfirmModal } from '@/view/layout-stateful';
 import { InstrumentGrouping } from '@/model/instrument_groupings';
 
-type GroupingProps = {
-    id: number;
-
-    backgroundColor: `#${string}`;
-    text: string;
-    className?: string;
-};
-
 function useInstrument(id: `${number}` | 'add') {
     const router = useRouter();
+    const utils = trpc.useContext();
     const fetchQuery = id === 'add' ? null : trpc.instruments.one.useQuery(+id);
-    const upsertMut = trpc.instruments.upsert.useMutation();
-    const deleteMut = trpc.instruments.delete.useMutation();
 
-    function registerForm(form: HTMLFormElement | null) {
-        if (!form) {
-            return;
-        }
+    const upsertMut = trpc.instruments.upsert.useMutation({
+        onSuccess: id => {
+            utils.instruments.fetchAll.invalidate();
 
+            if (!fetchQuery) {
+                router.push(admin().show('instruments', id).build());
+            }
+        },
+    });
+
+    const deleteMut = trpc.instruments.delete.useMutation({
+        onSuccess: () => {
+            utils.instruments.fetchAll.invalidate();
+            router.push(admin().list('instruments').build());
+        },
+    });
+
+    function formOnSubmit(ev: FormEvent<HTMLFormElement>) {
+        ev.preventDefault();
+        const form = ev.currentTarget;
         const upsert = upsertMut.mutate;
 
-        form.addEventListener('submit', function (ev) {
-            ev.preventDefault();
-
-            upsert(yoink(this) as Parameters<typeof upsert>[0]);
-        });
+        upsert(yoink(form) as Parameters<typeof upsert>[0]);
     }
 
     for (const error of extractErrors(true, fetchQuery, upsertMut, deleteMut)) {
         toast.error(error);
-    }
-
-    // was removed successfully
-    if (deleteMut.isSuccess) {
-        router.push(admin().list('instruments').addSearchParam('refetch', '1').build());
-    }
-
-    // was inserted
-    if (upsertMut.isSuccess && !fetchQuery) {
-        const newId = upsertMut.data;
-        router.push(admin().show('instruments', newId).addSearchParam('refetch', '1').build());
     }
 
     function triggerDelete() {
@@ -73,11 +65,21 @@ function useInstrument(id: `${number}` | 'add') {
         remove: triggerDelete,
         instrument: fetchQuery?.data,
         isLoading: fetchQuery?.isLoading,
-        formRef: registerForm,
+        onSubmit: formOnSubmit,
+        isSaving: upsertMut.isLoading,
     };
 }
 
-function Grouping({ id, text, backgroundColor, className }: GroupingProps) {
+type GroupingProps = {
+    id: number;
+
+    backgroundColor: `#${string}`;
+    text: string;
+    className?: string;
+    remove: (id: number) => void;
+};
+
+function Grouping({ id, text, backgroundColor, className, remove }: GroupingProps) {
     const ref = useRef<HTMLDivElement>(null);
 
     return (
@@ -90,7 +92,7 @@ function Grouping({ id, text, backgroundColor, className }: GroupingProps) {
                 <input type="hidden" name="groupings[]" value={id} data-y-array data-y-type="int" />
                 {text.at(0)}
                 <span
-                    onClick={() => void ref.current?.remove()}
+                    onClick={() => remove(id)}
                     title="Odebrat"
                     className="absolute flex justify-center items-center text-transparent hover:text-white hover:bg-red-500 rounded-3xl h-[2.3em] w-[2.3em] text-center cursor-pointer transition-all shadow"
                 >
@@ -103,7 +105,7 @@ function Grouping({ id, text, backgroundColor, className }: GroupingProps) {
 }
 
 export default function InstrumentForm({ id }: FormProps) {
-    const { instrument, isLoading, remove, formRef } = useInstrument(id);
+    const { instrument, isLoading, remove, onSubmit, isSaving } = useInstrument(id);
 
     const [groupings, setGroupings] = useState<InstrumentGrouping[]>([]);
     useEffect(() => {
@@ -117,9 +119,14 @@ export default function InstrumentForm({ id }: FormProps) {
         onConfirm: remove,
     });
 
-    const { open: openPicker, props: pickerProps } = useGroupingPicker(newGrouping =>
-        setGroupings([...groupings, newGrouping]),
-    );
+    function addGrouping(newGrouping: InstrumentGrouping) {
+        console.log(newGrouping.id, groupings);
+        if (!groupings.some(g => g.id === newGrouping.id)) {
+            setGroupings([...groupings, newGrouping]);
+        }
+    }
+
+    const { open: openPicker, props: pickerProps } = useGroupingPicker(addGrouping);
 
     return (
         <>
@@ -130,7 +137,7 @@ export default function InstrumentForm({ id }: FormProps) {
             )}
 
             {(!isLoading || id === 'add') && (
-                <form ref={formRef} className="flex flex-col w-full rounded-xl border shadow">
+                <form onSubmit={onSubmit} className="flex flex-col w-full rounded-xl border shadow">
                     <ConfirmModal {...deleteModalProps} />
 
                     <Input
@@ -200,6 +207,9 @@ export default function InstrumentForm({ id }: FormProps) {
                                             className="w-1/6"
                                             key={id}
                                             id={id}
+                                            remove={id =>
+                                                setGroupings(groupings.filter(g => g.id !== id))
+                                            }
                                             backgroundColor={
                                                 custom_data && 'color' in custom_data
                                                     ? (custom_data.color as `#${string}`)
@@ -222,9 +232,8 @@ export default function InstrumentForm({ id }: FormProps) {
                     </FormRow>
 
                     <FormRow className="px-4 py-4 justify-between">
-                        <Button type="submit" className="bg-green-300">
-                            Uložit
-                        </Button>
+                        <EntityFormSaveButton isSaving={isSaving} />
+
                         {instrument?.id && (
                             <Button
                                 type="button"
