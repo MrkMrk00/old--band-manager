@@ -39,11 +39,14 @@ function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') 
             .where('users.id', '=', ctx.user.id)
             .executeTakeFirst();
 
+        let userRoles: string[];
+
         if (!userRolesResult?.roles || userRolesResult.roles.length < 1) {
-            return next();
+            userRoles = [];
+        } else {
+            userRoles = userRolesResult.roles;
         }
 
-        const userRoles = userRolesResult.roles;
 
         switch (query) {
             case 'all': {
