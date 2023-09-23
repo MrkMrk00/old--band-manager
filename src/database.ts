@@ -23,8 +23,11 @@ export interface Database {
 let dialect: Dialect;
 
 if (env.NODE_ENV === 'production') {
+    const url = new URL(env.DB_CONN);
+    url.searchParams.set('rejectUnauthorized', 'true');
+
     dialect = new PlanetScaleDialect({
-        url: env.DB_CONN,
+        url: url.href,
         fetch,
         useSharedConnection: true,
     });
