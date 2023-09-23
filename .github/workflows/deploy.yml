@@ -37,6 +37,9 @@ jobs:
 
             - name: Install dependencies
               run: pnpm install
+              
+            - name: Disable Next telemetry...
+              run: pnpm next telemetry disable
 
             - name: Install Vercel CLI
               run: pnpm install --global vercel@latest
