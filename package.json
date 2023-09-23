@@ -11,7 +11,7 @@
         "fmt": "prettier --write ./src",
         "lint": "eslint ./src/**/*.{ts,tsx,mjs} && tsc --noEmit",
         "lint:fix": "eslint --fix ./src/**/*.{ts,tsx,mjs}",
-        "cs": "pnpm lint:fix && pnpm fmt",
+        "cs": "pnpm lint:fix && pnpm fmt && tsc --noEmit",
         "migrate": "node --no-warnings --loader ts-node/esm script/migrate.ts",
         "create-migration": "node ./script/createMigration.mjs",
         "password:hash": "node --no-warnings --loader ts-node/esm script/argon.ts --hash",

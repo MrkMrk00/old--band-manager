@@ -176,7 +176,7 @@ export default function InstrumentForm({ id }: FormProps) {
                                 id="InstrumentRow__subname"
                                 type="text"
                                 name="subname"
-                                defaultValue={instrument?.subname}
+                                defaultValue={instrument?.subname ?? undefined}
                                 placeholder="4"
                                 data-y-optional
                             />
@@ -190,7 +190,7 @@ export default function InstrumentForm({ id }: FormProps) {
                                 id="InstrumentRow__icon"
                                 type="url"
                                 name="icon"
-                                defaultValue={instrument?.icon}
+                                defaultValue={instrument?.icon ?? undefined}
                                 placeholder="https://instrument-icons.com/trombone.png"
                                 data-y-optional
                             />
