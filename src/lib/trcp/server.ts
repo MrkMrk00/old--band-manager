@@ -9,11 +9,16 @@ export const Router = t.router;
 export const Middleware = t.middleware;
 export const Public = t.procedure;
 
+function createUnauthorizedError(): TRPCError {
+    return new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'K této akci nemáš dostatečné pravomoce!',
+    });
+}
+
 export const Authenticated = Public.use(function ({ ctx, next }) {
     if (!ctx.user) {
-        throw new TRPCError({
-            code: 'UNAUTHORIZED',
-        });
+        throw createUnauthorizedError();
     }
 
     return next({
@@ -22,13 +27,6 @@ export const Authenticated = Public.use(function ({ ctx, next }) {
 });
 
 const roleMiddlewareCache: Map<string, typeof Authenticated> = new Map();
-
-function createUnauthorizedError(): TRPCError {
-    return new TRPCError({
-        code: 'UNAUTHORIZED',
-        message: 'K této akci nemáš dostatečné pravomoce!',
-    });
-}
 
 function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') {
     return Authenticated.use(async function ({ ctx, next }) {
