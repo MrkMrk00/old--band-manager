@@ -32,6 +32,9 @@ dependencies:
   argon2:
     specifier: ^0.31.1
     version: 0.31.1
+  connection-string:
+    specifier: ^4.4.0
+    version: 4.4.0
   dayjs:
     specifier: ^1.11.10
     version: 1.11.10
@@ -94,9 +97,6 @@ devDependencies:
   autoprefixer:
     specifier: 10.4.14
     version: 10.4.14(postcss@8.4.23)
-  connection-string:
-    specifier: ^4.4.0
-    version: 4.4.0
   dotenv:
     specifier: ^16.3.1
     version: 16.3.1
@@ -1159,7 +1159,7 @@ packages:
   /connection-string@4.4.0:
     resolution: {integrity: sha512-D4xsUjSoE8m/B5yMOvCIHY+2ME6FIZhCq0NzBBT57Q8BuL7ArFhBK04osOfReoW4KFr5ztzFwWRdmnv9rCvu2w==}
     engines: {node: '>=14'}
-    dev: true
+    dev: false
 
   /console-control-strings@1.1.0:
     resolution: {integrity: sha512-ty/fTekppD2fIwRvnZAVdeOiGd1c7YXEixbgJTNzqcxJWKQnjJ/V1bNEEE6hygpM3WjwHFUVK6HTjWSzV4a8sQ==}

@@ -20,22 +20,22 @@ export interface Database {
     sheets: SheetDatabase;
 }
 
+const connection = new ConnectionString(env.DB_CONN);
+if (!connection.path || connection.path.length !== 1) {
+    throw Error(`${__filename}: No database name supplied!`);
+}
+
 let dialect: Dialect;
 
 if (env.NODE_ENV === 'production') {
-    const url = new URL(env.DB_CONN);
-    url.searchParams.set('ssl', 'true');
-
     dialect = new PlanetScaleDialect({
-        url: url.href,
+        host: connection.host,
+        username: connection.user,
+        password: connection.password,
         fetch,
         useSharedConnection: true,
     });
 } else {
-    const connection = new ConnectionString(env.DB_CONN);
-    if (!connection.path || connection.path.length !== 1) {
-        throw Error(`${__filename}: No database name supplied!`);
-    }
 
     const pool = createPool({
         host: connection.hostname,
