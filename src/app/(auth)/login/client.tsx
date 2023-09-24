@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { FormHTMLAttributes, useEffect, useState } from 'react';
+import { FormHTMLAttributes, useState } from 'react';
 import FacebookLoginButton from '@/view/components/FacebookLoginButton';
 import { Button, Input } from '@/view/layout';
 import bigBandLogo from '@/assets/bigbandlogo.png';
