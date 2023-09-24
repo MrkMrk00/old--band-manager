@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { Pageable, Pager } from '@/lib/pager';
 import getRepositoryFor from '@/lib/repositories';
 import { countAll } from '@/lib/specs';
+import { createNotFound, createServerError } from '@/lib/trcp/errors';
 import { AdminAuthorized, Authenticated, Router } from '@/lib/trcp/server';
-import { createNotFound, createServerError } from '@/router/errors';
 
 const fetchAll = Authenticated.input(
     z.object({ ids: z.array(z.number()).optional() }).merge(Pager.input),
@@ -32,7 +32,7 @@ const one = Authenticated.input(z.number().int().min(0)).query(async function ({
         .findById(input)
         .executeTakeFirst();
     if (!grouping) {
-        throw await createNotFound('instrument_groupings');
+        throw createNotFound('instrument_groupings');
     }
 
     return grouping;
@@ -57,7 +57,7 @@ const upsert = AdminAuthorized.input(checkUpsertable).mutation(async function ({
             .executeTakeFirst();
 
         if (Number(result.numUpdatedRows) > 1) {
-            throw await createServerError('moreChangedThanExpected', true, 'ucfirst', 'a:!');
+            throw createServerError('moreChangedThanExpected', true, 'ucfirst', 'a:!');
         }
 
         return id;
@@ -72,7 +72,7 @@ const upsert = AdminAuthorized.input(checkUpsertable).mutation(async function ({
         .executeTakeFirst();
 
     if (Number(result.numInsertedOrUpdatedRows) !== 1) {
-        throw await createServerError();
+        throw createServerError();
     }
 
     return Number(result.insertId);
@@ -84,7 +84,7 @@ const remove = AdminAuthorized.input(z.number().int().min(0)).mutation(async fun
     const result = await groupings.deleteQb().where('id', '=', input).executeTakeFirst();
 
     if (Number(result.numDeletedRows) > 1) {
-        throw await createServerError('moreChangedThanExpected', true, 'ucfirst', 'a:!');
+        throw createServerError('moreChangedThanExpected', true, 'ucfirst', 'a:!');
     }
 
     return true;

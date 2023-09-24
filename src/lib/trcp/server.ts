@@ -1,6 +1,7 @@
 import { TRPCError, initTRPC } from '@trpc/server';
 import getRepositoryFor from '@/lib/repositories';
 import type { TrpcContext } from '@/lib/trcp/context';
+import { createUnauthorized } from '@/lib/trcp/errors';
 import type { Role } from '@/model/user';
 
 const t = initTRPC.context<TrpcContext>().create();
@@ -9,16 +10,9 @@ export const Router = t.router;
 export const Middleware = t.middleware;
 export const Public = t.procedure;
 
-function createUnauthorizedError(): TRPCError {
-    return new TRPCError({
-        code: 'UNAUTHORIZED',
-        message: 'K této akci nemáš dostatečné pravomoce!',
-    });
-}
-
 export const Authenticated = Public.use(function ({ ctx, next }) {
     if (!ctx.user) {
-        throw createUnauthorizedError();
+        throw createUnauthorized();
     }
 
     return next({
@@ -50,7 +44,7 @@ function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') 
                     return next();
                 }
 
-                throw createUnauthorizedError();
+                throw createUnauthorized();
             }
 
             case 'any': {
@@ -58,7 +52,7 @@ function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') 
                     return next();
                 }
 
-                throw createUnauthorizedError();
+                throw createUnauthorized();
             }
 
             default:

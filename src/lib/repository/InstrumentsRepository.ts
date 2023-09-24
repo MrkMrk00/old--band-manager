@@ -4,12 +4,11 @@ import { Database } from '@/database';
 import { Repository } from '@/lib/entity-utils/Repository';
 import { InstrumentsValidator } from '@/lib/entity-utils/validators';
 import Logger from '@/lib/logger';
-import { ucfirst } from '@/lib/util';
 import t, { TranslateOpt } from '@/i18n/translator';
 import type { InstrumentDatabase } from '@/model/instruments';
 
-async function tEntity(key: string, ...opts: (TranslateOpt | undefined)[]) {
-    return ucfirst((await t('cs', 'entity', key, ...opts))?.toString() ?? '');
+function tEntity(key: string, ...opts: (TranslateOpt | undefined)[]) {
+    return t('cs', 'entity', key, 'ucfirst', ...opts);
 }
 
 export type UpsertableInstrument = Updateable<InstrumentDatabase> & {
@@ -89,9 +88,9 @@ export default class InstrumentsRepository extends Repository<'instruments', 'i'
             if (diff.length > 0) {
                 return {
                     success: false,
-                    error: await tEntity(
+                    error: tEntity(
                         'entityWithDoesNotExist',
-                        (await tEntity('instrument_grouping'))?.toString(),
+                        tEntity('instrument_grouping'),
                         `id=[${diff.join(', ')}]`,
                     ),
                 };

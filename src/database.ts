@@ -36,14 +36,13 @@ if (false && env.NODE_ENV === 'production') {
         useSharedConnection: true,
     });
 } else {
-
     const pool = createPool({
         host: connection.hostname,
         port: connection.port ?? 3306,
         user: connection.user,
         password: connection.password,
         database: connection.path[0],
-        ssl: { rejectUnauthorized: env.NODE_ENV === 'production'},
+        ssl: { rejectUnauthorized: env.NODE_ENV === 'production' },
     });
 
     dialect = new MysqlDialect({
