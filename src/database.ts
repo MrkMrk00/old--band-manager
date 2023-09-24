@@ -43,7 +43,7 @@ if (false && env.NODE_ENV === 'production') {
         user: connection.user,
         password: connection.password,
         database: connection.path[0],
-        ssl: { rejectUnauthorized: false },
+        ssl: { rejectUnauthorized: env.NODE_ENV === 'production'},
     });
 
     dialect = new MysqlDialect({
