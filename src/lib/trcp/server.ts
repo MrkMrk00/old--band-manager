@@ -26,7 +26,7 @@ const roleMiddlewareCache: Map<string, typeof Authenticated> = new Map();
 function createUnauthorizedError(): TRPCError {
     return new TRPCError({
         code: 'UNAUTHORIZED',
-        message: "You don't have access to this resource!",
+        message: 'K této akci nemáš dostatečné pravomoce!',
     });
 }
 
