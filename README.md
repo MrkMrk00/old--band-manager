@@ -23,7 +23,7 @@ pnpm migrate
 ```
 
 Create a .env.local and fill out variables:
-- **FB_APP_SECRET**
+- **FB_APP_SECRET** for FB OAuth login (optional)
 
 Run server:
 ```bash
