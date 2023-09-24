@@ -27,7 +27,7 @@ if (!connection.path || connection.path.length !== 1) {
 
 let dialect: Dialect;
 
-if (env.NODE_ENV === 'production') {
+if (false && env.NODE_ENV === 'production') {
     dialect = new PlanetScaleDialect({
         host: connection.host,
         username: connection.user,

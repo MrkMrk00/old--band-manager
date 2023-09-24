@@ -20,6 +20,7 @@
     "dependencies": {
         "@headlessui/react": "^1.7.17",
         "@planetscale/database": "^1.11.0",
+        "mysql2": "^3.6.1",
         "connection-string": "^4.4.0",
         "@t3-oss/env-nextjs": "^0.3.1",
         "@tanstack/react-query": "^4.35.3",
@@ -45,7 +46,6 @@
     },
     "devDependencies": {
         "@trivago/prettier-plugin-sort-imports": "^4.2.0",
-        "mysql2": "^3.6.1",
         "@types/node": "20.1.0",
         "@types/react": "18.2.6",
         "@types/react-dom": "18.2.4",
