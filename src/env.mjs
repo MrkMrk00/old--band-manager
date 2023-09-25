@@ -37,4 +37,26 @@ const _env = createEnv({
     },
 });
 
-export default _env;
+const env = {
+    ..._env,
+
+    /**
+     * @return {boolean}
+     */
+    isProduction() {
+        if ('NEXT_PUBLIC_ENV' in this) {
+            return this.NODE_ENV === 'production';
+        }
+
+        return true;
+    },
+
+    /**
+     * @return {boolean}
+     */
+    isDevelopment() {
+        return !this.isProduction();
+    },
+};
+
+export default env;

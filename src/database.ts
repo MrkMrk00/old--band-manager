@@ -1,8 +1,7 @@
 import env from './env.mjs';
 import { ConnectionString } from 'connection-string';
-import { Dialect, Kysely, MysqlDialect } from 'kysely';
-import { PlanetScaleDialect } from 'kysely-planetscale';
-import { createPool } from 'mysql2';
+import { type Dialect, Kysely, MysqlDialect } from 'kysely';
+import { createPool } from 'mariadb';
 import type { InstrumentGroupingDatabase } from '@/model/instrument_groupings';
 import type { InstrumentDatabase } from '@/model/instruments';
 import type { SheetDatabase, SongDatabase } from '@/model/songs';
@@ -27,32 +26,33 @@ if (!connection.path || connection.path.length !== 1) {
 
 let dialect: Dialect;
 
-if (false && env.NODE_ENV === 'production') {
-    dialect = new PlanetScaleDialect({
-        host: connection.host,
-        username: connection.user,
-        password: connection.password,
-        fetch,
-        useSharedConnection: true,
-    });
-} else {
-    const pool = createPool({
+// if (false && env.NODE_ENV === 'production') {
+//     dialect = new PlanetScaleDialect({
+//         host: connection.host,
+//         username: connection.user,
+//         password: connection.password,
+//         fetch,
+//         useSharedConnection: true,
+//     });
+// } else {
+const pool = async () =>
+    createPool({
         host: connection.hostname,
         port: connection.port ?? 3306,
         user: connection.user,
         password: connection.password,
-        database: connection.path[0],
-        ssl: { rejectUnauthorized: env.NODE_ENV === 'production' },
+        database: connection?.path ? connection.path[0] : 'band-manager',
+        ssl: { rejectUnauthorized: env.isProduction() },
     });
 
-    dialect = new MysqlDialect({
-        pool,
-    });
-}
+dialect = new MysqlDialect({
+    pool,
+});
+// }
 
 const db = new Kysely<Database>({
     dialect,
-    log: env.NODE_ENV === 'production' ? ['error'] : ['query', 'error'],
+    log: env.isProduction() ? ['error'] : ['query', 'error'],
 });
 
 export default db;

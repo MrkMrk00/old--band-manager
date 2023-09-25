@@ -3,7 +3,9 @@ import type { Database } from '@/database';
 import { ucfirst } from '@/lib/util';
 import t, { Language } from '@/i18n/translator';
 
-export function createNotFound<K extends keyof Database>(entity?: K | (K extends `${infer LHS}s` ? LHS : never)) {
+export function createNotFound<K extends keyof Database>(
+    entity?: K | (K extends `${infer LHS}s` ? LHS : never),
+) {
     const entityStr = entity ? t('cs', 'entity', entity) : '';
     const str = ucfirst(`${entityStr} ${t('cs', 'errors', 'doesNotExist')}!`);
 

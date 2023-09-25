@@ -5,8 +5,8 @@ import Logger from '@/lib/logger';
 import { type Pageable, Pager } from '@/lib/pager';
 import getRepositoryFor from '@/lib/repositories';
 import { countAll } from '@/lib/specs';
-import { AdminAuthorized, Authenticated, Router } from '@/lib/trcp/server';
 import { createNotFound } from '@/lib/trcp/errors';
+import { AdminAuthorized, Authenticated, Router } from '@/lib/trcp/server';
 
 const fetchAll = Authenticated.input(Pager.input).query(async function ({ input }) {
     const { perPage, page } = input;
