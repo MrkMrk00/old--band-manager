@@ -9,5 +9,6 @@
 - barvičky k sekcím
 - odkazy: u něčeho staré odkazy; předělat všechny na kebab case
   - možná dodělat a používate route-register
+- tvojí mámu
 
 ## Vylepšení
