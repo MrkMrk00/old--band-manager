@@ -1,7 +1,7 @@
 import env from './env.mjs';
 import { ConnectionString } from 'connection-string';
 import { type Dialect, Kysely, MysqlDialect } from 'kysely';
-import { createPool } from 'mariadb';
+import { createPool } from 'mysql2';
 import type { InstrumentGroupingDatabase } from '@/model/instrument_groupings';
 import type { InstrumentDatabase } from '@/model/instruments';
 import type { SheetDatabase, SongDatabase } from '@/model/songs';
