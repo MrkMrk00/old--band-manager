@@ -11,5 +11,5 @@ export default async function() {
     dotenv.config({ path: baseEnvPath });
     dotenv.config({ path: baseEnvPath + `.${process.env.NODE_ENV}`});
     dotenv.config({ path: baseEnvPath + `.${process.env.NODE_ENV}.local`});
-    dotenv.config({ path: baseEnvPath + '.local' });
+    dotenv.config({ path: baseEnvPath + '.local', override: true });
 }
