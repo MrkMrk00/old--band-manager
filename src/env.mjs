@@ -5,6 +5,7 @@ const _env = createEnv({
     server: {
         NODE_ENV: z.enum(['production', 'test', 'development']),
         DB_CONN: z.string().url(),
+        DB_USE_DBJS: z.boolean(),
         DOMAIN: z.string().url().endsWith('/'),
         APP_SECRET: z.string(),
 
@@ -22,6 +23,7 @@ const _env = createEnv({
     runtimeEnv: {
         NODE_ENV: process.env.NODE_ENV ?? 'production',
         DB_CONN: process.env.DB_CONN,
+        DB_USE_DBJS: process.env.DB_USE_DBJS ?? true,
         DOMAIN: process.env.NEXT_PUBLIC_DOMAIN,
         APP_SECRET: process.env.APP_SECRET,
 

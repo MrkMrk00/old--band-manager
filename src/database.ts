@@ -6,6 +6,7 @@ import type { InstrumentGroupingDatabase } from '@/model/instrument_groupings';
 import type { InstrumentDatabase } from '@/model/instruments';
 import type { SheetDatabase, SongDatabase } from '@/model/songs';
 import type { UserDatabase } from '@/model/user';
+import { PlanetScaleDialect } from 'kysely-planetscale';
 
 export type CustomData = Record<string, string | number | null> | null;
 
@@ -26,29 +27,28 @@ if (!connection.path || connection.path.length !== 1) {
 
 let dialect: Dialect;
 
-// if (false && env.NODE_ENV === 'production') {
-//     dialect = new PlanetScaleDialect({
-//         host: connection.host,
-//         username: connection.user,
-//         password: connection.password,
-//         fetch,
-//         useSharedConnection: true,
-//     });
-// } else {
-const pool = async () =>
-    createPool({
-        host: connection.hostname,
-        port: connection.port ?? 3306,
-        user: connection.user,
+if (env.isProduction() && env.DB_USE_DBJS) {
+    dialect = new PlanetScaleDialect({
+        host: `https://${connection.hostname}`,
+        username: connection.user,
         password: connection.password,
-        database: connection?.path ? connection.path[0] : 'band-manager',
-        ssl: { rejectUnauthorized: env.isProduction() },
+        fetch,
     });
+} else {
+    const pool = async () =>
+        createPool({
+            host: connection.hostname,
+            port: connection.port ?? 3306,
+            user: connection.user,
+            password: connection.password,
+            database: connection?.path ? connection.path[0] : 'band-manager',
+            ssl: { rejectUnauthorized: env.isProduction() },
+        });
 
-dialect = new MysqlDialect({
-    pool,
-});
-// }
+    dialect = new MysqlDialect({
+        pool,
+    });
+}
 
 const db = new Kysely<Database>({
     dialect,
