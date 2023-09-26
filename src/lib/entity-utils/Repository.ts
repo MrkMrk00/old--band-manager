@@ -1,5 +1,7 @@
 import type { InsertQueryBuilder, InsertResult, Kysely } from 'kysely';
 import type { Database } from '@/database';
+import { Pager } from '@/lib/pager';
+import { countAll } from '@/lib/specs';
 
 function createAlias(tableName: string) {
     return tableName
@@ -84,5 +86,23 @@ export class Repository<T extends keyof Database, TAlias extends string = T> {
     one() {
         // @ts-ignore
         return this.selectQb().limit(1).selectAll(this.tableAlias);
+    }
+
+    async paged(
+        optsOrCurrentPage: number | { page: number; perPage: number } = 1,
+        perPage: number = 20,
+    ) {
+        let currentPage: number;
+
+        if (typeof optsOrCurrentPage === 'object') {
+            currentPage = optsOrCurrentPage.page;
+            perPage = optsOrCurrentPage.perPage;
+        } else {
+            currentPage = optsOrCurrentPage;
+        }
+
+        const allCount = await countAll(this.tableName);
+
+        return Pager.handleQuery(this.selectQb(), allCount, perPage, currentPage);
     }
 }

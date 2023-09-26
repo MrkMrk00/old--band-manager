@@ -4,11 +4,14 @@ import db from '@/database';
 import { Repository } from '@/lib/entity-utils/Repository';
 import Logger from '@/lib/logger';
 import InstrumentsRepositoryClass from '@/lib/repository/InstrumentsRepository';
+import UsersRepositoryClass from '@/lib/repository/UsersRepository';
 
 const logger = Logger.fromEnv();
 
 export type AppropriateRepo<Key extends keyof Database> = 'instruments' extends Key
     ? InstrumentsRepositoryClass
+    : 'users' extends Key
+    ? UsersRepositoryClass
     : Repository<Key>;
 
 /**
@@ -18,6 +21,7 @@ export type AppropriateRepo<Key extends keyof Database> = 'instruments' extends 
 const repositoryCache = new (class extends Map<keyof Database, Repository<any>> {
     #recipes = {
         instruments: () => new InstrumentsRepositoryClass(db, logger),
+        users: () => new UsersRepositoryClass(db),
     } as const;
 
     #init<K extends keyof Database>(key: K): void {

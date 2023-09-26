@@ -20,6 +20,7 @@ export default function EntityFormSaveButton(
         if (isSaving) {
             setText(<LoadingSpinner size="1em" color="black" />);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSaving]);
 
     return (

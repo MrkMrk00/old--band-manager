@@ -26,8 +26,8 @@ function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') 
     return Authenticated.use(async function ({ ctx, next }) {
         const userRolesResult = await getRepositoryFor('users')
             .selectQb()
-            .select('users.roles')
-            .where('users.id', '=', ctx.user.id)
+            .select('u.roles')
+            .where('u.id', '=', ctx.user.id)
             .executeTakeFirst();
 
         let userRoles: string[];

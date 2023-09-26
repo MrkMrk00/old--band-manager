@@ -13,7 +13,7 @@ function NavLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string
                 `py-4 px-2 flex 
                 flex-row gap-1 border-b-2 items-center
                 hover:border-green-400 border-transparent hover:text-green-900
-                transition-colors ease-in-out`,
+                transition-colors ease-in-out text-center`,
                 className,
             )}
             {...other}

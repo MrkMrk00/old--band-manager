@@ -1,4 +1,5 @@
-import type { Generated, SelectType, Selectable } from 'kysely';
+import type { Generated, RawBuilder, SelectType, Selectable } from 'kysely';
+import { sql } from 'kysely';
 import { ArgonUtil } from '@/lib/auth/crypto';
 
 export type SystemRole = 'SUPER_ADMIN' | 'ADMIN';
@@ -23,6 +24,7 @@ export type PersistentUser = {
 
 export type UserObject = Selectable<UserDatabase>;
 
+/** @depracated stejně se to nedá posílat na FE, takže to je k ničemu */
 export class User {
     constructor(public _object: UserObject) {}
 
@@ -123,4 +125,8 @@ export class User {
     set updated_at(value: SelectType<UserDatabase['updated_at']>) {
         this._object.updated_at = value;
     }
+}
+
+export function roleArrayToSql(roles: Role[]): RawBuilder<Role[]> {
+    return sql`[${roles.map(r => `"${r}"`).join(',')}]`;
 }

@@ -17,6 +17,8 @@ function SectionRow(props: { children?: ReactNode; className?: string }) {
     );
 }
 
+function useUser() {}
+
 export default function UserDetailsForm() {
     const { data: user, refetch } = trpc.users.me.useQuery();
     const mutation = trpc.users.update.useMutation();
