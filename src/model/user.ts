@@ -1,6 +1,7 @@
 import type { Generated, RawBuilder, SelectType, Selectable } from 'kysely';
 import { sql } from 'kysely';
 import { ArgonUtil } from '@/lib/auth/crypto';
+import createProxyProvider from '@/lib/entity-utils/entity-proxy';
 
 export type SystemRole = 'SUPER_ADMIN' | 'ADMIN';
 export type Role = SystemRole;
@@ -146,39 +147,25 @@ const userUtils = {
 
         return ArgonUtil.verify(plainTextPassword, user.password);
     },
+
+    hasRole(user: { roles: Role[] | null | undefined }, role: Role) {
+        if (!user.roles) {
+            return false;
+        }
+
+        return user.roles.includes(role);
+    },
+
+    toPersistentUser(user: { id: number; display_name: string }) {
+        const { id, display_name } = user;
+
+        return { id, display_name };
+    },
 };
 
-declare global {
-    interface ProxyConstructor {
-        new <TSource extends object, TTarget extends object>(
-            target: TSource,
-            handler: ProxyHandler<TSource>,
-        ): TTarget & TSource;
-    }
-}
-
-type FuncWithoutFirst<Func> = Func extends (a: any, ...args: infer ArgT) => infer Return
-    ? (...args: ArgT) => Return
-    : Func;
-type UserUtilsWithForwardedUser = {
-    [key in keyof typeof userUtils]: (typeof userUtils)[key] extends Function
-        ? FuncWithoutFirst<(typeof userUtils)[key]>
-        : (typeof userUtils)[key];
-};
-
-export function withUser<T extends Partial<UserObject>>(
-    userObj: T,
-): T & UserUtilsWithForwardedUser {
-    return new Proxy<T, UserUtilsWithForwardedUser>(userObj, {
-        get(target: T, p: string | symbol, receiver: any): any {
-            if (p in userUtils) {
-                // @ts-ignore bohužel :)
-                return userUtils[p].bind(userUtils, target);
-            }
-
-            return target[p as keyof typeof target];
-        },
-    });
-}
+export const wrapUser = createProxyProvider<UserObject, typeof userUtils>(userUtils);
+export type UserProxy<PartialUser extends Partial<UserObject> = UserObject> = ReturnType<
+    typeof wrapUser<PartialUser>
+>;
 
 export default userUtils;

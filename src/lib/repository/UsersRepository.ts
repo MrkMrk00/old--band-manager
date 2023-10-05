@@ -3,9 +3,9 @@ import { Database } from '@/database';
 import { ArgonUtil } from '@/lib/auth/crypto';
 import { Repository } from '@/lib/entity-utils/Repository';
 
-export default class UsersRepository extends Repository<'users', 'u'> {
+export default class UsersRepository extends Repository<'users'> {
     constructor(db: Kysely<Database>) {
-        super(db, 'users', 'u');
+        super(db, 'users');
     }
 
     async updatePassword(

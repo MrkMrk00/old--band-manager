@@ -49,7 +49,7 @@ const upsert = AdminAuthorized.input(UsersValidator.checkUpsertable).mutation(as
         const { id, ...userWithoutId } = user;
         return users
             .updateQb()
-            .where('u.id', '=', id)
+            .where('users.id', '=', id)
             .set({
                 ...userWithoutId,
                 password,
@@ -90,7 +90,7 @@ const remove = Authorized(['SUPER_ADMIN'])
     .mutation(async function ({ input }) {
         const users = getRepositoryFor('users');
 
-        return await users.deleteQb().where('u.id', '=', input).limit(1).executeTakeFirst();
+        return await users.deleteQb().where('users.id', '=', input).limit(1).executeTakeFirst();
     });
 
 const me = Authenticated.query(async function ({ ctx }) {

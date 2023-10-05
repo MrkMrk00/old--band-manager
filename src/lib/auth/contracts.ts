@@ -2,7 +2,8 @@ import type {
     CookieListItem,
     ResponseCookie as NextResponseCookie,
 } from 'next/dist/compiled/@edge-runtime/cookies';
-import type { NextResponse } from 'next/server';
+import type { NextRequest, NextResponse } from 'next/server';
+import translate, { Language } from '@/i18n/translator';
 import type { PersistentUser } from '@/model/user';
 
 export type SessionKey = string;
@@ -30,7 +31,7 @@ export type AsyncAuthResponse<SuccessPayload, ErrorShape> = Promise<
 >;
 
 export interface AuthHandler<UID, SuccessPayload, ErrorShape> {
-    accept(request: Request): AsyncAuthResponse<SuccessPayload, ErrorShape>;
+    accept(request: NextRequest): AsyncAuthResponse<SuccessPayload, ErrorShape>;
     verifyUser(identifier: UID): Promise<boolean>;
     getUserInfo(identifier: UID): AsyncAuthResponse<SuccessPayload, ErrorShape>;
 }
@@ -48,6 +49,15 @@ export const AppError = {
             error: true,
             message,
         };
+    },
+
+    createTranslatable(
+        errorMessage: string,
+        opts?: { lang?: Language; opts?: string[] },
+    ): AppError {
+        return this.create(
+            translate(opts?.lang ?? 'cs', 'errors', errorMessage, ...(opts?.opts ?? ['ucfirst'])),
+        );
     },
 
     isError(value: unknown): boolean {

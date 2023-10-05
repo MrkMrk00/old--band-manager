@@ -3,5 +3,8 @@
     "moreChangedThanExpected": "změnilo se toho více, než bylo očekáváno",
     "unauthorized": "k provedení této akce nemáš dostatečná práva",
     "serverError": "chyba serveru",
-    "notFound": "nenalezeno"
+    "notFound": "nenalezeno",
+    "badRequest": "děláš to špatně",
+
+    "wrongEmailOrPassword": "chybné přihlašovací údaje"
 }

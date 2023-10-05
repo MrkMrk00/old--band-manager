@@ -4,7 +4,7 @@ import DatabaseAuthHandler, { ensureAdminUser } from '@/lib/auth/handler/email';
 import { FacebookAuth, handleRegisterFacebookUser } from '@/lib/auth/handler/facebook';
 import { JWTSession, SessionReader, SessionWriter } from '@/lib/auth/session';
 import response from '@/lib/http/response';
-import { UsersRepository } from '@/lib/repositories';
+import getRepositoryFor, { UsersRepository } from '@/lib/repositories';
 
 type RouteHandler = (req: NextRequest) => Promise<NextResponse>;
 const routes = new Map<string, RouteHandler>();
@@ -36,17 +36,26 @@ export default async function authApiHandler(
 route('form', async function (req: NextRequest): Promise<NextResponse> {
     await ensureAdminUser();
 
-    const user = await new DatabaseAuthHandler().accept(req);
-    if (!user) {
+    const usersRepository = getRepositoryFor('users');
+    const user = await new DatabaseAuthHandler(usersRepository).accept(req);
+
+    if ('error' in user) {
         const url = new URL('/login', req.url);
-        url.searchParams.append('err_str', 'Špatné přihlašovací údaje.');
+        url.searchParams.append('err_str', user.message);
 
         return response().redirectPost(url).build();
     }
 
-    return await new SessionWriter()
-        .setData(user.toPersistentUser())
-        .inject(r => r.redirectPost('/'));
+    const session = new JWTSession();
+    session.userId = user.id;
+    session.displayName = user.display_name;
+    const cookie = await session.cookie();
+
+    if ('error' in cookie) {
+        return response().redirect('/login').errStr(cookie.message).build();
+    }
+
+    return response().redirect('/').pushCookie(cookie).build();
 });
 
 async function handleRedirectionFacebookAuth(req: NextRequest): Promise<NextResponse> {

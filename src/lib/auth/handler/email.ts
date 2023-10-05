@@ -1,12 +1,14 @@
 import { type InsertResult, sql } from 'kysely';
+import { NextRequest } from 'next/server';
 import env from '@/env.mjs';
-import { AsyncAuthResponse, AuthHandler } from '@/lib/auth/contracts';
+import { AppError, AsyncAuthResponse, AuthHandler } from '@/lib/auth/contracts';
 import { ArgonUtil } from '@/lib/auth/crypto';
+import { Repository } from '@/lib/entity-utils/Repository';
 import Logger from '@/lib/logger';
 import { UsersRepository } from '@/lib/repositories';
-import { User } from '@/model/user';
+import { User, UserProxy, wrapUser } from '@/model/user';
 
-export default class DatabaseAuthHandler implements AuthHandler<string, User, undefined> {
+export class _DatabaseAuthHandler implements AuthHandler<string, User, undefined> {
     async accept(request: Request): AsyncAuthResponse<User, undefined> {
         let formdata;
 
@@ -78,5 +80,62 @@ export async function ensureAdminUser(): Promise<void> {
         }
 
         logger.info('Successfully created admin user', { id: Number(result.insertId) });
+    }
+}
+
+export default class DatabaseAuthHandler implements AuthHandler<string, UserProxy, AppError> {
+    #users: Repository<'users'>;
+
+    constructor(usersRepository: Repository<'users'>) {
+        this.#users = usersRepository;
+    }
+
+    async accept(request: NextRequest): AsyncAuthResponse<UserProxy, AppError> {
+        let formData;
+
+        try {
+            formData = await request.formData();
+        } catch (e: unknown) {
+            return AppError.createTranslatable('badRequest');
+        }
+
+        const email = String(formData.get('email') ?? '');
+        const password = String(formData.get('password') ?? '');
+
+        if (!email || !password) {
+            return AppError.createTranslatable('wrongEmailOrPassword');
+        }
+
+        const user = await this.#users
+            .one()
+            .where('email', '=', email)
+            .where('email', 'is not', null)
+            .executeTakeFirst();
+
+        const proxy = user ? wrapUser(user) : null;
+
+        if (!proxy || !proxy.verifyPassword(password)) {
+            return AppError.createTranslatable('wrongEmailOrPassword');
+        }
+
+        return proxy;
+    }
+
+    async getUserInfo(identifier: string): AsyncAuthResponse<UserProxy, AppError> {
+        const user = await this.#users
+            .one()
+            .where('email', '=', identifier)
+            .where('email', 'is not', null)
+            .executeTakeFirst();
+
+        if (!user) {
+            return AppError.createTranslatable('notFound');
+        }
+
+        return wrapUser(user);
+    }
+
+    async verifyUser(identifier: string): Promise<boolean> {
+        return !AppError.isError(await this.getUserInfo(identifier));
     }
 }
