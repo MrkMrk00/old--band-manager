@@ -17,6 +17,7 @@
     "incremental": true,
     "sourceMap": true,
     "experimentalDecorators": true,
+    "strictBindCallApply": true,
     "plugins": [
       {
         "name": "next"

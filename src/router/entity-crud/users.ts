@@ -6,7 +6,7 @@ import { UsersValidator } from '@/lib/entity-utils/validators';
 import { Pageable, Pager } from '@/lib/pager';
 import getRepositoryFor, { UsersRepository } from '@/lib/repositories';
 import { AdminAuthorized, Authenticated, Authorized, Router } from '@/lib/trcp/server';
-import * as Users from '@/model/user';
+import Users from '@/model/user';
 import type { Role } from '@/model/user';
 
 const fetchAll = AdminAuthorized.input(Pager.input).query(async function ({ ctx, input }) {
@@ -42,7 +42,7 @@ const upsert = AdminAuthorized.input(UsersValidator.checkUpsertable).mutation(as
 
     let roles: RawBuilder<Role[]> | undefined = undefined;
     if (typeof roleArray !== 'undefined') {
-        roles = Users.roleArrayToSql(roleArray as Role[]);
+        roles = Users.getRolesSQL({ roles: roleArray as Role[] });
     }
 
     if ('id' in user) {

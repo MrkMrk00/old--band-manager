@@ -127,6 +127,58 @@ export class User {
     }
 }
 
-export function roleArrayToSql(roles: Role[]): RawBuilder<Role[]> {
-    return sql`[${roles.map(r => `"${r}"`).join(',')}]`;
+const userUtils = {
+    getRolesSQL(user: { roles: Role[] | null }): RawBuilder<Role[]> {
+        if (user.roles === null) {
+            return sql`[]`;
+        }
+
+        return sql`[${user.roles.map(r => `"${r}"`).join(',')}]`;
+    },
+
+    verifyPassword(
+        user: { password: UserObject['password'] },
+        plainTextPassword: string,
+    ): Promise<boolean> {
+        if (!user.password || plainTextPassword === '') {
+            return Promise.resolve(false);
+        }
+
+        return ArgonUtil.verify(plainTextPassword, user.password);
+    },
+};
+
+declare global {
+    interface ProxyConstructor {
+        new <TSource extends object, TTarget extends object>(
+            target: TSource,
+            handler: ProxyHandler<TSource>,
+        ): TTarget & TSource;
+    }
 }
+
+type FuncWithoutFirst<Func> = Func extends (a: any, ...args: infer ArgT) => infer Return
+    ? (...args: ArgT) => Return
+    : Func;
+type UserUtilsWithForwardedUser = {
+    [key in keyof typeof userUtils]: (typeof userUtils)[key] extends Function
+        ? FuncWithoutFirst<(typeof userUtils)[key]>
+        : (typeof userUtils)[key];
+};
+
+export function withUser<T extends Partial<UserObject>>(
+    userObj: T,
+): T & UserUtilsWithForwardedUser {
+    return new Proxy<T, UserUtilsWithForwardedUser>(userObj, {
+        get(target: T, p: string | symbol, receiver: any): any {
+            if (p in userUtils) {
+                // @ts-ignore bohužel :)
+                return userUtils[p].bind(userUtils, target);
+            }
+
+            return target[p as keyof typeof target];
+        },
+    });
+}
+
+export default userUtils;
