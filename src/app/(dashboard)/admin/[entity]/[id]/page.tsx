@@ -5,9 +5,9 @@ import { Database } from '@/database';
 import { admin } from '@/lib/route-register';
 import { Link } from '@/view/layout';
 
-const InstrumentForm = dynamic(() => import('@/view/form/entity/instrument'));
-const GroupingForm = dynamic(() => import('@/view/form/entity/instrument_grouping'));
-const UserForm = dynamic(() => import('@/view/form/entity/user'));
+const InstrumentForm = dynamic(() => import('@/view/admin/form/instrument'));
+const GroupingForm = dynamic(() => import('@/view/admin/form/instrument_grouping'));
+const UserForm = dynamic(() => import('@/view/admin/form/user'));
 
 type PageProps = {
     searchParams: {
@@ -40,7 +40,7 @@ export default async function FormView({ searchParams, params: { entity, id } }:
                     className="inline-flex flex-row justify-center items-center bg-green-300"
                 >
                     <FaArrowLeftLong size="1em" />
-                    &emsp;Zpět
+                    &nbsp;Zpět
                 </Link>
             </div>
             {entity === 'instruments' && (

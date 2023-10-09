@@ -99,7 +99,7 @@ const upsert = AdminAuthorized.input(instrumentIsUpsertable).mutation(async ({ i
 const deleteOne = AdminAuthorized.input(z.number().int().min(0)).mutation(async ({ input }) => {
     const instruments = getRepositoryFor('instruments');
 
-    const result = await instruments.deleteQb(input).executeTakeFirst();
+    const result = await instruments.remove().where('id', '=', input).executeTakeFirst();
 
     if (Number(result.numDeletedRows) > 1) {
         const logger = Logger.fromEnv();
@@ -122,11 +122,11 @@ const one = Authenticated.input(z.number().int().min(0)).query(async function ({
     const instruments = getRepositoryFor('instruments');
 
     const instrument = await instruments
-        .selectQb()
-        .selectAll('i')
-        .leftJoin('users as u', j => j.onRef('u.id', '=', 'i.created_by'))
+        .select()
+        .selectAll('instruments')
+        .leftJoin('users as u', j => j.onRef('u.id', '=', 'instruments.created_by'))
         .select('u.display_name as user')
-        .where('i.id', '=', input)
+        .where('instruments.id', '=', input)
         .executeTakeFirst();
 
     if (!instrument) {

@@ -2,6 +2,7 @@ import type { Generated, RawBuilder, SelectType, Selectable } from 'kysely';
 import { sql } from 'kysely';
 import { ArgonUtil } from '@/lib/auth/crypto';
 import createProxyProvider from '@/lib/entity-utils/entity-proxy';
+import getRepositoryFor from '@/lib/repositories';
 
 export type SystemRole = 'SUPER_ADMIN' | 'ADMIN';
 export type Role = SystemRole;
@@ -148,18 +149,24 @@ const userUtils = {
         return ArgonUtil.verify(plainTextPassword, user.password);
     },
 
-    hasRole(user: { roles: Role[] | null | undefined }, role: Role) {
+    hasRole(user: { roles: Role[] | null | undefined }, roles: Role | Role[]) {
         if (!user.roles) {
             return false;
         }
 
-        return user.roles.includes(role);
+        const toCheck = typeof roles === 'string' ? [roles] : roles;
+
+        return toCheck.filter(r => !user.roles?.includes(r)).length === 0;
     },
 
     toPersistentUser(user: { id: number; display_name: string }) {
         const { id, display_name } = user;
 
         return { id, display_name };
+    },
+
+    fetchFull({ id }: { id: number }) {
+        return getRepositoryFor('users').findById(id).selectAll().executeTakeFirst();
     },
 };
 

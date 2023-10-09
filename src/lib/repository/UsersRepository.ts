@@ -16,7 +16,7 @@ export default class UsersRepository extends Repository<'users'> {
 
         const passwordHash = await ArgonUtil.hash(newPassword);
 
-        return await this.updateQb()
+        return await this.update()
             .where('id', '=', id)
             .set({ password: passwordHash })
             .executeTakeFirst();

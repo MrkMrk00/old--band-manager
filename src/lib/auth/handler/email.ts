@@ -21,7 +21,7 @@ export class _DatabaseAuthHandler implements AuthHandler<string, User, undefined
         const email = String(formdata.get('email') ?? '');
         const password = String(formdata.get('password') ?? '');
 
-        const userObj = await UsersRepository.selectQb()
+        const userObj = await UsersRepository.select()
             .selectAll()
             .where('email', '=', email)
             .executeTakeFirst();
@@ -63,7 +63,7 @@ export async function ensureAdminUser(): Promise<void> {
         .executeTakeFirst();
 
     if (!exists) {
-        const qb = UsersRepository.insertQb().values({
+        const qb = UsersRepository.insert().values({
             display_name: 'ADMIN',
             email: 'admin@admin.com',
             password: await ArgonUtil.hash('admin'),

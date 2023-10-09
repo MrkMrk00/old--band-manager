@@ -1,4 +1,4 @@
-import UserDetailsForm from '@/view/form/entity/user';
+import UserDetailsForm from '@/view/admin/form/user';
 import { Button } from '@/view/layout';
 
 export const metadata = {

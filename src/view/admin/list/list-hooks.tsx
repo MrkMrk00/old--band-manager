@@ -1,12 +1,14 @@
 import type { TRPCClientErrorLike } from '@trpc/client';
 import dayjs from 'dayjs';
 import { type ReactNode, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 import { FaAt, FaFacebook } from 'react-icons/fa6';
 import trpc from '@/lib/trcp/client';
+import { extractErrors } from '@/view/form/shared';
 import type { ObjectType } from '@/view/list/types';
 import { InstrumentGrouping } from '@/model/instrument_groupings';
 
-export type HookReturn = {
+export type HookReturn<Type extends ObjectType = ObjectType> = {
     page: number;
     setPage: (a: number) => void;
 
@@ -17,11 +19,11 @@ export type HookReturn = {
     error: TRPCClientErrorLike<any> | null;
     isLoading: boolean;
 
-    objects: ObjectType[];
+    objects: Type[];
 };
 
 function formatDate(date: string) {
-    return <small>{dayjs(date).format('d.M.YY H:m')}</small>;
+    return <small>{dayjs(date).format('DD.MM.YY HH:mm')}</small>;
 }
 
 function usePager() {
@@ -174,10 +176,12 @@ export function useUsersList(perPage: number = 20): HookReturn {
 
 export function useSongsList(perPage: number = 20): HookReturn {
     const { page, setPage } = usePager();
-    const { error, refetch, remove, isLoading, data } = trpc.songs.fetchAll.useQuery({
+    const fetchQuery = trpc.songs.fetchAll.useQuery({
         perPage,
         page,
     });
+
+    const { error, refetch, remove, isLoading, data, isError } = fetchQuery;
 
     const objects = useMemo(() => {
         if (!data?.payload) {
@@ -194,13 +198,16 @@ export function useSongsList(perPage: number = 20): HookReturn {
         return objs;
     }, [data]);
 
+    if (isError) {
+        for (const error of extractErrors(true, fetchQuery)) {
+            toast.error(error);
+        }
+    }
+
     return {
         page,
         setPage,
-        error,
-        refetch,
-        remove,
-        isLoading,
+        ...fetchQuery,
         objects,
         maxPage: data?.maxPage ?? 0,
     };

@@ -5,6 +5,7 @@ import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { FaHome } from 'react-icons/fa';
 import { FaMusic, FaPeopleGroup, FaUser } from 'react-icons/fa6';
+import { GiTrumpet } from 'react-icons/gi';
 import { twMerge } from 'tailwind-merge';
 import { isMobile } from '@/view/client.helpers';
 import { Link, OverlayText } from '@/view/layout';
@@ -75,12 +76,14 @@ export default function MenuTemplate({ children }: { children?: ReactNode }) {
                         <SettingsButton.Title>Domovská stránka</SettingsButton.Title>
                     </SettingsButton>
 
+                    <hr />
+
                     <SettingsButton
                         href="/admin/instruments"
                         active={pathname.startsWith('/admin/instruments')}
                     >
                         <SettingsButton.Icon>
-                            <FaMusic />
+                            <GiTrumpet />
                         </SettingsButton.Icon>
                         <SettingsButton.Title>Nástroje</SettingsButton.Title>
                     </SettingsButton>
@@ -94,6 +97,20 @@ export default function MenuTemplate({ children }: { children?: ReactNode }) {
                         </SettingsButton.Icon>
                         <SettingsButton.Title>Sekce</SettingsButton.Title>
                     </SettingsButton>
+
+                    <hr />
+
+                    <SettingsButton
+                        href="/admin/songs"
+                        active={pathname.startsWith('/admin/songs')}
+                    >
+                        <SettingsButton.Icon>
+                            <FaMusic />
+                        </SettingsButton.Icon>
+                        <SettingsButton.Title>Skladby</SettingsButton.Title>
+                    </SettingsButton>
+
+                    <hr />
 
                     <SettingsButton
                         href="/admin/users"

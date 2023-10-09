@@ -1,4 +1,4 @@
-import type { InsertResult, Insertable, Kysely, Updateable } from 'kysely';
+import type { InsertResult, Kysely, Updateable } from 'kysely';
 import { UpdateResult, sql } from 'kysely';
 import { Database } from '@/database';
 import { Repository } from '@/lib/entity-utils/Repository';
@@ -15,22 +15,18 @@ export type UpsertableInstrument = Updateable<InstrumentDatabase> & {
     groupings?: number[];
 };
 
-export default class InstrumentsRepository extends Repository<'instruments', 'i'> {
+export default class InstrumentsRepository extends Repository<'instruments'> {
     #logger: Logger;
 
     constructor(database: Kysely<Database>, logger: Logger) {
-        super(database, 'instruments', 'i');
+        super(database, 'instruments');
         this.#logger = logger;
     }
 
-    insert(instrument: Insertable<InstrumentDatabase>) {
-        return this.insertQb().values(instrument).executeTakeFirstOrThrow();
-    }
-
     updateOne(instrumentId: number, instrument: Omit<Updateable<InstrumentDatabase>, 'id'>) {
-        return this.updateQb()
+        return this.update()
             .set(instrument)
-            .where('i.id', '=', instrumentId)
+            .where('instruments.id', '=', instrumentId)
             .executeTakeFirstOrThrow();
     }
 
@@ -43,7 +39,7 @@ export default class InstrumentsRepository extends Repository<'instruments', 'i'
                 return Promise.resolve(checkedInstrument.error);
             }
 
-            result = await this.insert(checkedInstrument.data);
+            result = await this.insert().values(checkedInstrument.data).executeTakeFirst();
             id = Number(result.insertId);
         } else {
             result = await this.updateOne(id, instrument);

@@ -141,7 +141,7 @@ route('verify', async function (req: NextRequest) {
             .inject(response().redirect('/login').build());
     }
 
-    const exists = await UsersRepository.selectQb()
+    const exists = await UsersRepository.select()
         .select(sql<number>`COUNT(*)`.as('count'))
         .where('id', '=', reader.userId)
         .executeTakeFirst();

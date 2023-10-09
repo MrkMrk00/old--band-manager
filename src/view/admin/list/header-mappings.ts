@@ -17,5 +17,7 @@ export const user = {
     display_name: { title: 'Přezdívka', className: 'max-w-1/4' },
     login: { title: '', className: 'max-w-1/8' },
     created_at: { title: 'Zaregistrován', className: 'max-w-1/4' },
-    roles: { title: 'Role', className: 'max-w-3/8 text-sm group-[.header]:text-base' },
+    roles: { title: 'Role', className: 'max-w-3/8 text-sm group-[.header]:text-base text-center' },
 } satisfies HeaderMapping<ObjectType>;
+
+export const songs = {} satisfies HeaderMapping<ObjectType>;

@@ -1,91 +1,64 @@
 import type { InsertQueryBuilder, InsertResult, Kysely } from 'kysely';
+import { ExtractTableAlias } from 'kysely/dist/cjs/parser/table-parser';
 import type { Database } from '@/database';
 import { Pager } from '@/lib/pager';
 import { countAll } from '@/lib/specs';
 
-function createAlias(tableName: string) {
-    return tableName
-        .split('_')
-        .map(part => part.at(0)?.toLowerCase() ?? '')
-        .join();
-}
-
-export class Repository<T extends keyof Database, TAlias extends string = T> {
+export class Repository<T extends keyof Database> {
     readonly tableName: T;
     readonly database: Kysely<Database>;
-    readonly tableAlias: TAlias;
 
-    constructor(database: Kysely<Database>, tableName: T, tableAlias?: TAlias) {
+    constructor(database: Kysely<Database>, tableName: T) {
         this.database = database;
         this.tableName = tableName;
-        this.tableAlias = tableAlias ?? (tableName as unknown as TAlias);
     }
 
-    selectQb() {
-        return this.database.selectFrom(`${this.tableName} as ${this.tableAlias}`);
+    select() {
+        return this.database.selectFrom(this.tableName);
     }
 
     selectAll() {
-        return this.selectQb().selectAll();
+        return this.select().selectAll(this.tableName as ExtractTableAlias<Database, T>);
     }
 
-    insertQb(): InsertQueryBuilder<Database, T, InsertResult> {
+    insert(): InsertQueryBuilder<Database, T, InsertResult> {
         return this.database.insertInto(this.tableName);
     }
 
-    updateQb(where?: number | PartialResultEntity<T>) {
-        let qb = this.database.updateTable(`${this.tableName} as ${this.tableAlias}`);
+    update(id?: number) {
+        let qb = this.database.updateTable(this.tableName);
 
-        if (where) {
-            if (typeof where === 'number') {
-                // @ts-ignore
-                qb = qb.where(`${this.tableAlias}.id`, '=', where);
-            } else {
-                for (const [key, val] of Object.entries(where)) {
-                    // @ts-ignore
-                    qb = qb.where(`${this.tableAlias}.${key}`, '=', val);
-                }
-            }
+        if (typeof id !== 'undefined') {
+            // @ts-ignore
+            qb = qb.where(`${this.tableName}.id`, '=', 'id');
         }
 
         return qb;
     }
 
-    deleteQb(where?: number | PartialResultEntity<T>) {
-        let qb = this.database.deleteFrom(`${this.tableName} as ${this.tableAlias}`);
+    remove(id?: number) {
+        let qb = this.database.deleteFrom(this.tableName);
 
-        if (where) {
-            if (typeof where === 'number') {
-                // @ts-ignore
-                qb = qb.where(`${this.tableAlias}.id`, '=', where);
-            } else {
-                for (const [key, val] of Object.entries(where)) {
-                    // @ts-ignore
-                    qb = qb.where(`${this.tableAlias}.${key}`, '=', val);
-                }
-            }
+        if (typeof id !== 'undefined') {
+            // @ts-ignore
+            qb = qb.where(`${this.tableName}.id`, '=', id);
         }
 
         return qb;
     }
 
     findById(id: number) {
-        return (
-            this.selectQb()
-                .selectAll()
-                // @ts-ignore
-                .where(`${this.tableAlias}.id`, '=', id)
-        );
+        // @ts-ignore
+        return this.one().where(`${this.tableName}.id`, '=', id);
     }
 
     all(offset: number = 0, limit: number = 20) {
         // @ts-ignore
-        return this.selectQb().limit(limit).offset(offset).selectAll(this.tableAlias);
+        return this.select().limit(limit).offset(offset).selectAll(this.tableName);
     }
 
     one() {
-        // @ts-ignore
-        return this.selectQb().limit(1).selectAll(this.tableAlias);
+        return this.selectAll().limit(1);
     }
 
     async paged(
@@ -103,6 +76,6 @@ export class Repository<T extends keyof Database, TAlias extends string = T> {
 
         const allCount = await countAll(this.tableName);
 
-        return Pager.handleQuery(this.selectQb(), allCount, perPage, currentPage);
+        return Pager.handleQuery(this.selectAll(), allCount, perPage, currentPage);
     }
 }

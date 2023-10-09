@@ -7,11 +7,11 @@ import { FaPlus, FaTrash, FaX } from 'react-icons/fa6';
 import { twMerge } from 'tailwind-merge';
 import { admin } from '@/lib/route-register';
 import trpc from '@/lib/trcp/client';
-import EntityFormSaveButton from '@/view/form/components/EntityFormSaveButton';
+import EntityFormSaveButton from '@/view/admin/components/EntityFormSaveButton';
 import {
     InstrumentGroupingPicker,
     useGroupingPicker,
-} from '@/view/form/components/InstrumentGroupingPicker';
+} from '@/view/admin/components/InstrumentGroupingPicker';
 import { useConfirmModal } from '@/view/form/modals';
 import { type FormProps, FormRow, extractErrors } from '@/view/form/shared';
 import yoink from '@/view/form/yoink';

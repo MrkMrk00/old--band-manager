@@ -25,7 +25,7 @@ const roleMiddlewareCache: Map<string, typeof Authenticated> = new Map();
 function createAuthorizedProcedure(roles: Role[], query: 'any' | 'all' = 'any') {
     return Authenticated.use(async function ({ ctx, next }) {
         const userRolesResult = await getRepositoryFor('users')
-            .selectQb()
+            .select()
             .select('users.roles')
             .where('users.id', '=', ctx.user.id)
             .executeTakeFirst();

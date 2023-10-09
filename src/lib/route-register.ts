@@ -1,6 +1,6 @@
 import type { Database } from '@/database';
 
-export type AdminRouteAction = 'add' | 'list' | 'show';
+export type AdminRouteAction = 'add' | 'list' | 'show' | 'page';
 type Entity = keyof Database;
 
 export class AdminRouteBuilder {
@@ -30,6 +30,16 @@ export class AdminRouteBuilder {
         }
 
         this.#action = 'list';
+
+        return this;
+    }
+
+    page(entity: Entity | null = null): this {
+        if (entity) {
+            this.#entity = entity;
+        }
+
+        this.#action = 'page';
 
         return this;
     }
@@ -76,6 +86,10 @@ export class AdminRouteBuilder {
         let url = `/admin/${this.#entity.replace('_', '-')}/`;
         switch (this.#action) {
             case 'list':
+                this.#searchParams.append('show', 'list');
+                break;
+
+            case 'page':
                 break;
 
             case 'show':

@@ -4,12 +4,13 @@ import { redirect, usePathname, useRouter, useSearchParams } from 'next/navigati
 import { Database } from '@/database';
 import Logger from '@/lib/logger';
 import { admin } from '@/lib/route-register';
-import { instrument, instrumentGrouping, user } from '@/view/admin/headerMapping';
+import { instrument, instrumentGrouping, songs, user } from '@/view/admin/list/header-mappings';
 import {
     useInstrumentGroupingsList,
     useInstrumentsList,
+    useSongsList,
     useUsersList,
-} from '@/view/admin/list-hooks';
+} from '@/view/admin/list/list-hooks';
 import { If, LoadingSpinner } from '@/view/layout';
 import { ListView, Pager } from '@/view/list';
 import type { RowClickCallbackEvent } from '@/view/list/list-generic';
@@ -18,10 +19,12 @@ type ListProps = {
     entity: string;
 };
 
+// TODO: tohle tady asi nechceš mít vždycky všechno naimportovaný
 const dataProviders = {
     instruments: [instrument, useInstrumentsList],
     instrument_groupings: [instrumentGrouping, useInstrumentGroupingsList],
     users: [user, useUsersList],
+    songs: [songs, useSongsList],
 } as const;
 
 export function AdminList({ entity }: ListProps) {
@@ -49,9 +52,6 @@ export function AdminList({ entity }: ListProps) {
     if (searchParams.get('refetch')) {
         refetch();
         router.push(pathname.replace(/(refetch=[^&]+&?)/, ''));
-    }
-
-    if (error) {
     }
 
     function handleRowClick(ev: RowClickCallbackEvent) {

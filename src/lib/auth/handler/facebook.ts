@@ -43,13 +43,13 @@ export async function handleRegisterFacebookUser(
         return AppError.create('Wrong id format');
     }
 
-    let existing = await UsersRepository.selectQb()
+    let existing = await UsersRepository.select()
         .select(['id', 'display_name'])
         .where('fb_id', '=', +facebookUser.id)
         .executeTakeFirst();
 
     if (typeof existing === 'undefined') {
-        const res = await UsersRepository.insertQb()
+        const res = await UsersRepository.insert()
             .values({
                 fb_id: +facebookUser.id,
                 display_name: facebookUser.name,

@@ -51,7 +51,7 @@ const upsert = AdminAuthorized.input(checkUpsertable).mutation(async function ({
 
     if (id) {
         const result = await groupings
-            .updateQb()
+            .update()
             .set(grouping)
             .where('instrument_groupings.id', '=', id)
             .executeTakeFirst();
@@ -64,7 +64,7 @@ const upsert = AdminAuthorized.input(checkUpsertable).mutation(async function ({
     }
 
     const result = await groupings
-        .insertQb()
+        .insert()
         .values({
             ...grouping,
             created_by: ctx.user.id,
@@ -81,7 +81,7 @@ const upsert = AdminAuthorized.input(checkUpsertable).mutation(async function ({
 const remove = AdminAuthorized.input(z.number().int().min(0)).mutation(async function ({ input }) {
     const groupings = getRepositoryFor('instrument_groupings');
 
-    const result = await groupings.deleteQb().where('id', '=', input).executeTakeFirst();
+    const result = await groupings.remove().where('id', '=', input).executeTakeFirst();
 
     if (Number(result.numDeletedRows) > 1) {
         throw createServerError('moreChangedThanExpected', true, 'ucfirst', 'a:!');

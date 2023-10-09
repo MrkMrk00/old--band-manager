@@ -9,5 +9,8 @@
     "users": "uživatelé",
 
     "entityDoesNotExist": "%s neexistuje",
-    "entityWithDoesNotExist": "%s s %s neexistuje"
+    "entityWithDoesNotExist": "%s s %s neexistuje",
+
+    "song": "skladba",
+    "songs": "skladby"
 }

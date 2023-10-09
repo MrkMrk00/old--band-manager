@@ -75,6 +75,10 @@ export function extractErrors(resetAfter: boolean, ...queriesOrMutations: QueryO
         if (queryOrMut?.error) {
             allErrors.push(queryOrMut.error.message);
 
+            if (!resetAfter) {
+                continue;
+            }
+
             if ('remove' in queryOrMut) {
                 queryOrMut.remove();
             } else {

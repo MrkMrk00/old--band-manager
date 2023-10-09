@@ -1,10 +1,10 @@
-import { TRPCError } from '@trpc/server';
 import { RawBuilder } from 'kysely';
 import { z } from 'zod';
 import { ArgonUtil } from '@/lib/auth/crypto';
 import { UsersValidator } from '@/lib/entity-utils/validators';
 import { Pageable, Pager } from '@/lib/pager';
 import getRepositoryFor, { UsersRepository } from '@/lib/repositories';
+import { createServerError } from '@/lib/trcp/errors';
 import { AdminAuthorized, Authenticated, Authorized, Router } from '@/lib/trcp/server';
 import Users from '@/model/user';
 import type { Role } from '@/model/user';
@@ -48,7 +48,7 @@ const upsert = AdminAuthorized.input(UsersValidator.checkUpsertable).mutation(as
     if ('id' in user) {
         const { id, ...userWithoutId } = user;
         return users
-            .updateQb()
+            .update()
             .where('users.id', '=', id)
             .set({
                 ...userWithoutId,
@@ -59,7 +59,7 @@ const upsert = AdminAuthorized.input(UsersValidator.checkUpsertable).mutation(as
     }
 
     return users
-        .insertQb()
+        .insert()
         .values({
             ...user,
             password,
@@ -70,15 +70,16 @@ const upsert = AdminAuthorized.input(UsersValidator.checkUpsertable).mutation(as
 
 const update = Authenticated.input(z.object({ display_name: z.string().min(5).max(512) })).mutation(
     async function ({ ctx: { user }, input }) {
-        const result = await UsersRepository.updateQb(user.id).set(input).execute();
+        const result = await getRepositoryFor('users')
+            .update()
+            .where('id', '=', user.id)
+            .set(input)
+            .executeTakeFirst();
 
-        const numUpdated = Number(result[0]?.numUpdatedRows);
+        const numUpdated = Number(result.numUpdatedRows);
 
         if (numUpdated > 1) {
-            throw new TRPCError({
-                code: 'INTERNAL_SERVER_ERROR',
-                message: 'Piče, updatuješ toho víc než chceš',
-            });
+            throw createServerError();
         }
 
         return numUpdated === 1;
@@ -90,7 +91,7 @@ const remove = Authorized(['SUPER_ADMIN'])
     .mutation(async function ({ input }) {
         const users = getRepositoryFor('users');
 
-        return await users.deleteQb().where('users.id', '=', input).limit(1).executeTakeFirst();
+        return await users.remove().where('users.id', '=', input).limit(1).executeTakeFirst();
     });
 
 const me = Authenticated.query(async function ({ ctx }) {

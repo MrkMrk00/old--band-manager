@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { TemplateString, ucfirst } from '@/lib/util';
 
 export type Language = 'cs';
-export type Section = 'entity' | 'errors';
+export type Section = 'entity' | 'errors' | 'songs' | 'nav';
 
 export type TranslateOpt = string | number;
 
@@ -42,6 +42,8 @@ export default function translate(
             resStr = typeof res === 'string' ? res : '';
             args = args.splice(args.indexOf('m'));
         }
+    } else if (typeof result === 'string') {
+        resStr = result;
     }
 
     const hasUcfirst = args.indexOf('ucfirst');

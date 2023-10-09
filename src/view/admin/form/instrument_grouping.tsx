@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { FaTrash } from 'react-icons/fa6';
 import { admin } from '@/lib/route-register';
 import trpc from '@/lib/trcp/client';
-import EntityFormSaveButton from '@/view/form/components/EntityFormSaveButton';
+import EntityFormSaveButton from '@/view/admin/components/EntityFormSaveButton';
 import { useConfirmModal } from '@/view/form/modals';
 import { type FormProps, FormRow, extractErrors } from '@/view/form/shared';
 import yoink from '@/view/form/yoink';
