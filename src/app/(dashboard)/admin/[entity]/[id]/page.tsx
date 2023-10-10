@@ -8,6 +8,7 @@ import { Link } from '@/view/layout';
 const InstrumentForm = dynamic(() => import('@/view/admin/form/instrument'));
 const GroupingForm = dynamic(() => import('@/view/admin/form/instrument_grouping'));
 const UserForm = dynamic(() => import('@/view/admin/form/user'));
+const SongForm = dynamic(() => import('@/view/admin/form/song'));
 
 type PageProps = {
     searchParams: {
@@ -52,6 +53,7 @@ export default async function FormView({ searchParams, params: { entity, id } }:
             )}
 
             {entity === 'users' && <UserForm key="user" />}
+            {entity === 'songs' && <SongForm key="songs" id={id as `${number}` | 'add'} />}
         </div>
     );
 }

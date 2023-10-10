@@ -20,4 +20,8 @@ export const user = {
     roles: { title: 'Role', className: 'max-w-3/8 text-sm group-[.header]:text-base text-center' },
 } satisfies HeaderMapping<ObjectType>;
 
-export const songs = {} satisfies HeaderMapping<ObjectType>;
+export const songs = {
+    number: { title: 'Číslo' },
+    name: { title: 'Název' },
+    created_by: { title: 'Přidal', className: 'text-sm group-[.header]:text-base' },
+} satisfies HeaderMapping<ObjectType>;

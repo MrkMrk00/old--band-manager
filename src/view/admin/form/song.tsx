@@ -1,3 +1,5 @@
+'use client';
+
 import { useRouter } from 'next/navigation';
 import { type FormEvent } from 'react';
 import toast from 'react-hot-toast';
@@ -6,25 +8,25 @@ import trpc from '@/lib/trcp/client';
 import { extractErrors } from '@/view/form/shared';
 import yoink from '@/view/form/yoink';
 
-function useInstrument(id: `${number}` | 'add') {
+function useSong(id: `${number}` | 'add') {
     const router = useRouter();
     const utils = trpc.useContext();
     const fetchQuery = id === 'add' ? null : trpc.songs.one.useQuery(+id);
 
-    const upsertMut = trpc.instruments.upsert.useMutation({
+    const upsertMut = trpc.songs.upsert.useMutation({
         onSuccess: id => {
             utils.instruments.fetchAll.invalidate();
 
             if (!fetchQuery) {
-                router.push(admin().show('instruments', id).build());
+                router.push(admin().show('songs', id).build());
             }
         },
     });
 
-    const deleteMut = trpc.instruments.delete.useMutation({
+    const deleteMut = trpc.songs.remove.useMutation({
         onSuccess: () => {
             utils.instruments.fetchAll.invalidate();
-            router.push(admin().list('instruments').build());
+            router.push(admin().list('songs').build());
         },
     });
 
@@ -33,7 +35,8 @@ function useInstrument(id: `${number}` | 'add') {
         const form = ev.currentTarget;
         const upsert = upsertMut.mutate;
 
-        upsert(yoink(form) as Parameters<typeof upsert>[0]);
+        // @ts-ignore
+        upsert(yoink(form));
     }
 
     for (const error of extractErrors(true, fetchQuery, upsertMut, deleteMut)) {
@@ -50,10 +53,21 @@ function useInstrument(id: `${number}` | 'add') {
 
     return {
         remove: triggerDelete,
-        instrument: fetchQuery?.data,
+        song: fetchQuery?.data,
         isLoading: fetchQuery?.isLoading,
         onSubmit: formOnSubmit,
         isSaving: upsertMut.isLoading,
     };
 }
-export default function SongForm() {}
+export default function SongForm({ id }: { id: `${number}` | 'add' }) {
+    const { song, isSaving, onSubmit, isLoading, remove } = useSong(id);
+
+    return (
+        <div>
+            <h1>{song?.name ?? 'Tvoje mama'}</h1>
+            <form className="">
+                <input />
+            </form>
+        </div>
+    );
+}

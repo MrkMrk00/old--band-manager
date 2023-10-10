@@ -1,55 +1,12 @@
 import { type InsertResult, sql } from 'kysely';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import env from '@/env.mjs';
-import { AppError, AsyncAuthResponse, AuthHandler } from '@/lib/auth/contracts';
+import { AppError, type AsyncAuthResponse, type AuthHandler } from '@/lib/auth/contracts';
 import { ArgonUtil } from '@/lib/auth/crypto';
 import { Repository } from '@/lib/entity-utils/Repository';
 import Logger from '@/lib/logger';
-import { UsersRepository } from '@/lib/repositories';
-import { User, UserProxy, wrapUser } from '@/model/user';
-
-export class _DatabaseAuthHandler implements AuthHandler<string, User, undefined> {
-    async accept(request: Request): AsyncAuthResponse<User, undefined> {
-        let formdata;
-
-        try {
-            formdata = await request.formData();
-        } catch (e: unknown) {
-            return undefined;
-        }
-
-        const email = String(formdata.get('email') ?? '');
-        const password = String(formdata.get('password') ?? '');
-
-        const userObj = await UsersRepository.select()
-            .selectAll()
-            .where('email', '=', email)
-            .executeTakeFirst();
-
-        const user = userObj ? new User(userObj) : null;
-
-        if (!user || !(await user.verifyPassword(password))) {
-            return undefined;
-        }
-
-        return user;
-    }
-
-    async getUserInfo(identifier: string): AsyncAuthResponse<User, undefined> {
-        const userObj = await UsersRepository.one()
-            .where('email', '=', identifier)
-            .executeTakeFirst();
-        if (!userObj) {
-            return undefined;
-        }
-
-        return new User(userObj);
-    }
-
-    async verifyUser(identifier: string): Promise<boolean> {
-        return (await this.getUserInfo(identifier)) !== undefined;
-    }
-}
+import getRepositoryFor from '@/lib/repositories';
+import { type UserProxy, wrapUser } from '@/model/user';
 
 export async function ensureAdminUser(): Promise<void> {
     if (env.NODE_ENV !== 'development') {
@@ -57,13 +14,12 @@ export async function ensureAdminUser(): Promise<void> {
     }
 
     const logger = Logger.fromEnv();
+    const users = getRepositoryFor('users');
 
-    const exists = await UsersRepository.one()
-        .where('email', '=', 'admin@admin.com')
-        .executeTakeFirst();
+    const exists = await users.one().where('email', '=', 'admin@admin.com').executeTakeFirst();
 
     if (!exists) {
-        const qb = UsersRepository.insert().values({
+        const qb = users.insert().values({
             display_name: 'ADMIN',
             email: 'admin@admin.com',
             password: await ArgonUtil.hash('admin'),

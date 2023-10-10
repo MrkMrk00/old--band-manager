@@ -5,7 +5,7 @@ import { createNotFound, createServerError, createUnauthorized } from '@/lib/trc
 import { AdminAuthorized, Authenticated, Router } from '@/lib/trcp/server';
 import Users, { wrapUser } from '@/model/user';
 
-const fetchAll = Authenticated.input(Pager.input).query(async function ({ input, ctx }) {
+const fetchAll = Authenticated.input(Pager.input).query(async function ({ input }) {
     const songs = getRepositoryFor('songs');
 
     const { maxPage, queryBuilder } = await songs.paged(input);

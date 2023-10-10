@@ -14,36 +14,26 @@ export type AppropriateRepo<Key extends keyof Database> = 'instruments' extends 
     ? UsersRepositoryClass
     : Repository<Key>;
 
-/**
- * Pretty much @ts-ignore on the whole object...
- * Static typing is nice I guess :)
- */
-const repositoryCache = new (class extends Map<keyof Database, Repository<any>> {
-    #recipes = {
-        instruments: () => new InstrumentsRepositoryClass(db, logger),
-        users: () => new UsersRepositoryClass(db),
-    } as const;
+const repositoryRecipes: { [key in keyof Database]?: () => Repository<key> } = {
+    instruments: () => new InstrumentsRepositoryClass(db, logger),
+    users: () => new UsersRepositoryClass(db),
+} as const;
 
-    #init<K extends keyof Database>(key: K): void {
-        if (!this.has(key)) {
-            let newRepository: Repository<K>;
-            if (key in this.#recipes) {
-                // @ts-ignore I don't understand why this doesn't want to work
-                newRepository = this.#recipes[key]();
+const repositoryCache = new (class extends Map<keyof Database, Repository<any>> {
+    get<K extends keyof Database>(key: K): AppropriateRepo<K> {
+        let repository = super.get(key);
+
+        if (!repository) {
+            if (key in repositoryRecipes) {
+                repository = repositoryRecipes[key]!();
             } else {
-                newRepository = new Repository(db, key);
+                repository = new Repository(db, key);
             }
 
-            this.set(key, newRepository);
+            this.set(key, repository);
         }
-    }
 
-    // @ts-ignore
-    get<K extends keyof Database>(key: K): AppropriateRepo<K> {
-        this.#init(key);
-
-        // @ts-ignore trust me, bro
-        return super.get(key);
+        return repository as AppropriateRepo<K>;
     }
 })();
 
