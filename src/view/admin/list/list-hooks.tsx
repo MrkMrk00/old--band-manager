@@ -157,6 +157,8 @@ export function useUsersList(perPage: number = 20): HookReturn {
                 created_at: formatDate(created_at),
                 roles: roles?.join(', ') ?? '',
             };
+
+            at++;
         }
 
         return objs;

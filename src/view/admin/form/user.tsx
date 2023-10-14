@@ -1,131 +1,107 @@
 'use client';
 
-import Image from 'next/image';
-import { FormEvent, ReactNode, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { FormEvent } from 'react';
 import toast from 'react-hot-toast';
-import { twMerge } from 'tailwind-merge';
+import { admin } from '@/lib/route-register';
 import trpc from '@/lib/trcp/client';
-import { Button, If, Input, LoadingSpinner } from '@/view/layout';
-import { ConfirmModal } from '@/view/layout-stateful';
-import fbLogo from '@/assets/fb_logo_250.png';
+import { EntityForm, RequiredStar } from '@/view/form/shared';
+import yoink from '@/view/form/yoink';
+import { Button, Input, LoadingSpinner } from '@/view/layout';
 
-function SectionRow(props: { children?: ReactNode; className?: string }) {
-    return (
-        <div className={twMerge('flex flex-row gap-3 items-center px-5', props.className)}>
-            {props.children}
-        </div>
-    );
+function useRegisterUser() {
+    const router = useRouter();
+    const {
+        data: newId,
+        mutate,
+        error,
+        isError,
+        reset,
+        isSuccess,
+        isLoading,
+    } = trpc.users.register.useMutation();
+
+    function onSubmit(ev: FormEvent<HTMLFormElement>) {
+        ev.preventDefault();
+
+        mutate(yoink(ev.currentTarget) as Parameters<typeof mutate>[0]);
+    }
+
+    if (isError) {
+        toast.error(error.message);
+        reset();
+    }
+
+    if (isSuccess) {
+        router.push(admin().show('users', newId).build());
+    }
+
+    return {
+        onSubmit,
+        isSaving: isLoading,
+    };
 }
 
-function useUser() {}
-
-export default function UserDetailsForm() {
-    const { data: user, refetch } = trpc.users.me.useQuery();
-    const mutation = trpc.users.update.useMutation();
-    const formRef = useRef(null);
-
-    const [hasMutated, setHasMutated] = useState(false);
-    const [showModal, setShowModal] = useState(false);
-
-    function handleFormSubmit(ev: FormEvent) {
-        ev.preventDefault();
-        setShowModal(true);
-    }
-
-    function handleCloseModal(a: number | boolean | undefined) {
-        setShowModal(false);
-
-        if (a === 1) {
-            const data = Object.fromEntries(new FormData(formRef.current!));
-            mutation.mutate(data as { display_name: string });
-            setHasMutated(true);
-            refetch();
-            return;
-        }
-    }
-
-    if (hasMutated && mutation.isSuccess) {
-        toast.success(
-            'Povedlo se!\nPro správné zobrazení nových údajů bude možná potřeba se odhlásit a znovu přihlásit. :)',
-        );
-
-        setHasMutated(false);
-    }
-
-    if (hasMutated && mutation.isError) {
-        toast.error('Stala se chyba!', {
-            className: 'bg-green-400',
-        });
-
-        setHasMutated(false);
-    }
+export default function RegisterNewUser() {
+    const { onSubmit, isSaving } = useRegisterUser();
 
     return (
-        <form
-            ref={formRef}
-            method="POST"
-            className="flex flex-col gap-4 w-full rounded-xl border shadow h-[250px]"
-            onSubmit={handleFormSubmit}
-        >
-            <ConfirmModal
-                title="Opravdu?"
-                isOpen={showModal}
-                onClose={handleCloseModal}
-                buttons={[
-                    { id: 2, className: 'border', children: 'Tak ne, no', rightSide: true },
-                    { id: 1, className: 'bg-blue-200', children: 'Fakt, myslím to vážně!' },
-                ]}
-            >
-                Opravdu chceš měnit svoje osobní údaje?
-            </ConfirmModal>
+        <EntityForm onSubmit={onSubmit}>
+            <EntityForm.Header>Zaregistruj nového uživatele</EntityForm.Header>
 
-            <h3 className="font-bold text-xl border-b px-4 p-2 rounded-t-xl bg-slate-200">O mně</h3>
-            <div className="flex flex-col gap-4 w-full">
-                <If condition={!user}>
-                    <div className="flex flex-row justify-center items-center w-full">
-                        <LoadingSpinner color="black" />
-                    </div>
-                </If>
-                {!!user && (
-                    <>
-                        <SectionRow>
-                            <label className="w-32" htmlFor="displayName">
-                                Přezdívka
-                            </label>
-                            <Input
-                                name="display_name"
-                                id="displayName"
-                                defaultValue={user!.display_name}
-                            />
-                        </SectionRow>
-                        <hr />
+            <EntityForm.Row>
+                <label htmlFor="input-display_name">
+                    Přezdívka
+                    <RequiredStar />
+                </label>
+                <Input
+                    id="input-display_name"
+                    placeholder="Jan Novák"
+                    name="display_name"
+                    required
+                />
+            </EntityForm.Row>
 
-                        <SectionRow>
-                            <span className="w-32">Zdroj přihlášení</span>
-                            <If condition={user?.fb_id !== null}>
-                                <div title={`Id: ${user!.fb_id}`} className="flex flex-row gap-2">
-                                    <Image src={fbLogo} alt="Facebook logo" height={24} /> Facebook
-                                </div>
-                            </If>
+            <hr />
 
-                            <If condition={user?.email !== null}>
-                                <div className="flex flex-row gap-2 items-center">
-                                    <strong className="text-[24px]">@</strong>
-                                    <span>E-mail</span>
-                                </div>
-                            </If>
-                        </SectionRow>
-                        <hr />
+            <EntityForm.Row>
+                <label htmlFor="input-email">
+                    E-mail
+                    <RequiredStar />
+                </label>
+                <Input
+                    type="email"
+                    id="input-email"
+                    placeholder="jan@novak.cz"
+                    name="email"
+                    required
+                />
+            </EntityForm.Row>
 
-                        <SectionRow className="justify-end">
-                            <Button className="bg-green-400" type="submit">
-                                Uložit
-                            </Button>
-                        </SectionRow>
-                        <span />
-                    </>
-                )}
-            </div>
-        </form>
+            <hr />
+
+            <EntityForm.Row>
+                <label htmlFor="input-password">
+                    Heslo
+                    <RequiredStar />
+                </label>
+                <Input
+                    type="password"
+                    id="input-password"
+                    min="6"
+                    placeholder="******"
+                    name="password"
+                    required
+                />
+            </EntityForm.Row>
+
+            <hr />
+
+            <EntityForm.Row className="py-4">
+                <Button type="submit" className="bg-green-300">
+                    {isSaving ? <LoadingSpinner color="black" size="1.2em" /> : 'Registrovat'}
+                </Button>
+            </EntityForm.Row>
+        </EntityForm>
     );
 }

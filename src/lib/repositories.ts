@@ -1,4 +1,4 @@
-import type { Kysely } from 'kysely';
+import { Kysely, sql } from 'kysely';
 import type { Database } from '@/database';
 import db from '@/database';
 import { Repository } from '@/lib/entity-utils/Repository';
@@ -49,4 +49,8 @@ export const UsersRepository = new Repository(db, 'users');
 
 export function query(): Kysely<Database> {
     return db;
+}
+
+export function sqlQuery(sqlTpl: ReturnType<typeof sql>) {
+    return sqlTpl.execute(db);
 }

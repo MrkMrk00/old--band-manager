@@ -4,7 +4,7 @@ import { ArgonUtil } from '@/lib/auth/crypto';
 import createProxyProvider from '@/lib/entity-utils/entity-proxy';
 import getRepositoryFor from '@/lib/repositories';
 
-export type SystemRole = 'SUPER_ADMIN' | 'ADMIN';
+export type SystemRole = 'SUPER_ADMIN' | 'ADMIN' | 'USER';
 export type Role = SystemRole;
 
 export interface UserDatabase {
@@ -130,12 +130,19 @@ export class User {
 }
 
 const userUtils = {
-    getRolesSQL(user: { roles: Role[] | null }): RawBuilder<Role[]> {
-        if (user.roles === null) {
+    getRolesSQL(user: { roles: Role[] | null } | Role[]): RawBuilder<Role[]> {
+        let roles: Role[] | null;
+        if ('roles' in user) {
+            roles = user.roles;
+        } else {
+            roles = user;
+        }
+
+        if (roles === null) {
             return sql`[]`;
         }
 
-        return sql`[${user.roles.map(r => `"${r}"`).join(',')}]`;
+        return sql`[${roles.map(r => `"${r}"`).join(',')}]`;
     },
 
     verifyPassword(

@@ -87,6 +87,23 @@ export class ResponseBuilder {
         return this;
     }
 
+    status(code: number = 200, statusText?: string): this {
+        this._init.status = code;
+
+        if (statusText) {
+            this._init.statusText = statusText;
+        }
+
+        return this;
+    }
+
+    json(body: object): this {
+        this._headers.set('Content-Type', 'application/json');
+        this.body(JSON.stringify(body));
+
+        return this;
+    }
+
     build() {
         if (this._redirectUrl) {
             const params =

@@ -1,6 +1,6 @@
 import { TRPCClientErrorLike } from '@trpc/client';
 import { useRouter } from 'next/navigation';
-import { AllHTMLAttributes, ReactNode } from 'react';
+import { AllHTMLAttributes, FormHTMLAttributes, ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { twMerge } from 'tailwind-merge';
 
@@ -19,6 +19,14 @@ export function FormRow({ children, className, ...rest }: FormRowProps) {
         >
             {children}
         </div>
+    );
+}
+
+export function RequiredStar() {
+    return (
+        <span title="povinnné" className="text-red-500 text-sm align-text-top">
+            *
+        </span>
     );
 }
 
@@ -89,3 +97,33 @@ export function extractErrors(resetAfter: boolean, ...queriesOrMutations: QueryO
 
     return allErrors;
 }
+
+export function EntityForm({ children, className, ...props }: FormHTMLAttributes<HTMLFormElement>) {
+    return (
+        <form
+            {...props}
+            className={twMerge(
+                className,
+                'rounded-2xl border shadow-md overflow-hidden w-full max-w-2xl',
+            )}
+        >
+            {children}
+        </form>
+    );
+}
+
+EntityForm.Row = function ({ className, ...props }: FormRowProps) {
+    return <FormRow className={twMerge('px-4 py-2', className)} {...props} />;
+};
+
+EntityForm.Header = function ({ className, ...props }: FormRowProps) {
+    return (
+        <FormRow
+            className={twMerge(
+                'px-4 py-2 border-b border-b-gray-200 bg-slate-100 font-bold text-2xl',
+                className,
+            )}
+            {...props}
+        />
+    );
+};

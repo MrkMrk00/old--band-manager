@@ -9,7 +9,7 @@ const fetchAll = Authenticated.input(Pager.input).query(async function ({ input 
     const songs = getRepositoryFor('songs');
 
     const { maxPage, queryBuilder } = await songs.paged(input);
-    const payload = await queryBuilder.execute();
+    const payload = await queryBuilder.selectAll().execute();
 
     return {
         maxPage,
@@ -17,7 +17,7 @@ const fetchAll = Authenticated.input(Pager.input).query(async function ({ input 
     } satisfies Pageable<(typeof payload)[0]>;
 });
 
-const one = Authenticated.input(z.number().int().min(0)).query(async function ({ input, ctx }) {
+const one = Authenticated.input(z.number().int().min(0)).query(async function ({ input }) {
     const songs = getRepositoryFor('songs');
     const song = await songs.findById(input).executeTakeFirst();
 

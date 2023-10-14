@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import { RawBuilder } from 'kysely';
 import { z } from 'zod';
 import { ArgonUtil } from '@/lib/auth/crypto';
@@ -9,7 +10,7 @@ import { AdminAuthorized, Authenticated, Authorized, Router } from '@/lib/trcp/s
 import Users from '@/model/user';
 import type { Role } from '@/model/user';
 
-const fetchAll = AdminAuthorized.input(Pager.input).query(async function ({ ctx, input }) {
+const fetchAll = AdminAuthorized.input(Pager.input).query(async function ({ input }) {
     const users = getRepositoryFor('users');
 
     const qb = await users.paged(input);
@@ -98,6 +99,41 @@ const me = Authenticated.query(async function ({ ctx }) {
     return await UsersRepository.findById(ctx.user.id).executeTakeFirst();
 });
 
+const register = AdminAuthorized.input(
+    z.object({
+        email: z.string().email(),
+        display_name: z.string().min(1),
+        password: z.string().min(6),
+    }),
+).mutation(async function ({ input }) {
+    const users = getRepositoryFor('users');
+
+    const exists = await users.one().where('email', '=', input.email).execute();
+
+    if (exists.length !== 0) {
+        throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Uživatel s e-mailem ${input.email} již existuje.`,
+        });
+    }
+
+    const insertResult = await users
+        .insert()
+        .values({
+            ...input,
+            roles: Users.getRolesSQL({ roles: ['USER'] }),
+        })
+        .executeTakeFirst();
+
+    if (!insertResult.insertId) {
+        throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+        });
+    }
+
+    return Number(insertResult.insertId);
+});
+
 const usersRouter = Router({
     update, // update self
     me,
@@ -106,6 +142,8 @@ const usersRouter = Router({
     one,
     upsert,
     remove,
+
+    register,
 });
 
 export default usersRouter;

@@ -1,10 +1,9 @@
-import { sql } from 'kysely';
 import type { NextRequest, NextResponse } from 'next/server';
 import DatabaseAuthHandler, { ensureAdminUser } from '@/lib/auth/handler/email';
 import { FacebookAuth, handleRegisterFacebookUser } from '@/lib/auth/handler/facebook';
-import { JWTSession, SessionReader, SessionWriter } from '@/lib/auth/session';
+import { JWTSession, SessionWriter, getSession } from '@/lib/auth/session';
 import response from '@/lib/http/response';
-import getRepositoryFor, { UsersRepository } from '@/lib/repositories';
+import getRepositoryFor from '@/lib/repositories';
 
 type RouteHandler = (req: NextRequest) => Promise<NextResponse>;
 const routes = new Map<string, RouteHandler>();
@@ -131,33 +130,38 @@ route('fb-success', async function (req: NextRequest) {
         .inject(response().html('<script>window.close();</script>').build());
 });
 
-// GET /login/verify
-route('verify', async function (req: NextRequest) {
-    const reader = await SessionReader.fromRequest(req);
+function removeSession(): NextResponse {
+    return response().deleteSession().redirect('/login').build();
+}
 
-    if (!reader.isValid) {
-        return await new SessionWriter()
-            .deleteSession()
-            .inject(response().redirect('/login').build());
+/**
+ * Renew session cookie and verify, that the logged in user still exists.
+ * Requests to any route/page under the (dashboard)/layout.tsx get redirected
+ * here every (15) minutes.
+ */
+route('verify', async function (req: NextRequest): Promise<NextResponse> {
+    const session = await getSession();
+
+    // no session cookie | invalid signature | invalid session state
+    if ('error' in session || typeof session.userId === 'undefined') {
+        return removeSession();
     }
 
-    const exists = await UsersRepository.select()
-        .select(sql<number>`COUNT(*)`.as('count'))
-        .where('id', '=', reader.userId)
-        .executeTakeFirst();
+    const users = getRepositoryFor('users');
+    const exists = await users.findById(session.userId).execute();
 
-    if (!exists || exists.count < 1) {
-        return await new SessionWriter()
-            .deleteSession()
-            .inject(response().redirect('/login').build());
+    // user with the ID specified in session does not exist
+    if (exists.length !== 1) {
+        return removeSession();
     }
 
-    const next = new URL(req.url).searchParams.get('next');
-    const resp = response()
-        .redirect(next ? decodeURIComponent(next) : '/')
-        .build();
+    const cookie = await session.cookie();
+    if ('error' in cookie) {
+        return response().serverError().build();
+    }
 
-    return await new SessionWriter().setData(reader.session).inject(resp);
+    const redirectTo = req.nextUrl.searchParams.get('next') || '/';
+    return response().pushCookie(cookie).redirect(redirectTo).build();
 });
 
 // /logout

@@ -76,6 +76,6 @@ export class Repository<T extends keyof Database> {
 
         const allCount = await countAll(this.tableName);
 
-        return Pager.handleQuery(this.selectAll(), allCount, perPage, currentPage);
+        return Pager.handleQuery(this.select(), allCount, perPage, currentPage);
     }
 }
