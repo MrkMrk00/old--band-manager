@@ -4,15 +4,11 @@ import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { type HTMLAttributes, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import trpc from '@/lib/trcp/client';
 import { isMobile } from '@/view/client.helpers';
-import { LoadingSpinner } from '@/view/layout';
+import { useUser } from '@/view/context';
+import WidescreenMenu from './WidescreenMenu';
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
-    loading: () => <SharedNavbar />,
-});
-
-const WidescreenMenu = dynamic(() => import('./WidescreenMenu'), {
     loading: () => <SharedNavbar />,
 });
 
@@ -39,8 +35,8 @@ function SharedNavbar({ children, className, ...props }: HTMLAttributes<HTMLDivE
 }
 
 export default function Navigation() {
-    const { data: user } = trpc.users.me.useQuery();
-    const [display, setDisplay] = useState<'mobile' | 'wide' | 'not-mounted'>('not-mounted');
+    const user = useUser();
+    const [display, setDisplay] = useState<'mobile' | 'wide'>('wide');
 
     useEffect(() => {
         const listener = function () {
@@ -57,17 +53,9 @@ export default function Navigation() {
 
     return (
         <>
-            {display === 'not-mounted' && (
-                <SharedNavbar>
-                    <div className="flex flex-row px-4 items-center">
-                        <LoadingSpinner size="2em" color="black" />
-                    </div>
-                </SharedNavbar>
-            )}
+            {display === 'wide' && <WidescreenMenu user={user} navbar={SharedNavbar} key="wide" />}
 
-            {display === 'wide' && <WidescreenMenu user={user} navbar={SharedNavbar} />}
-
-            {display === 'mobile' && <MobileMenu user={user} navbar={SharedNavbar} />}
+            {display === 'mobile' && <MobileMenu user={user} navbar={SharedNavbar} key="mobile" />}
         </>
     );
 }

@@ -173,13 +173,12 @@ const userUtils = {
     },
 
     fetchFull({ id }: { id: number }) {
-        return getRepositoryFor('users').findById(id).selectAll().executeTakeFirst();
+        return getRepositoryFor('users').findById(id).selectAll('users').executeTakeFirst();
     },
 };
 
 export const wrapUser = createProxyProvider<UserObject, typeof userUtils>(userUtils);
-export type UserProxy<PartialUser extends Partial<UserObject> = UserObject> = ReturnType<
-    typeof wrapUser<PartialUser>
+export type UserProxy<PartialUser extends Partial<UserObject> = UserObject> = ReturnType< typeof wrapUser<PartialUser>
 >;
 
 export default userUtils;

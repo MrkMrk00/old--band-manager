@@ -7,7 +7,7 @@ import type { AppSession, ResponseCookie, Session, SessionIOError } from '@/lib/
 import { AppError } from '@/lib/auth/contracts';
 import { ResponseBuilder, default as createResponseBuilder } from '@/lib/http/response';
 import Logger from '@/lib/logger';
-import type { PersistentUser } from '@/model/user';
+import { PersistentUser } from '@/model/user';
 
 export type CryptographyOptions = {
     algo: JWTHeaderParameters['alg'];
@@ -48,6 +48,7 @@ export class JWTSession
 {
     readonly #crypto: CryptographyOptions;
     readonly #logger: Logger;
+    #persistentUser: { id: number, display_name: string } | null = null;
 
     constructor(
         cryptoOptions: CryptographyOptions = defaultCryptoOptions,
@@ -168,6 +169,13 @@ export class JWTSession
 
     get issuedAt(): number | undefined {
         return this.get('iat') as number;
+    }
+
+    get persistentUser() {
+        return this.#persistentUser ??= {
+            id: this.userId as number,
+            display_name: this.displayName as string,
+        };
     }
 }
 

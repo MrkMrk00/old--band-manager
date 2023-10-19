@@ -14,7 +14,7 @@ export default async function Me() {
                 </Button>
             </form>
 
-            <UserDetailsForm />
+            <UserDetailsForm id={'1'} />
         </main>
     );
 }

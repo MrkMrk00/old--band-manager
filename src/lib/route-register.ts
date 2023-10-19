@@ -79,14 +79,10 @@ export class AdminRouteBuilder {
     }
 
     build(): string {
-        if (this.#entity === null) {
-            throw new Error('Entity was not set');
-        }
-
-        let url = `/admin/${this.#entity.replace('_', '-')}/`;
+        let url = `/admin/${this.#entity?.replace('_', '-') + '/' ?? ''}`;
         switch (this.#action) {
             case 'list':
-                this.#searchParams.append('show', 'list');
+                this.#searchParams.set('show', 'list');
                 break;
 
             case 'page':

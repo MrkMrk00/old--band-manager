@@ -8,6 +8,7 @@ import trpc from '@/lib/trcp/client';
 import { EntityForm, RequiredStar } from '@/view/form/shared';
 import yoink from '@/view/form/yoink';
 import { Button, Input, LoadingSpinner } from '@/view/layout';
+import { UserObject } from '@/model/user';
 
 function useRegisterUser() {
     const router = useRouter();
@@ -42,7 +43,7 @@ function useRegisterUser() {
     };
 }
 
-function RegisterNewUser() {
+export function RegisterNewUser() {
     const { onSubmit, isSaving } = useRegisterUser();
 
     return (
@@ -106,15 +107,6 @@ function RegisterNewUser() {
     );
 }
 
-function UserAdminDetail({ id }: { id: number })  {
-
+export function ChangeUser({ user }: { user: UserObject }) {
+    return <div>{user.display_name}</div>;
 }
-
-export default function UserAdminForm({ id }: { id: `${number}` | 'add' }) {
-    if (id === 'add') {
-        return <RegisterNewUser />;
-    }
-
-    return <div> Tvoje máma</div>;
-}
-

@@ -4,10 +4,10 @@ import { FaArrowLeftLong } from 'react-icons/fa6';
 import { Database } from '@/database';
 import { admin } from '@/lib/route-register';
 import { Link } from '@/view/layout';
+import UserForm from '@/view/admin/form/user/data-component';
 
 const InstrumentForm = dynamic(() => import('@/view/admin/form/instrument'));
 const GroupingForm = dynamic(() => import('@/view/admin/form/instrument_grouping'));
-const UserForm = dynamic(() => import('@/view/admin/form/user'));
 const SongForm = dynamic(() => import('@/view/admin/form/song'));
 
 type PageProps = {
@@ -52,7 +52,7 @@ export default async function FormView({ searchParams, params: { entity, id } }:
                 <GroupingForm key="groupings" id={id as `${number}` | 'add'} />
             )}
 
-            {entity === 'users' && <UserForm key="user" />}
+            {entity === 'users' && <UserForm key="user" id={id as `${number}` | 'add'} />}
             {entity === 'songs' && <SongForm key="songs" id={id as `${number}` | 'add'} />}
         </div>
     );

@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { FaArrowLeftLong, FaPlus } from 'react-icons/fa6';
 import type { Database } from '@/database';
 import { admin } from '@/lib/route-register';
@@ -6,6 +8,19 @@ import pages from '@/view/admin/page';
 import { Link } from '@/view/layout';
 import t from '@/i18n/translator';
 
+import UsersList from '@/view/admin/list/users';
+import SongsPage from '@/view/admin/pages/songs';
+
+const views = {
+    users: {
+        list: UsersList,
+    },
+    songs: {
+        page: SongsPage,
+    },
+
+} as const;
+
 type PageProps = {
     params: {
         entity: string;
@@ -13,15 +28,22 @@ type PageProps = {
     searchParams: {
         show?: string;
         back_ref?: string;
+        page?: string;
+        refetch?: string;
     };
 };
 
-export default async function EntityListView({
-    params,
-    searchParams: { show, back_ref },
-}: PageProps) {
-    let { entity } = params;
-    entity = entity.replace('-', '_');
+
+export default async function EntityListView({ params, searchParams}: PageProps) {
+    const entity = params.entity.replace('-', '_');
+    let { show, back_ref, refetch: _refetch, page: _page} = searchParams;
+
+    if (typeof show === 'undefined' || (show !== 'list' && show !== 'page')) {
+        show = 'list';
+    }
+
+    const refetch = !!_refetch;
+    const page = _page && _page !== '' ? +_page : 1;
 
     const Page = entity in pages ? pages[entity as keyof typeof pages] : null;
 
@@ -55,7 +77,11 @@ export default async function EntityListView({
                     </Link>
                 </div>
                 <hr />
-                <AdminList entity={entity}></AdminList>
+                {entity === 'users' ? (
+                    <UsersList page={page ? +page : 1} refetch={!!refetch} />
+                ) : (
+                    <AdminList entity={entity}></AdminList>
+                )}
             </div>
         </div>
     );

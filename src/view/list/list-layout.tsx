@@ -18,7 +18,7 @@ function ListField({ className, children, ...rest }: AllHTMLAttributes<HTMLDivEl
 function ListHeader({ className, children, ...rest }: AllHTMLAttributes<HTMLDivElement>) {
     return (
         <ListRow
-            className={twMerge('rounded-t-xl bg-slate-200 font-bold header', className)}
+            className={twMerge('rounded-t-xl bg-slate-200 font-bold header hover:brightness-100', className)}
             {...rest}
         >
             {children}
@@ -29,7 +29,7 @@ function ListHeader({ className, children, ...rest }: AllHTMLAttributes<HTMLDivE
 function ListRow({ className, children, ...rest }: AllHTMLAttributes<HTMLDivElement>) {
     return (
         <div
-            className={twMerge('group flex flex-row justify-between border-t h-[3em]', className)}
+            className={twMerge('group flex flex-row justify-between border-t h-[3em] bg-white hover:brightness-95', className)}
             {...rest}
         >
             {children}
@@ -41,7 +41,7 @@ function List(props: AllHTMLAttributes<HTMLDivElement>) {
     const { children, className, ...rest } = props;
 
     return (
-        <div className={twMerge('flex flex-col rounded-xl shadow-md', className)} {...rest}>
+        <div className={twMerge('flex flex-col rounded-xl shadow-md overflow-hidden', className)} {...rest}>
             {children}
         </div>
     );
