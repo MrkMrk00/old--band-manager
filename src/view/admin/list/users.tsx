@@ -1,26 +1,15 @@
-import getRepositoryFor from "@/lib/repositories";
-import { admin } from "@/lib/route-register";
-import { List } from "@/view/list";
-import dayjs from "dayjs";
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { Pager, ListProps } from './common';
-import env from '@/env.mjs';
-
-const SELF = admin().list('users');
+import { ListProps, Pager, getListUtils } from './common';
+import dayjs from 'dayjs';
+import Link from 'next/link';
+import { admin } from '@/lib/route-register';
+import { List } from '@/view/list';
 
 export default async function UsersList({ page, refetch }: ListProps) {
-    const repo = getRepositoryFor('users');
+    const utils = getListUtils('users', page, refetch);
 
-    const { maxPage, queryBuilder } = await repo.paged(page > 0 ? page : 1);
-    const users = await queryBuilder.selectAll().execute();
+    const { maxPage, queryBuilder } = await utils.repository.paged(page > 0 ? page : 1);
 
-    if (refetch) {
-        redirect(admin().list('users').addSearchParam('page', page.toString()).build());
-    }
-
-    const selfHref = new URL(SELF.build(), env.NEXT_PUBLIC_DOMAIN);
-    console.log(SELF.build());
+    const users = await queryBuilder.select(['id', 'display_name', 'created_at']).execute();
 
     return (
         <>
@@ -33,13 +22,9 @@ export default async function UsersList({ page, refetch }: ListProps) {
                 {users.map((user, i) => (
                     <Link key={i} href={admin().show('users', user.id).build()}>
                         <List.Row>
-                            <List.Value className="justify-start">
-                                {user.id}
-                            </List.Value>
+                            <List.Value className="justify-start">{user.id}</List.Value>
 
-                            <List.Value>
-                                {user.display_name}
-                            </List.Value>
+                            <List.Value>{user.display_name}</List.Value>
 
                             <List.Value className="text-sm">
                                 {dayjs(user.created_at).format('DD.MM.YY')}
@@ -48,9 +33,9 @@ export default async function UsersList({ page, refetch }: ListProps) {
                     </Link>
                 ))}
             </List>
-            {page !== maxPage && (
+            {maxPage !== 1 && (
                 <div className="flex flex-row w-100 justify-center">
-                    <Pager maxPage={maxPage} page={page} href={selfHref} />
+                    <Pager maxPage={maxPage} page={page} href={utils.url} />
                 </div>
             )}
         </>

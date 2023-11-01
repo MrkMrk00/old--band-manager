@@ -1,79 +1,56 @@
 'use client';
 
-import Image from 'next/image';
+import { type ReactNode, useState, useEffect } from 'react';
+import { Button, OverlayText } from '@/view/layout';
+import { Modal } from '@/view/layout-stateful';
 import { useSearchParams } from 'next/navigation';
-import { FormHTMLAttributes, useState } from 'react';
-import FacebookLoginButton from '@/view/components/FacebookLoginButton';
-import { Button, Input } from '@/view/layout';
-import bigBandLogo from '@/assets/bigbandlogo.png';
 
-function EmailLoginForm(props: FormHTMLAttributes<HTMLFormElement>) {
-    return (
-        <form {...props}>
-            <div className="flex flex-col gap-6 p-4">
-                <div className="flex flex-col gap-2">
-                    <label htmlFor="emailBtn">E-mail</label>
-                    <Input id="emailBtn" name="email" type="email" placeholder="jan@novak.cz" />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <label htmlFor="passwordBtn">Heslo</label>
-                    <Input id="passwordBtn" name="password" type="password" placeholder="******" />
-                </div>
-
-                <Button type="submit" className="bg-green-400">
-                    Přihlásit se
-                </Button>
-            </div>
-        </form>
-    );
+function focusEmail() {
+    window.setTimeout(() => {
+        const elem = document.querySelector('[name="email"]');
+        if (elem) {
+            (elem as HTMLElement).focus();
+            return;
+        } else {
+            focusEmail();
+        }
+    }, 100);
 }
 
-export function LoginForms({ fbLoginEnabled }: { fbLoginEnabled: boolean }) {
-    const [formDisplayed, setFormDisplayed] = useState(false);
+export function ModalMounter({ children }: { children: ReactNode }) {
     const search = useSearchParams();
+    const [isOpen, setOpen] = useState<boolean>(search.has('err_str'));
+
+    // jakoby fuj, ale co už
+    useEffect(() => {
+        if (isOpen && !search.has('err_str')) {
+            focusEmail();
+        }
+    }, [isOpen]);
 
     return (
-        <div className="flex md:flex-row flex-col w-full">
-            <div className="md:w-1/3 flex flex-col pt-16 px-16 md:pr-0 gap-6 h-full">
-                {search.getAll('err_str').map((err, index) => (
-                    <span key={index} className="text-red-500">
-                        {err}
-                    </span>
+        <>
+            <Button 
+                className="py-4 border-2 w-full text-center"
+                onClick={() => setOpen(o => !o)}
+            >
+                <OverlayText className="font-bold text-2xl px-6">
+                    @
+                </OverlayText>
+                Přihlásit se e-mailem
+            </Button>
+            <Modal isOpen={isOpen}>
+                <div className="w-full flex flex-row justify-end">
+                    <Button onClick={() => setOpen(false)} className="text-white rounded-md bg-red-500">X</Button>
+                </div>
+
+                {search.getAll('err_str').map((e, i) => (
+                    <span key={i} className="font-bold text-red-600">{e}</span>
                 ))}
 
-                <h3 className="text-2xl font-bold">Přihlásit se</h3>
-                <div className="flex flex-col gap-2 2xl:w-1/2 w-full">
-                    {fbLoginEnabled && (
-                        <FacebookLoginButton className="border flex flex-row gap-2" />
-                    )}
-                    <Button
-                        className={`border flex flex-row gap-2 items-center${
-                            formDisplayed ? ' bg-green-200' : ''
-                        }`}
-                        onClick={() => setFormDisplayed(!formDisplayed)}
-                    >
-                        <span className="font-bold px-2 text-2xl">@</span>
-                        <span>Přihlásit se e-mailem</span>
-                    </Button>
-                </div>
-            </div>
-
-            <main className="w-full md:w-2/3 flex flex-row justify-center items-center h-full">
-                {formDisplayed ? (
-                    <EmailLoginForm
-                        className="flex flex-col md:justify-center md:w-2/3 xl:w-1/3 w-full px-16 py-4 md:px-4 h-full"
-                        method="POST"
-                        action="/login/form"
-                    />
-                ) : (
-                    <Image
-                        src={bigBandLogo}
-                        alt="Big Band Vrchlabí"
-                        className="h-2/3 object-contain w-auto"
-                    />
-                )}
-            </main>
-        </div>
+                { children }
+            </Modal>
+        </>
     );
 }
+

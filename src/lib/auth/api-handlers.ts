@@ -57,7 +57,7 @@ route('form', async function (req: NextRequest): Promise<NextResponse> {
     return response().redirect('/').pushCookie(cookie).build();
 });
 
-async function handleRedirectionFacebookAuth(req: NextRequest): Promise<NextResponse> {
+route('fb-success', async function (req: NextRequest) {
     const url = req.nextUrl;
 
     const loginResolver = new FacebookAuth(url.href.replace(url.search, ''));
@@ -91,43 +91,6 @@ async function handleRedirectionFacebookAuth(req: NextRequest): Promise<NextResp
     }
 
     return response().redirect('/').pushCookie(cookie).build();
-}
-
-route('fb-success', async function (req: NextRequest) {
-    const state = req.nextUrl.searchParams.get('state');
-    if (state && state === 'redirect') {
-        return await handleRedirectionFacebookAuth(req);
-    }
-
-    const url = new URL(req.url);
-
-    const loginResolver = new FacebookAuth(url.href.replace(url.search, ''));
-    const facebookUser = await loginResolver.accept(req);
-
-    if ('error' in facebookUser) {
-        return response()
-            .html(`<pre>Nepodařilo se přihlásit.<br />${facebookUser.error?.message}</pre>`)
-            .build();
-    }
-
-    const persistentUser = await handleRegisterFacebookUser(facebookUser);
-
-    if ('error' in persistentUser) {
-        return response()
-            .html(
-                `<pre>Registration failed: ${JSON.stringify(
-                    persistentUser.message,
-                    null,
-                    4,
-                )}</pre>`,
-            )
-            .build();
-    }
-
-    // happy path -> frontend listens to close event
-    return await new SessionWriter()
-        .setData(persistentUser)
-        .inject(response().html('<script>window.close();</script>').build());
 });
 
 function removeSession(): NextResponse {

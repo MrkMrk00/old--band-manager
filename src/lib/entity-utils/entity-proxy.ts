@@ -29,7 +29,10 @@ export default function createProxyProvider<Entity extends object, UtilsObject e
         return new Proxy<PartialEntity, ValidUtils>(entity, {
             get(target: PartialEntity, p: string | symbol, receiver: any): any {
                 if (p in utils) {
-                    return (utils[p as keyof UtilsObject] as (usr: unknown) => unknown).bind(utils, target as unknown);
+                    return (utils[p as keyof UtilsObject] as (usr: unknown) => unknown).bind(
+                        utils,
+                        target as unknown,
+                    );
                 }
 
                 return target[p as keyof PartialEntity];

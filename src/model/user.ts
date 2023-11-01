@@ -178,7 +178,8 @@ const userUtils = {
 };
 
 export const wrapUser = createProxyProvider<UserObject, typeof userUtils>(userUtils);
-export type UserProxy<PartialUser extends Partial<UserObject> = UserObject> = ReturnType< typeof wrapUser<PartialUser>
+export type UserProxy<PartialUser extends Partial<UserObject> = UserObject> = ReturnType<
+    typeof wrapUser<PartialUser>
 >;
 
 export default userUtils;

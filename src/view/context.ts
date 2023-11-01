@@ -1,6 +1,6 @@
-import type { Role, UserObject } from '@/model/user';
-import createProxyProvider from '@/lib/entity-utils/entity-proxy';
 import { createContext, useContext } from 'react';
+import createProxyProvider from '@/lib/entity-utils/entity-proxy';
+import type { Role, UserObject } from '@/model/user';
 
 const clientSideUserUtils = {
     hasRole(user: { roles: Role[] | null }, role: Role): boolean {
@@ -19,7 +19,9 @@ const clientSideUserUtils = {
 /**
  * Wrap user CLIENT SIDE
  */
-export const wrapUserCS = createProxyProvider<UserObject, typeof clientSideUserUtils>(clientSideUserUtils);
+export const wrapUserCS = createProxyProvider<UserObject, typeof clientSideUserUtils>(
+    clientSideUserUtils,
+);
 
 export type UserProxyCS = ReturnType<typeof wrapUserCS<UserObject>>;
 

@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import { Database } from '@/database';
 import { admin } from '@/lib/route-register';
-import { Link } from '@/view/layout';
 import UserForm from '@/view/admin/form/user/data-component';
+import { Link } from '@/view/layout';
 
 const InstrumentForm = dynamic(() => import('@/view/admin/form/instrument'));
 const GroupingForm = dynamic(() => import('@/view/admin/form/instrument_grouping'));

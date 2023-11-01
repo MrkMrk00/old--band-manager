@@ -1,15 +1,14 @@
-import 'server-only';
-
 import { FaArrowLeftLong, FaPlus } from 'react-icons/fa6';
+import 'server-only';
 import type { Database } from '@/database';
 import { admin } from '@/lib/route-register';
 import { AdminList } from '@/view/admin/list';
+import InstrumentsList from '@/view/admin/list/instruments';
+import UsersList from '@/view/admin/list/users';
 import pages from '@/view/admin/page';
+import SongsPage from '@/view/admin/pages/songs';
 import { Link } from '@/view/layout';
 import t from '@/i18n/translator';
-
-import UsersList from '@/view/admin/list/users';
-import SongsPage from '@/view/admin/pages/songs';
 
 const views = {
     users: {
@@ -18,7 +17,9 @@ const views = {
     songs: {
         page: SongsPage,
     },
-
+    instruments: {
+        list: InstrumentsList,
+    },
 } as const;
 
 type PageProps = {
@@ -33,10 +34,9 @@ type PageProps = {
     };
 };
 
-
-export default async function EntityListView({ params, searchParams}: PageProps) {
+export default async function EntityListView({ params, searchParams }: PageProps) {
     const entity = params.entity.replace('-', '_');
-    let { show, back_ref, refetch: _refetch, page: _page} = searchParams;
+    let { show, back_ref, refetch: _refetch, page: _page } = searchParams;
 
     if (typeof show === 'undefined' || (show !== 'list' && show !== 'page')) {
         show = 'list';

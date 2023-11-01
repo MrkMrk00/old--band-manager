@@ -1,14 +1,21 @@
+import { redirect } from 'next/navigation';
+import type { AnchorHTMLAttributes } from 'react';
+import { FaLeftLong, FaRightLong } from 'react-icons/fa6';
+import { twMerge } from 'tailwind-merge';
+import { Database } from '@/database';
+import env from '@/env.mjs';
+import getRepositoryFor from '@/lib/repositories';
+import { admin } from '@/lib/route-register';
+import { Link } from '@/view/layout';
+
 export type ListProps = {
     refetch: boolean;
     page: number;
 };
 
-import type { AnchorHTMLAttributes } from 'react';
-import { FaLeftLong, FaRightLong } from 'react-icons/fa6';
-import { twMerge } from 'tailwind-merge';
-import { Link } from '@/view/layout';
-
-function PagerButton(props: AnchorHTMLAttributes<HTMLAnchorElement> & { disabled?: boolean; href: string; }) {
+function PagerButton(
+    props: AnchorHTMLAttributes<HTMLAnchorElement> & { disabled?: boolean; href: string },
+) {
     const { className, children, disabled, ...restProps } = props;
 
     return (
@@ -82,4 +89,23 @@ export function Pager(props: PagerProps) {
             </PagerButton>
         </div>
     );
+}
+
+export function getListUtils<Key extends keyof Database>(
+    entity: Key,
+    page: number,
+    refetch: boolean,
+) {
+    if (refetch) {
+        redirect(admin().list('users').addSearchParam('page', page.toString()).build());
+    }
+
+    const route = admin().list(entity);
+    const url = new URL(route.build(), env.NEXT_PUBLIC_DOMAIN);
+
+    return {
+        repository: getRepositoryFor(entity),
+        route,
+        url,
+    };
 }

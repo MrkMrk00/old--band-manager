@@ -1,5 +1,5 @@
-import getRepositoryFor from "@/lib/repositories";
-import { ChangeUser, RegisterNewUser } from "./interactive-forms";
+import { ChangeUser, RegisterNewUser } from './interactive-forms';
+import getRepositoryFor from '@/lib/repositories';
 
 export default async function UserFormServerComponent({ id }: { id: `${number}` | 'add' }) {
     if (id === 'add') {

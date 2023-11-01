@@ -106,9 +106,7 @@ function RegisterNewUser() {
     );
 }
 
-function UserAdminDetail({ id }: { id: number })  {
-
-}
+function UserAdminDetail({ id }: { id: number }) {}
 
 export default function UserAdminForm({ id }: { id: `${number}` | 'add' }) {
     if (id === 'add') {
@@ -117,4 +115,3 @@ export default function UserAdminForm({ id }: { id: `${number}` | 'add' }) {
 
     return <div> Tvoje máma</div>;
 }
-
