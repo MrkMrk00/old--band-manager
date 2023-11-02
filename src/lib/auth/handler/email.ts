@@ -1,12 +1,13 @@
-import { type InsertResult, sql } from 'kysely';
-import type { NextRequest } from 'next/server';
 import env from '@/env.mjs';
+
 import { AppError, type AsyncAuthResponse, type AuthHandler } from '@/lib/auth/contracts';
 import { ArgonUtil } from '@/lib/auth/crypto';
 import { Repository } from '@/lib/entity-utils/Repository';
 import Logger from '@/lib/logger';
 import getRepositoryFor from '@/lib/repositories';
 import { type UserProxy, wrapUser } from '@/model/user';
+import { type InsertResult, sql } from 'kysely';
+import type { NextRequest } from 'next/server';
 
 export async function ensureAdminUser(): Promise<void> {
     if (env.NODE_ENV !== 'development') {

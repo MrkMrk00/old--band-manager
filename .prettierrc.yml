@@ -8,12 +8,3 @@ bracketSameLine: false
 arrowParens: avoid
 endOfLine: lf
 
-plugins:
-    - "@trivago/prettier-plugin-sort-imports"
-
-importOrder:
-    - "^@/[a-zA-Z.]*$"
-    - "^@/lib(.*)$"
-    - "^@/view(.*)$"
-    - "^@/(.*)$"
-importOrderSortSpecifiers: true

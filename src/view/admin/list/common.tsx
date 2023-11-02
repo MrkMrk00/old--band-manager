@@ -1,12 +1,13 @@
+import { Database } from '@/database';
+import env from '@/env.mjs';
+
+import getRepositoryFor from '@/lib/repositories';
+import { admin } from '@/lib/route-register';
+import { Link } from '@/view/layout';
 import { redirect } from 'next/navigation';
 import type { AnchorHTMLAttributes } from 'react';
 import { FaLeftLong, FaRightLong } from 'react-icons/fa6';
 import { twMerge } from 'tailwind-merge';
-import { Database } from '@/database';
-import env from '@/env.mjs';
-import getRepositoryFor from '@/lib/repositories';
-import { admin } from '@/lib/route-register';
-import { Link } from '@/view/layout';
 
 export type ListProps = {
     refetch: boolean;
@@ -43,7 +44,7 @@ export type PagerProps = {
 export function Pager(props: PagerProps) {
     const { maxPage, page, className, btnClassName, href, ...divProps } = props;
 
-    if (page === maxPage) {
+    if (maxPage === 1) {
         return <span data-pager="not-needed" />;
     }
 
@@ -65,7 +66,7 @@ export function Pager(props: PagerProps) {
         <div
             {...divProps}
             className={twMerge(
-                'flex flex-row rounded-xl items-center bg-white max-w-sm w-full',
+                'flex flex-row rounded-xl items-center max-w-sm w-full bg-white mt-6',
                 className,
             )}
         >
@@ -97,7 +98,7 @@ export function getListUtils<Key extends keyof Database>(
     refetch: boolean,
 ) {
     if (refetch) {
-        redirect(admin().list('users').addSearchParam('page', page.toString()).build());
+        redirect(admin().list(entity).addSearchParam('page', page.toString()).build());
     }
 
     const route = admin().list(entity);

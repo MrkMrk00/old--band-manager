@@ -1,12 +1,12 @@
 'use client';
 
 import WidescreenMenu from './WidescreenMenu';
+import { isMobile } from '@/view/client.helpers';
+import { useUser } from '@/view/context';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { type HTMLAttributes, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { isMobile } from '@/view/client.helpers';
-import { useUser } from '@/view/context';
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
     loading: () => <SharedNavbar />,

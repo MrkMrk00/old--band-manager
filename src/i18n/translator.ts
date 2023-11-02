@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
 import { TemplateString, ucfirst } from '@/lib/util';
+import { readFileSync } from 'node:fs';
 
 export type Language = 'cs';
 export type Section = 'entity' | 'errors' | 'songs' | 'nav';

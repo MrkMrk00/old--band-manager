@@ -1,6 +1,6 @@
-import { createContext, useContext } from 'react';
 import createProxyProvider from '@/lib/entity-utils/entity-proxy';
 import type { Role, UserObject } from '@/model/user';
+import { createContext, useContext } from 'react';
 
 const clientSideUserUtils = {
     hasRole(user: { roles: Role[] | null }, role: Role): boolean {

@@ -1,9 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { type FormEvent } from 'react';
-import toast from 'react-hot-toast';
-import { FaTrash } from 'react-icons/fa6';
 import { admin } from '@/lib/route-register';
 import trpc from '@/lib/trcp/client';
 import EntityFormSaveButton from '@/view/admin/components/EntityFormSaveButton';
@@ -12,6 +8,10 @@ import { type FormProps, FormRow, extractErrors } from '@/view/form/shared';
 import yoink from '@/view/form/yoink';
 import { Button, Input, LoadingSpinner } from '@/view/layout';
 import { ConfirmModal } from '@/view/layout-stateful';
+import { useRouter } from 'next/navigation';
+import { type FormEvent } from 'react';
+import toast from 'react-hot-toast';
+import { FaTrash } from 'react-icons/fa6';
 
 function useInstrumentGrouping(id: `${number}` | 'add') {
     const { one, upsert, delete: remove } = trpc.instruments.groupings;

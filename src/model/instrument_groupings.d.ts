@@ -1,5 +1,6 @@
-import type { Generated, Insertable, Selectable, Updateable } from 'kysely';
 import type { CustomData } from '@/database';
+
+import type { Generated, Insertable, Selectable, Updateable } from 'kysely';
 
 export type InstrumentGroupingDatabase = {
     id: Generated<number>;

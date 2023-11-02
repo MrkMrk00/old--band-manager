@@ -78,8 +78,21 @@ export class AdminRouteBuilder {
         return this;
     }
 
+    pushError(value: string): this {
+        this.addSearchParam('err_str', value);
+
+        return this;
+    }
+
     build(): string {
-        let url = `/admin/${this.#entity?.replace('_', '-') + '/' ?? ''}`;
+        let subRoute = this.#entity?.replace('_', '-');
+        if (subRoute) {
+            subRoute += '/';
+        } else {
+            subRoute = '';
+        }
+
+        let url = `/admin/${subRoute}`;
         switch (this.#action) {
             case 'list':
                 this.#searchParams.set('show', 'list');
@@ -105,7 +118,9 @@ export class AdminRouteBuilder {
                 break;
         }
 
-        return `${url}?${this.#searchParams.toString()}`;
+        const search = this.#searchParams.size > 0 ? `?${this.#searchParams.toString()}` : '';
+
+        return `${url}${search}`;
     }
 }
 

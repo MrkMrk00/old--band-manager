@@ -1,8 +1,8 @@
+import { admin } from '@/lib/route-register';
+import { Link as LayoutLink } from '@/view/layout';
 import type { ComponentProps } from 'react';
 import { FaList } from 'react-icons/fa6';
 import { twMerge } from 'tailwind-merge';
-import { admin } from '@/lib/route-register';
-import { Link as LayoutLink } from '@/view/layout';
 
 function Link({ className, ...props }: ComponentProps<typeof LayoutLink>) {
     return (

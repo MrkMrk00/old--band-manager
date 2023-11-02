@@ -1,11 +1,12 @@
 'use client';
 
+import env from '@/env.mjs';
+
+import trpc from '@/lib/trcp/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import dynamic from 'next/dynamic';
 import { type ReactNode, useState } from 'react';
-import env from '@/env.mjs';
-import trpc from '@/lib/trcp/client';
 
 const ReactQueryDevtools = dynamic(() =>
     import('@tanstack/react-query-devtools').then(i => i.ReactQueryDevtools),

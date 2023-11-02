@@ -1,7 +1,7 @@
 'use client';
 
-import { FaHouse, FaRepeat } from 'react-icons/fa6';
 import { Button, Link } from '@/view/layout';
+import { FaHouse, FaRepeat } from 'react-icons/fa6';
 
 type HandlerProps = {
     reset: () => void;

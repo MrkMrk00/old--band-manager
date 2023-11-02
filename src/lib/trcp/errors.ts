@@ -1,7 +1,8 @@
-import { TRPCError } from '@trpc/server';
 import type { Database } from '@/database';
-import { ucfirst } from '@/lib/util';
+
 import t, { Language } from '@/i18n/translator';
+import { ucfirst } from '@/lib/util';
+import { TRPCError } from '@trpc/server';
 
 export function createNotFound<K extends keyof Database>(
     entity?: K | (K extends `${infer LHS}s` ? LHS : never),

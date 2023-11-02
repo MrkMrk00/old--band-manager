@@ -14,4 +14,3 @@ export const ArgonUtil = {
         return argon.verify(hash, password, argonOptions);
     },
 } as const;
-

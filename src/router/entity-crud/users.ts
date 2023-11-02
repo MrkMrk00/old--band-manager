@@ -1,6 +1,3 @@
-import { TRPCError } from '@trpc/server';
-import { RawBuilder } from 'kysely';
-import { z } from 'zod';
 import { ArgonUtil } from '@/lib/auth/crypto';
 import { UsersValidator } from '@/lib/entity-utils/validators';
 import { Pageable, Pager } from '@/lib/pager';
@@ -9,6 +6,9 @@ import { createServerError } from '@/lib/trcp/errors';
 import { AdminAuthorized, Authenticated, Authorized, Router } from '@/lib/trcp/server';
 import Users from '@/model/user';
 import type { Role } from '@/model/user';
+import { TRPCError } from '@trpc/server';
+import { RawBuilder } from 'kysely';
+import { z } from 'zod';
 
 const fetchAll = AdminAuthorized.input(Pager.input).query(async function ({ input }) {
     const users = getRepositoryFor('users');

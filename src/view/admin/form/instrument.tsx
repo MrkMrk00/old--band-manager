@@ -1,12 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { type FormEvent, useEffect, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
-import { FaPlus, FaTrash, FaX } from 'react-icons/fa6';
-import { twMerge } from 'tailwind-merge';
 import { admin } from '@/lib/route-register';
 import trpc from '@/lib/trcp/client';
+import { InstrumentGrouping } from '@/model/instrument_groupings';
 import EntityFormSaveButton from '@/view/admin/components/EntityFormSaveButton';
 import {
     InstrumentGroupingPicker,
@@ -17,7 +13,11 @@ import { type FormProps, FormRow, extractErrors } from '@/view/form/shared';
 import yoink from '@/view/form/yoink';
 import { Button, Input, LoadingSpinner } from '@/view/layout';
 import { ConfirmModal } from '@/view/layout-stateful';
-import { InstrumentGrouping } from '@/model/instrument_groupings';
+import { useRouter } from 'next/navigation';
+import { type FormEvent, useEffect, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
+import { FaPlus, FaTrash, FaX } from 'react-icons/fa6';
+import { twMerge } from 'tailwind-merge';
 
 function useInstrument(id: `${number}` | 'add') {
     const router = useRouter();
@@ -27,9 +27,10 @@ function useInstrument(id: `${number}` | 'add') {
     const upsertMut = trpc.instruments.upsert.useMutation({
         onSuccess: id => {
             utils.instruments.fetchAll.invalidate();
+            const redirect = admin().show('instruments', id).build();
 
             if (!fetchQuery) {
-                router.push(admin().show('instruments', id).build());
+                router.push(redirect);
             }
         },
     });
@@ -37,7 +38,9 @@ function useInstrument(id: `${number}` | 'add') {
     const deleteMut = trpc.instruments.delete.useMutation({
         onSuccess: () => {
             utils.instruments.fetchAll.invalidate();
-            router.push(admin().list('instruments').build());
+            const redirect = admin().list('instruments').build();
+
+            router.push(redirect);
         },
     });
 

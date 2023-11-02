@@ -1,10 +1,10 @@
 'use client';
 
-import type { MouseEvent, TableHTMLAttributes } from 'react';
-import { twMerge } from 'tailwind-merge';
 import { parseRoundedClassName, withSecondModifier } from '@/view/client.helpers';
 import Pager from '@/view/list/pager';
 import type { HeaderMapping, ObjectType } from '@/view/list/types';
+import type { MouseEvent, TableHTMLAttributes } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 /** @deprecated */
 export type OnRowClickCallback<T extends ObjectType> = (ev: {

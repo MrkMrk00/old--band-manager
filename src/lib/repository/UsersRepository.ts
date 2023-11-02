@@ -1,7 +1,8 @@
-import { Kysely, UpdateResult } from 'kysely';
 import { Database } from '@/database';
+
 import { ArgonUtil } from '@/lib/auth/crypto';
 import { Repository } from '@/lib/entity-utils/Repository';
+import { Kysely, UpdateResult } from 'kysely';
 
 export default class UsersRepository extends Repository<'users'> {
     constructor(db: Kysely<Database>) {

@@ -1,14 +1,15 @@
-import dynamic from 'next/dynamic';
-import { redirect } from 'next/navigation';
-import { FaArrowLeftLong } from 'react-icons/fa6';
-import { Database } from '@/database';
+import 'server-only';
+
+import type { Database } from '@/database';
 import { admin } from '@/lib/route-register';
 import UserForm from '@/view/admin/form/user/data-component';
 import { Link } from '@/view/layout';
+import { redirect } from 'next/navigation';
+import { FaArrowLeftLong } from 'react-icons/fa6';
 
-const InstrumentForm = dynamic(() => import('@/view/admin/form/instrument'));
-const GroupingForm = dynamic(() => import('@/view/admin/form/instrument_grouping'));
-const SongForm = dynamic(() => import('@/view/admin/form/song'));
+import InstrumentForm from '@/view/admin/form/instrument';
+import GroupingForm from '@/view/admin/form/instrument_grouping';
+import SongForm from '@/view/admin/form/song';
 
 type PageProps = {
     searchParams: {
@@ -27,6 +28,7 @@ export default async function FormView({ searchParams, params: { entity, id } }:
         searchParams.back_ref ??
         admin()
             .list(entity as keyof Database)
+            .addSearchParam('refetch', '1')
             .build();
 
     if ((id === '' || isNaN(+id)) && id !== 'add') {

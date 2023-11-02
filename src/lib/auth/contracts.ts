@@ -1,10 +1,10 @@
+import translate, { Language } from '@/i18n/translator';
+import type { PersistentUser } from '@/model/user';
 import type {
     CookieListItem,
     ResponseCookie as NextResponseCookie,
 } from 'next/dist/compiled/@edge-runtime/cookies';
 import type { NextRequest, NextResponse } from 'next/server';
-import translate, { Language } from '@/i18n/translator';
-import type { PersistentUser } from '@/model/user';
 
 export type SessionKey = string;
 export type SessionValue = string | number | SessionValue[] | { [key: SessionKey]: SessionValue };

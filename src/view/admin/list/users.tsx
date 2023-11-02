@@ -1,8 +1,8 @@
 import { ListProps, Pager, getListUtils } from './common';
-import dayjs from 'dayjs';
-import Link from 'next/link';
 import { admin } from '@/lib/route-register';
 import { List } from '@/view/list';
+import dayjs from 'dayjs';
+import Link from 'next/link';
 
 export default async function UsersList({ page, refetch }: ListProps) {
     const utils = getListUtils('users', page, refetch);

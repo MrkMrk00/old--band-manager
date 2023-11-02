@@ -1,7 +1,7 @@
+import { Button, LoadingSpinner } from '@/view/layout';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { Button, LoadingSpinner } from '@/view/layout';
 
 export default function EntityFormSaveButton(
     props: ButtonHTMLAttributes<HTMLButtonElement> & { isSaving: boolean },

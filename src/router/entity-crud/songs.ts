@@ -1,9 +1,9 @@
-import { z } from 'zod';
 import { Pageable, Pager } from '@/lib/pager';
 import getRepositoryFor from '@/lib/repositories';
 import { createNotFound, createServerError, createUnauthorized } from '@/lib/trcp/errors';
 import { AdminAuthorized, Authenticated, Router } from '@/lib/trcp/server';
 import Users, { wrapUser } from '@/model/user';
+import { z } from 'zod';
 
 const fetchAll = Authenticated.input(Pager.input).query(async function ({ input }) {
     const songs = getRepositoryFor('songs');

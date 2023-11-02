@@ -1,9 +1,9 @@
-import { z } from 'zod';
 import { Pageable, Pager } from '@/lib/pager';
 import getRepositoryFor from '@/lib/repositories';
 import { countAll } from '@/lib/specs';
 import { createNotFound, createServerError } from '@/lib/trcp/errors';
 import { AdminAuthorized, Authenticated, Router } from '@/lib/trcp/server';
+import { z } from 'zod';
 
 const fetchAll = Authenticated.input(
     z.object({ ids: z.array(z.number()).optional() }).merge(Pager.input),

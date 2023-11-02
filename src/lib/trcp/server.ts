@@ -1,8 +1,8 @@
-import { TRPCError, initTRPC } from '@trpc/server';
 import getRepositoryFor from '@/lib/repositories';
 import type { TrpcContext } from '@/lib/trcp/context';
 import { createUnauthorized } from '@/lib/trcp/errors';
 import type { Role } from '@/model/user';
+import { TRPCError, initTRPC } from '@trpc/server';
 
 const t = initTRPC.context<TrpcContext>().create();
 

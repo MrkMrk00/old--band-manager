@@ -1,6 +1,7 @@
+import type { CustomData } from '@/database';
+
 import type { Generated } from 'kysely';
 import type { Insertable, Selectable, Updateable } from 'kysely';
-import type { CustomData } from '@/database';
 
 export type SongDatabase = {
     id: Generated<number>;

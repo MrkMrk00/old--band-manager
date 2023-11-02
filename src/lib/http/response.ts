@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
 import type { ResponseCookie } from '@/lib/auth/contracts';
 import { COOKIE_SETTINGS } from '@/lib/auth/session';
+import { NextResponse } from 'next/server';
 
 const DeleteCookie = Symbol('deleteCookie');
 

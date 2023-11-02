@@ -1,5 +1,6 @@
-import type { SelectType } from 'kysely';
 import type { Database } from '@/database';
+
+import type { SelectType } from 'kysely';
 
 declare global {
     type AssertDefined<T> = T extends undefined | null ? never : T;

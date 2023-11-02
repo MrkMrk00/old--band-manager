@@ -1,8 +1,8 @@
-import type { Generated, RawBuilder, SelectType, Selectable } from 'kysely';
-import { sql } from 'kysely';
 import { ArgonUtil } from '@/lib/auth/crypto';
 import createProxyProvider from '@/lib/entity-utils/entity-proxy';
 import getRepositoryFor from '@/lib/repositories';
+import type { Generated, RawBuilder, SelectType, Selectable } from 'kysely';
+import { sql } from 'kysely';
 
 export type SystemRole = 'SUPER_ADMIN' | 'ADMIN' | 'USER';
 export type Role = SystemRole;

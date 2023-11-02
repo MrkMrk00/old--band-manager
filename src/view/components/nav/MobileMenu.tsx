@@ -1,9 +1,9 @@
+import { UserObject } from '@/model/user';
+import { OverlayText } from '@/view/layout';
 import { Menu, Transition } from '@headlessui/react';
 import Link from 'next/link';
 import React, { FC, Fragment, ReactNode } from 'react';
 import { FaArrowRight, FaBars, FaCircleUser, FaX } from 'react-icons/fa6';
-import { OverlayText } from '@/view/layout';
-import { UserObject } from '@/model/user';
 
 function MenuItems({
     alwaysShowBottomNav,

@@ -1,5 +1,5 @@
-import { FaHouse } from 'react-icons/fa6';
 import { Link } from '@/view/layout';
+import { FaHouse } from 'react-icons/fa6';
 
 export default function NotFound() {
     return (

@@ -1,5 +1,6 @@
 'use client';
 
+import { wrapRippleOnClick } from '@/view/layout-stateful';
 import NextLink from 'next/link';
 import type {
     AnchorHTMLAttributes,
@@ -10,7 +11,6 @@ import type {
 } from 'react';
 import { ButtonHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { wrapRippleOnClick } from '@/view/layout-stateful';
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
     const { className, ...other } = props;

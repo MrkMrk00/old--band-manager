@@ -1,8 +1,9 @@
-import type { InsertQueryBuilder, InsertResult, Kysely } from 'kysely';
-import { ExtractTableAlias } from 'kysely/dist/cjs/parser/table-parser';
 import type { Database } from '@/database';
+
 import { Pager } from '@/lib/pager';
 import { countAll } from '@/lib/specs';
+import type { InsertQueryBuilder, InsertResult, Kysely } from 'kysely';
+import { ExtractTableAlias } from 'kysely/dist/cjs/parser/table-parser';
 
 export class Repository<T extends keyof Database> {
     readonly tableName: T;

@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import trpc from '@/lib/trcp/client';
+import { InstrumentGrouping } from '@/model/instrument_groupings';
 import { Button } from '@/view/layout';
 import { Modal } from '@/view/layout-stateful';
-import { InstrumentGrouping } from '@/model/instrument_groupings';
+import { useState } from 'react';
 
 export type PickerProps = {
     isOpen: boolean;

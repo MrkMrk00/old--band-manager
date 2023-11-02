@@ -1,10 +1,10 @@
 'use client';
 
+import { Button } from '@/view/layout';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, MouseEventHandler, ReactNode } from 'react';
 import type { MouseEvent } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { Button } from '@/view/layout';
 
 export function createRipple(event: MouseEvent<HTMLElement>) {
     const button = event.currentTarget;

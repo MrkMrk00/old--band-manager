@@ -1,5 +1,5 @@
-import { sql } from 'kysely';
 import env from '@/env.mjs';
+
 import {
     AppError,
     AsyncAuthResponse,
@@ -8,6 +8,7 @@ import {
 } from '@/lib/auth/contracts';
 import fetcher from '@/lib/fetcher';
 import { UsersRepository } from '@/lib/repositories';
+import { sql } from 'kysely';
 
 const urls = {
     getAccessToken: (clientId: string, clientSecret: string, accessCode: string, url: string) =>

@@ -1,9 +1,9 @@
 import ContextWrapper from './context-wrapper';
+import { getSession } from '@/lib/auth/session';
+import { wrapUser } from '@/model/user';
+import Navigation from '@/view/components/nav/DashboardNavigation';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { getSession } from '@/lib/auth/session';
-import Navigation from '@/view/components/nav/DashboardNavigation';
-import { wrapUser } from '@/model/user';
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
     const session = await getSession();

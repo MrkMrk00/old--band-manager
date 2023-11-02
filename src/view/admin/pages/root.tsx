@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
-import { FaPlus } from 'react-icons/fa6';
 import { admin } from '@/lib/route-register';
 import { Link } from '@/view/layout';
+import type { Metadata } from 'next';
+import { FaPlus } from 'react-icons/fa6';
 
 export const metadata: Metadata = {
     title: 'Nastavení aplikace',

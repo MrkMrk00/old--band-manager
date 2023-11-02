@@ -1,11 +1,12 @@
-import type { InsertResult, Kysely, Updateable } from 'kysely';
-import { UpdateResult, sql } from 'kysely';
 import { Database } from '@/database';
+
+import t, { TranslateOpt } from '@/i18n/translator';
 import { Repository } from '@/lib/entity-utils/Repository';
 import { InstrumentsValidator } from '@/lib/entity-utils/validators';
 import Logger from '@/lib/logger';
-import t, { TranslateOpt } from '@/i18n/translator';
 import type { InstrumentDatabase } from '@/model/instruments';
+import type { InsertResult, Kysely, Updateable } from 'kysely';
+import { UpdateResult, sql } from 'kysely';
 
 function tEntity(key: string, ...opts: (TranslateOpt | undefined)[]) {
     return t('cs', 'entity', key, 'ucfirst', ...opts);

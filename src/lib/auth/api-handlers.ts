@@ -1,9 +1,9 @@
-import type { NextRequest, NextResponse } from 'next/server';
 import DatabaseAuthHandler, { ensureAdminUser } from '@/lib/auth/handler/email';
 import { FacebookAuth, handleRegisterFacebookUser } from '@/lib/auth/handler/facebook';
-import { JWTSession, SessionWriter, getSession } from '@/lib/auth/session';
+import { JWTSession, getSession } from '@/lib/auth/session';
 import response from '@/lib/http/response';
 import getRepositoryFor from '@/lib/repositories';
+import type { NextRequest, NextResponse } from 'next/server';
 
 type RouteHandler = (req: NextRequest) => Promise<NextResponse>;
 const routes = new Map<string, RouteHandler>();

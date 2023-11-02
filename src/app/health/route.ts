@@ -1,8 +1,9 @@
-import { sql } from 'kysely';
-import type { NextResponse } from 'next/server';
 import env from '@/env.mjs';
+
 import response from '@/lib/http/response';
 import { query } from '@/lib/repositories';
+import { sql } from 'kysely';
+import type { NextResponse } from 'next/server';
 
 export type HealthCheckResult<Info = {}> = {
     status: 'healthy' | 'degraded' | 'unhealthy';

@@ -1,6 +1,6 @@
+import { SessionReader } from '@/lib/auth/session';
 import type { inferAsyncReturnType } from '@trpc/server';
 import type { FetchCreateContextFnOptions } from '@trpc/server/src/adapters/fetch/types';
-import { SessionReader } from '@/lib/auth/session';
 
 export async function createContext({ req }: FetchCreateContextFnOptions) {
     const reader = await SessionReader.fromRequest(req);
